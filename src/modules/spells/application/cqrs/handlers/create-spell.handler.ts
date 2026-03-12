@@ -21,7 +21,7 @@ export class CreateSpellHandler implements ICommandHandler<CreateSpellCommand, S
     this.spellGuard.checkCreate(command.roles);
     const spell = Spell.create({
       name: command.name,
-      shortDescription: command.shortDescription,
+      spellList: command.spellList,
       description: command.description,
       imageUrl: command.imageUrl,
       owner: command.userId,

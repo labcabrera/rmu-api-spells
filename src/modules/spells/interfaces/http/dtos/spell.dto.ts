@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { PaginationDto } from 'src/modules/shared/interfaces/http/dto/page.dto';
-import { SpellList } from 'src/modules/spell-lists/domain/aggregates/spell-list';
+import { Spell } from 'src/modules/spells/domain/aggregates/spell';
+import { NamedEntityDto } from 'src/modules/shared/interfaces/http/dto/named-entity.dto';
 
 export class SpellDto {
   @ApiProperty({ description: 'Unique identifier for the spell', example: 'fireball' })
@@ -9,8 +10,8 @@ export class SpellDto {
   @ApiProperty({ description: 'Name of the spell', example: 'Fireball' })
   name: string;
 
-  @ApiProperty({ description: 'Short description of the spell', required: false, example: 'A powerful fire spell' })
-  shortDescription?: string;
+  @ApiProperty({ description: 'Spell list reference', required: false, type: NamedEntityDto })
+  spellList?: NamedEntityDto;
 
   @ApiProperty({
     description: 'Description of the spell',
@@ -26,11 +27,11 @@ export class SpellDto {
   })
   imageUrl?: string;
 
-  static fromEntity(entity: SpellList): SpellDto {
+  static fromEntity(entity: Spell): SpellDto {
     const dto = new SpellDto();
     dto.id = entity.id;
     dto.name = entity.name;
-    dto.shortDescription = entity.shortDescription;
+    dto.spellList = entity.spellList ? NamedEntityDto.fromEntity(entity.spellList) : undefined;
     dto.description = entity.description;
     dto.imageUrl = entity.imageUrl;
     return dto;

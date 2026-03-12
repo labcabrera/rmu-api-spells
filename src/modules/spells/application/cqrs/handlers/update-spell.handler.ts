@@ -20,7 +20,7 @@ export class UpdateSpellHandler implements ICommandHandler<UpdateSpellCommand, S
     }
     spell.update({
       name: command.name,
-      shortDescription: command.shortDescription,
+      spellList: command.spellList,
       description: command.description,
       imageUrl: command.imageUrl,
     });

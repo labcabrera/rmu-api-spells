@@ -4,12 +4,13 @@ import { SpellUpdatedEvent } from '../events/spell-updated.event';
 import { randomUUID } from 'crypto';
 import { DomainEvent } from 'src/modules/shared/domain/events/domain-event';
 import { SpellProps } from './spell.props';
+import { NamedEntity } from 'src/modules/shared/domain/entities/named-entity';
 
 export class Spell extends AggregateRoot<DomainEvent<SpellProps>> {
   private constructor(
     public id: string,
     public name: string,
-    public shortDescription: string | undefined,
+    public spellList: NamedEntity | undefined,
     public description: string | undefined,
     public imageUrl: string | undefined,
     public owner: string,
@@ -22,7 +23,7 @@ export class Spell extends AggregateRoot<DomainEvent<SpellProps>> {
     const spell = new Spell(
       randomUUID(),
       props.name,
-      props.shortDescription,
+      props.spellList,
       props.description,
       props.imageUrl,
       props.owner,
@@ -37,7 +38,7 @@ export class Spell extends AggregateRoot<DomainEvent<SpellProps>> {
     return new Spell(
       props.id,
       props.name,
-      props.shortDescription,
+      props.spellList,
       props.description,
       props.imageUrl,
       props.owner,
@@ -50,7 +51,7 @@ export class Spell extends AggregateRoot<DomainEvent<SpellProps>> {
     return {
       id: this.id,
       name: this.name,
-      shortDescription: this.shortDescription,
+      spellList: this.spellList,
       description: this.description,
       imageUrl: this.imageUrl,
       owner: this.owner,
@@ -61,7 +62,7 @@ export class Spell extends AggregateRoot<DomainEvent<SpellProps>> {
 
   update(props: Partial<Omit<SpellProps, 'id' | 'owner' | 'createdAt' | 'updatedAt'>>) {
     if (props.name) this.name = props.name;
-    if (props.shortDescription) this.shortDescription = props.shortDescription;
+    if (props.spellList) this.spellList = props.spellList;
     if (props.description) this.description = props.description;
     if (props.imageUrl !== undefined) this.imageUrl = props.imageUrl;
     this.updatedAt = new Date();

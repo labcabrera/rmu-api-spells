@@ -7,6 +7,7 @@ import { Page } from 'src/modules/shared/domain/entities/page';
 import { NotFoundError } from 'src/modules/shared/domain/errors/errors';
 import { SpellRepository } from '../../application/ports/spell-list-repository';
 import { Spell } from '../../domain/aggregates/spell';
+import { NamedEntity } from 'src/modules/shared/domain/entities/named-entity';
 
 @Injectable()
 export class MongoSpellRepository implements SpellRepository {
@@ -59,7 +60,7 @@ export class MongoSpellRepository implements SpellRepository {
     return Spell.fromProps({
       id: doc.id,
       name: doc.name,
-      shortDescription: doc.shortDescription,
+      spellList: doc.spellList ? new NamedEntity(doc.spellList.id, doc.spellList.name) : undefined,
       description: doc.description,
       imageUrl: doc.imageUrl,
       owner: doc.owner,

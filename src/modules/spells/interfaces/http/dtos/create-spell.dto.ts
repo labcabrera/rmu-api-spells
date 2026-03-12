@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 import { CreateSpellCommand } from 'src/modules/spells/application/cqrs/commands/create-spell.command';
+import { NamedEntityDto } from 'src/modules/shared/interfaces/http/dto/named-entity.dto';
 
 export class CreateSpellDto {
   @ApiProperty({ description: 'Name of the spell', example: 'Some name' })
@@ -9,9 +10,8 @@ export class CreateSpellDto {
   name: string;
 
   @ApiProperty({ description: 'Short description of the spell', required: false, example: 'A brief overview of the spell' })
-  @IsString()
   @IsOptional()
-  shortDescription: string | undefined;
+  spellList: NamedEntityDto | undefined;
 
   @ApiProperty({
     description: 'Description of the spell',
@@ -32,6 +32,6 @@ export class CreateSpellDto {
   imageUrl: string | undefined;
 
   static toCommand(dto: CreateSpellDto, userId: string, userRoles: string[]) {
-    return new CreateSpellCommand(dto.name, dto.shortDescription, dto.description, dto.imageUrl, userId, userRoles);
+    return new CreateSpellCommand(dto.name, NamedEntityDto.toEntity(dto.spellList), dto.description, dto.imageUrl, userId, userRoles);
   }
 }

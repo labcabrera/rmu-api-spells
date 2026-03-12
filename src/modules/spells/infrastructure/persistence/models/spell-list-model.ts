@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Spell } from 'src/modules/spells/domain/aggregates/spell';
+import { NamedEntity as NamedEntityModel } from 'src/modules/shared/infrastructure/persistence/models/named-entity.model';
 
 export type SpellDocument = Spell & Document;
 
@@ -11,8 +12,8 @@ export class SpellModel {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ required: false })
-  shortDescription?: string;
+  @Prop({ type: NamedEntityModel, required: false })
+  spellList?: NamedEntityModel;
 
   @Prop({ required: false })
   description?: string;
