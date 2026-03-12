@@ -15,8 +15,8 @@ export class SpellModel {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ required: true })
-  level: string;
+  @Prop({ type: Number, required: true })
+  level: number;
 
   @Prop({ required: false })
   description?: string;
