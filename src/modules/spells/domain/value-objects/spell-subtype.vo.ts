@@ -1,1 +1,1 @@
-export type SpellSubType = 'ball' | 'directed' | 'mental-attack' | 'subconscious';
+export type SpellSubtype = 'ball' | 'directed' | 'mental-attack' | 'subconscious';

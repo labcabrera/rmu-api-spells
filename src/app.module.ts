@@ -5,6 +5,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { SpellListsModule } from './modules/spell-lists/spell-lists.module';
 import Joi from 'joi';
 import { SharedModule } from './modules/shared/shared.module';
+import { SpellsModule } from './modules/spells/spells.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { SharedModule } from './modules/shared/shared.module';
     AuthModule,
     SharedModule,
     SpellListsModule,
+    SpellsModule,
   ],
 })
 export class AppModule {}

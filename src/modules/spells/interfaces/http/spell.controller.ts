@@ -20,17 +20,17 @@ import { Spell } from '../../domain/aggregates/spell';
 @UseGuards(JwtAuthGuard)
 @Controller('v1/spells')
 @ApiTags('Spells')
-export class SpellListController {
+export class SpellController {
   constructor(
     private commandBus: CommandBus,
     private queryBus: QueryBus,
   ) {}
 
   @Get(':id')
-  @ApiOperation({ operationId: 'findSpellListById', summary: 'Find spell list by id' })
+  @ApiOperation({ operationId: 'findSpellById', summary: 'Find spell by id' })
   @ApiOkResponse({ type: SpellDto, description: 'Success' })
   @ApiUnauthorizedResponse({ description: 'Invalid or missing authentication token', type: ErrorDto })
-  @ApiNotFoundResponse({ description: 'Spell list not found', type: ErrorDto })
+  @ApiNotFoundResponse({ description: 'Spell not found', type: ErrorDto })
   async findById(@Param('id') id: string, @Request() req) {
     const userId = req.user!.id as string;
     const roles = req.user!.roles as string[];
@@ -40,7 +40,7 @@ export class SpellListController {
   }
 
   @Get('')
-  @ApiOperation({ operationId: 'findSpellLists', summary: 'Find spell lists by RSQL' })
+  @ApiOperation({ operationId: 'findSpells', summary: 'Find spells by RSQL' })
   @ApiOkResponse({ type: SpellPageDto, description: 'Success' })
   @ApiUnauthorizedResponse({ description: 'Invalid or missing authentication token', type: ErrorDto })
   @ApiResponse({ status: 400, description: 'Invalid RSQL query', type: ErrorDto })

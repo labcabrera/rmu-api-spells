@@ -8,7 +8,7 @@ import { KafkaSpellListProducerService } from './infrastructure/messaging/kafka.
 import { CreateSpellHandler } from './application/cqrs/handlers/create-spell.handler';
 import { SharedModule } from '../shared/shared.module';
 import { SpellGuardAdapter } from './infrastructure/security/spell.guard.adapter';
-import { SpellListController } from './interfaces/http/spell-list.controller';
+import { SpellController } from './interfaces/http/spell.controller';
 import { GetSpellsHandler } from './application/cqrs/handlers/get-spells.handler';
 import { SpellModel, SpellSchema } from './infrastructure/persistence/models/spell.model';
 import { GetSpellHandler } from './application/cqrs/handlers/get-spell.handler';
@@ -23,7 +23,7 @@ import { DeleteSpellHandler } from './application/cqrs/handlers/delete-spell.han
     AuthModule,
     SharedModule,
   ],
-  controllers: [SpellListController],
+  controllers: [SpellController],
   providers: [
     GetSpellHandler,
     GetSpellsHandler,

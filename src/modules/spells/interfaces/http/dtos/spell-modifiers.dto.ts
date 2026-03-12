@@ -3,16 +3,16 @@ import { IsOptional, IsNumber, IsBoolean } from 'class-validator';
 import { SpellModifiers } from 'src/modules/spells/domain/value-objects/spell-modifiers.vo';
 import { SpellDurationDto } from './spell-duration.dto';
 import { SpellType } from 'src/modules/spells/domain/value-objects/spell-type.vo';
-import { SpellSubType } from 'src/modules/spells/domain/value-objects/spell-subtype.vo';
+import { SpellSubtype as SpellSubtype } from 'src/modules/spells/domain/value-objects/spell-subtype.vo';
 
 export class SpellModifiersDto {
-  @ApiProperty({ required: false })
+  @ApiProperty({ required: false, example: 'elemental' })
   @IsOptional()
   type: SpellType | undefined;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ required: false, example: 'ball' })
   @IsOptional()
-  subType: SpellSubType | undefined;
+  subtype: SpellSubtype | undefined;
 
   @ApiProperty({ required: false, type: SpellDurationDto })
   @IsOptional()
@@ -45,7 +45,7 @@ export class SpellModifiersDto {
   static fromEntity(entity: SpellModifiers): SpellModifiersDto {
     const dto = new SpellModifiersDto();
     dto.type = entity.type;
-    dto.subType = entity.subType;
+    dto.subtype = entity.subType;
     dto.duration = entity.duration;
     dto.area = entity.area;
     dto.rrModifier = entity.rrModifier;
@@ -58,7 +58,7 @@ export class SpellModifiersDto {
   static toEntity(dto: SpellModifiersDto): SpellModifiers {
     return new SpellModifiers(
       dto.type,
-      dto.subType,
+      dto.subtype,
       dto.duration ? SpellDurationDto.toEntity(dto.duration) : undefined,
       dto.area,
       dto.rrModifier,
