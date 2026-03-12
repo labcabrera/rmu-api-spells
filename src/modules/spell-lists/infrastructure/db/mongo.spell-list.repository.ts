@@ -9,36 +9,36 @@ import { SpellListRepository } from '../../application/ports/spell-list-reposito
 import { SpellList } from '../../domain/aggregates/spell-list';
 
 @Injectable()
-export class MongoRealmRepository implements SpellListRepository {
+export class MongoSpellListRepository implements SpellListRepository {
   constructor(
-    @InjectModel(SpellListModel.name) private realmModel: Model<SpellListDocument>,
+    @InjectModel(SpellListModel.name) private spellListModel: Model<SpellListDocument>,
     private rsqlParser: RsqlParser,
   ) {}
 
   async findById(id: string): Promise<SpellList | null> {
-    const readed = await this.realmModel.findById(id);
+    const readed = await this.spellListModel.findById(id);
     return readed ? this.mapToEntity(readed) : null;
   }
 
   async findByRsql(rsql: string, page: number, size: number): Promise<Page<SpellList>> {
     const skip = page * size;
     const mongoQuery = this.rsqlParser.parse(rsql);
-    const [realmsDocs, totalElements] = await Promise.all([
-      this.realmModel.find(mongoQuery).skip(skip).limit(size).sort({ name: 1 }),
-      this.realmModel.countDocuments(mongoQuery),
+    const [spellListsDocs, totalElements] = await Promise.all([
+      this.spellListModel.find(mongoQuery).skip(skip).limit(size).sort({ name: 1 }),
+      this.spellListModel.countDocuments(mongoQuery),
     ]);
-    const content = realmsDocs.map((doc) => this.mapToEntity(doc));
+    const content = spellListsDocs.map((doc) => this.mapToEntity(doc));
     return new Page<SpellList>(content, page, size, totalElements);
   }
 
   async save(spellList: Partial<SpellList>): Promise<SpellList> {
-    const model = new this.realmModel({ ...spellList, _id: spellList.id });
+    const model = new this.spellListModel({ ...spellList, _id: spellList.id });
     await model.save();
     return this.mapToEntity(model);
   }
 
   async update(id: string, request: Partial<SpellList>): Promise<SpellList> {
-    const updatedSpellList = await this.realmModel.findByIdAndUpdate(id, { $set: request }, { new: true });
+    const updatedSpellList = await this.spellListModel.findByIdAndUpdate(id, { $set: request }, { new: true });
     if (!updatedSpellList) {
       throw new NotFoundError('SpellList', id);
     }
@@ -46,12 +46,12 @@ export class MongoRealmRepository implements SpellListRepository {
   }
 
   async deleteById(id: string): Promise<SpellList | null> {
-    const result = await this.realmModel.findByIdAndDelete(id);
+    const result = await this.spellListModel.findByIdAndDelete(id);
     return result ? this.mapToEntity(result) : null;
   }
 
   async existsById(id: string): Promise<boolean> {
-    const exists = await this.realmModel.exists({ _id: id });
+    const exists = await this.spellListModel.exists({ _id: id });
     return exists !== null;
   }
 

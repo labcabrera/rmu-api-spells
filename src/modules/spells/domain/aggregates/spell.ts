@@ -1,11 +1,11 @@
 import { AggregateRoot } from '@nestjs/cqrs';
-import { SpellListCreatedEvent } from '../events/spell-list-created.event';
-import { SpellListUpdatedEvent } from '../events/spell-list-updated.event';
+import { SpellCreatedEvent } from '../events/spell-created.event';
+import { SpellUpdatedEvent } from '../events/spell-updated.event';
 import { randomUUID } from 'crypto';
 import { DomainEvent } from 'src/modules/shared/domain/events/domain-event';
-import { SpellListProps } from './spell-list.props';
+import { SpellProps } from './spell.props';
 
-export class SpellList extends AggregateRoot<DomainEvent<SpellListProps>> {
+export class Spell extends AggregateRoot<DomainEvent<SpellProps>> {
   private constructor(
     public id: string,
     public name: string,
@@ -18,8 +18,8 @@ export class SpellList extends AggregateRoot<DomainEvent<SpellListProps>> {
   ) {
     super();
   }
-  static create(props: Omit<SpellListProps, 'id' | 'createdAt' | 'updatedAt'>) {
-    const spellList = new SpellList(
+  static create(props: Omit<SpellProps, 'id' | 'createdAt' | 'updatedAt'>) {
+    const spell = new Spell(
       randomUUID(),
       props.name,
       props.shortDescription,
@@ -29,12 +29,12 @@ export class SpellList extends AggregateRoot<DomainEvent<SpellListProps>> {
       new Date(),
       undefined,
     );
-    spellList.apply(new SpellListCreatedEvent(spellList.getProps()));
-    return spellList;
+    spell.apply(new SpellCreatedEvent(spell.getProps()));
+    return spell;
   }
 
-  static fromProps(props: SpellListProps) {
-    return new SpellList(
+  static fromProps(props: SpellProps) {
+    return new Spell(
       props.id,
       props.name,
       props.shortDescription,
@@ -46,7 +46,7 @@ export class SpellList extends AggregateRoot<DomainEvent<SpellListProps>> {
     );
   }
 
-  getProps(): SpellListProps {
+  getProps(): SpellProps {
     return {
       id: this.id,
       name: this.name,
@@ -59,12 +59,12 @@ export class SpellList extends AggregateRoot<DomainEvent<SpellListProps>> {
     };
   }
 
-  update(props: Partial<Omit<SpellListProps, 'id' | 'owner' | 'createdAt' | 'updatedAt'>>) {
+  update(props: Partial<Omit<SpellProps, 'id' | 'owner' | 'createdAt' | 'updatedAt'>>) {
     if (props.name) this.name = props.name;
     if (props.shortDescription) this.shortDescription = props.shortDescription;
     if (props.description) this.description = props.description;
     if (props.imageUrl !== undefined) this.imageUrl = props.imageUrl;
     this.updatedAt = new Date();
-    this.apply(new SpellListUpdatedEvent(this.getProps()));
+    this.apply(new SpellUpdatedEvent(this.getProps()));
   }
 }

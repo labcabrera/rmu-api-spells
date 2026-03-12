@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { SpellList } from '../../domain/aggregates/spell-list';
 import { DomainEvent } from 'src/modules/shared/domain/events/domain-event';
 import { KafkaProducerService } from 'src/modules/shared/infrastructure/messaging/kafka-producer.service';
+import { Spell } from '../../domain/aggregates/spell';
 
 @Injectable()
 export class KafkaSpellListProducerService {
@@ -9,8 +9,8 @@ export class KafkaSpellListProducerService {
 
   constructor(private readonly kafkaProducerService: KafkaProducerService) {}
 
-  publish(event: DomainEvent<SpellList>): void {
-    this.kafkaProducerService.emit(`internal.rmu-spells.spell-list.${event.eventType}.v1`, event).catch((err) => {
+  publish(event: DomainEvent<Spell>): void {
+    this.kafkaProducerService.emit(`internal.rmu-spells.spell.${event.eventType}.v1`, event).catch((err) => {
       //TODO handle error properly
       this.logger.error('Error publishing event to Kafka', err);
     });
