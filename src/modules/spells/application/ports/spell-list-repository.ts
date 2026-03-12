@@ -1,10 +1,10 @@
-import { Page } from 'src/modules/shared/domain/entities/page';
+import { Page, Sort } from 'src/modules/shared/domain/entities/page';
 import { Spell } from '../../domain/aggregates/spell';
 
 export interface SpellRepository {
   findById(id: string): Promise<Spell | null>;
 
-  findByRsql(rsql: string | undefined, page: number, size: number): Promise<Page<Spell>>;
+  findByRsql(rsql: string | undefined, page: number, size: number, sort?: Sort): Promise<Page<Spell>>;
 
   save(entity: Spell): Promise<Spell>;
 

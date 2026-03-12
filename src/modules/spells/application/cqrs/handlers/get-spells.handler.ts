@@ -10,6 +10,6 @@ export class GetSpellsHandler implements IQueryHandler<GetSpellsQuery, Page<Spel
   constructor(@Inject('SpellRepository') private readonly spellRepository: SpellRepository) {}
 
   async execute(query: GetSpellsQuery): Promise<Page<Spell>> {
-    return await this.spellRepository.findByRsql(query.rsql, query.page, query.size);
+    return await this.spellRepository.findByRsql(query.rsql, query.page, query.size, query.sort);
   }
 }

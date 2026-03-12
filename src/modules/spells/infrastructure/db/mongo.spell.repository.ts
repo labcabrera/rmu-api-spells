@@ -3,11 +3,10 @@ import { SpellDocument, SpellModel } from '../persistence/models/spell.model';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose/dist/common/mongoose.decorators';
 import { RsqlParser } from 'src/modules/shared/infrastructure/persistence/repositories/rsql-parser';
-import { Page } from 'src/modules/shared/domain/entities/page';
+import { Page, Sort } from 'src/modules/shared/domain/entities/page';
 import { NotFoundError } from 'src/modules/shared/domain/errors/errors';
 import { SpellRepository } from '../../application/ports/spell-list-repository';
 import { Spell } from '../../domain/aggregates/spell';
-import { NamedEntity } from 'src/modules/shared/domain/entities/named-entity';
 
 @Injectable()
 export class MongoSpellRepository implements SpellRepository {
@@ -21,11 +20,14 @@ export class MongoSpellRepository implements SpellRepository {
     return readed ? this.mapToEntity(readed) : null;
   }
 
-  async findByRsql(rsql: string, page: number, size: number): Promise<Page<Spell>> {
+  async findByRsql(rsql: string, page: number, size: number, sort?: Sort): Promise<Page<Spell>> {
     const skip = page * size;
+    const field: string = sort && sort.field ? (sort.field === 'id' ? '_id' : sort.field) : 'name';
+    const direction: 1 | -1 = sort && sort.direction ? (String(sort.direction).toLowerCase() === 'desc' ? -1 : 1) : 1;
+    const sortOption = { [field]: direction };
     const mongoQuery = this.rsqlParser.parse(rsql);
     const [realmsDocs, totalElements] = await Promise.all([
-      this.realmModel.find(mongoQuery).skip(skip).limit(size).sort({ name: 1 }),
+      this.realmModel.find(mongoQuery).skip(skip).limit(size).sort(sortOption),
       this.realmModel.countDocuments(mongoQuery),
     ]);
     const content = realmsDocs.map((doc) => this.mapToEntity(doc));

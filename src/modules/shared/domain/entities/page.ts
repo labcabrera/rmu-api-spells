@@ -18,3 +18,10 @@ export class Pagination {
     public readonly totalPages: number,
   ) {}
 }
+
+export class Sort {
+  constructor(
+    public readonly field: string,
+    public readonly direction: 'asc' | 'desc',
+  ) {}
+}
