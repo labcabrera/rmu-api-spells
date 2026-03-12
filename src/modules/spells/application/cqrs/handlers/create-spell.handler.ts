@@ -17,14 +17,16 @@ export class CreateSpellHandler implements ICommandHandler<CreateSpellCommand, S
   ) {}
 
   async execute(command: CreateSpellCommand): Promise<Spell> {
-    this.logger.log(`Creating spell ${command.name} for user ${command.userId}`);
+    this.logger.log(`Creating spell ${command.name} for user ${command.user}`);
     this.spellGuard.checkCreate(command.roles);
     const spell = Spell.create({
+      spellListId: command.spellListId,
       name: command.name,
-      spellList: command.spellList,
+      level: command.level,
+      modifiers: command.modifiers,
       description: command.description,
       imageUrl: command.imageUrl,
-      owner: command.userId,
+      owner: command.user,
     });
     const savedSpell = await this.spellRepository.save(spell);
     spell.getUncommittedEvents().forEach((event) => this.spellEventBus.publish(event));

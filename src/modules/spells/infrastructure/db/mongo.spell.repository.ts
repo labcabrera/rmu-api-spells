@@ -59,8 +59,10 @@ export class MongoSpellRepository implements SpellRepository {
   private mapToEntity(doc: SpellDocument): Spell {
     return Spell.fromProps({
       id: doc.id,
+      spellListId: doc.spellListId,
       name: doc.name,
-      spellList: doc.spellList ? new NamedEntity(doc.spellList.id, doc.spellList.name) : undefined,
+      level: doc.level,
+      modifiers: doc.modifiers,
       description: doc.description,
       imageUrl: doc.imageUrl,
       owner: doc.owner,

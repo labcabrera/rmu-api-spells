@@ -1,17 +1,26 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsNumber } from 'class-validator';
 import { CreateSpellCommand } from 'src/modules/spells/application/cqrs/commands/create-spell.command';
-import { NamedEntityDto } from 'src/modules/shared/interfaces/http/dto/named-entity.dto';
+import SpellModifiersDto from './spell-modifiers.dto';
 
 export class CreateSpellDto {
+  @ApiProperty({ description: 'Spell list reference', required: true })
+  @IsOptional()
+  spellListId: string;
+
   @ApiProperty({ description: 'Name of the spell', example: 'Some name' })
   @IsString()
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({ description: 'Short description of the spell', required: false, example: 'A brief overview of the spell' })
+  @ApiProperty({ description: 'Level of the spell', example: 1 })
+  @IsNumber()
+  @IsNotEmpty()
+  level: number;
+
+  @ApiProperty({ description: 'Modifiers for the spell', required: true, type: SpellModifiersDto })
   @IsOptional()
-  spellList: NamedEntityDto | undefined;
+  modifiers: SpellModifiersDto;
 
   @ApiProperty({
     description: 'Description of the spell',
@@ -31,7 +40,16 @@ export class CreateSpellDto {
   @IsOptional()
   imageUrl: string | undefined;
 
-  static toCommand(dto: CreateSpellDto, userId: string, userRoles: string[]) {
-    return new CreateSpellCommand(dto.name, NamedEntityDto.toEntity(dto.spellList), dto.description, dto.imageUrl, userId, userRoles);
+  static toCommand(dto: CreateSpellDto, user: string, roles: string[]) {
+    return new CreateSpellCommand(
+      dto.spellListId,
+      dto.name,
+      dto.level,
+      SpellModifiersDto.toEntity(dto.modifiers),
+      dto.description,
+      dto.imageUrl,
+      user,
+      roles,
+    );
   }
 }

@@ -86,8 +86,9 @@ export class SpellListController {
   @ApiUnauthorizedResponse({ description: 'Invalid or missing authentication token', type: ErrorDto })
   @ApiNotFoundResponse({ description: 'Spell not found', type: ErrorDto })
   async delete(@Param('id') id: string, @Request() req) {
-    const user = req.user!;
-    const command = new DeleteSpellCommand(id, undefined, user.id as string, user.roles! as string[]);
+    const userId: string = req.user!.id as string;
+    const roles: string[] = req.user!.roles as string[];
+    const command = new DeleteSpellCommand(id, userId, roles);
     await this.commandBus.execute(command);
   }
 }
