@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { SpellDocument, SpellModel } from '../persistence/models/spell-list-model';
+import { SpellDocument, SpellModel } from '../persistence/models/spell.model';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose/dist/common/mongoose.decorators';
 import { RsqlParser } from 'src/modules/shared/infrastructure/persistence/repositories/rsql-parser';

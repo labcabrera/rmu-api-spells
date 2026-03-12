@@ -10,7 +10,7 @@ import { SharedModule } from '../shared/shared.module';
 import { SpellGuardAdapter } from './infrastructure/security/spell.guard.adapter';
 import { SpellListController } from './interfaces/http/spell-list.controller';
 import { GetSpellsHandler } from './application/cqrs/handlers/get-spells.handler';
-import { SpellModel, SpellSchema } from './infrastructure/persistence/models/spell-list-model';
+import { SpellModel, SpellSchema } from './infrastructure/persistence/models/spell.model';
 import { GetSpellHandler } from './application/cqrs/handlers/get-spell.handler';
 import { UpdateSpellHandler } from './application/cqrs/handlers/update-spell.handler';
 import { DeleteSpellHandler } from './application/cqrs/handlers/delete-spell.handler';
