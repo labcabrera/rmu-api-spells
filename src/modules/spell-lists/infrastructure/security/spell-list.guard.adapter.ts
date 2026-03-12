@@ -5,12 +5,12 @@ import { SpellList } from '../../domain/aggregates/spell-list';
 
 @Injectable()
 export class SpellListGuardAdapter implements SpellListGuardPort {
-  checkCreateSpellList(roles: string[]) {
+  checkCreate(roles: string[]) {
     if (!roles.includes('rmu-admin')) {
       throw new ForbiddenError('You do not have permission to create a spell list');
     }
   }
-  checkUpdateSpellList(spellList: SpellList, userId: string, roles: string[]) {
+  checkUpdate(spellList: SpellList, userId: string, roles: string[]) {
     if (roles.includes('rmu-admin')) return;
     if (spellList.owner === userId) return;
     throw new ForbiddenError('You do not have permission to update this spell list');

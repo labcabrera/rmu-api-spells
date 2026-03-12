@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
@@ -11,8 +8,8 @@ import { DomainExceptionFilter } from './modules/shared/interfaces/http/domain-e
 
 function configureOpenApi(app: INestApplication<any>) {
   const openApiConfig = new DocumentBuilder()
-    .setTitle('Core API')
-    .setDescription('Rolemaster Unified Core API.')
+    .setTitle('Spell API')
+    .setDescription('Rolemaster Unified Spell API.')
     .setVersion('1.0')
     .addOAuth2(
       {
@@ -38,7 +35,7 @@ function configureOpenApi(app: INestApplication<any>) {
       },
       'access-token',
     )
-    .addServer('http://localhost:3001', 'Local development server')
+    .addServer('http://localhost:3009', 'Local development server')
     .build();
   const document = SwaggerModule.createDocument(app, openApiConfig);
   SwaggerModule.setup('api-docs', app, document, {
@@ -102,7 +99,7 @@ async function bootstrap() {
   });
 
   app.useGlobalFilters(new DomainExceptionFilter());
-  await app.listen(app.get(ConfigService).get<string>('PORT') || 3001);
+  await app.listen(app.get(ConfigService).get<string>('PORT') || 3009);
   await app.startAllMicroservices();
 }
 
