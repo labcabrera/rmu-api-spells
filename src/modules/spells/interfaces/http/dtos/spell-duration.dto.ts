@@ -18,6 +18,14 @@ export class SpellDurationDto {
   @IsOptional()
   durationScale: SpellDurationScale | undefined;
 
+  static fromEntity(duration: SpellDuration): SpellDurationDto {
+    const dto = new SpellDurationDto();
+    dto.type = duration.type;
+    dto.duration = duration.duration;
+    dto.durationScale = duration.durationScale;
+    return dto;
+  }
+
   static toEntity(dto: SpellDurationDto): SpellDuration {
     return new SpellDuration(dto.type, dto.duration, dto.durationScale);
   }

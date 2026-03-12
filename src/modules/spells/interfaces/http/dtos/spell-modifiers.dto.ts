@@ -45,8 +45,8 @@ export class SpellModifiersDto {
   static fromEntity(entity: SpellModifiers): SpellModifiersDto {
     const dto = new SpellModifiersDto();
     dto.type = entity.type;
-    dto.subtype = entity.subType;
-    dto.duration = entity.duration;
+    dto.subtype = entity.subtype;
+    dto.duration = entity.duration ? SpellDurationDto.fromEntity(entity.duration) : undefined;
     dto.area = entity.area;
     dto.rrModifier = entity.rrModifier;
     dto.instant = entity.instant;

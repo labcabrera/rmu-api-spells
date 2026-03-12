@@ -5,7 +5,7 @@ import { SpellType } from './spell-type.vo';
 export class SpellModifiers {
   constructor(
     public type: SpellType | undefined,
-    public subType: SpellSubtype | undefined,
+    public subtype: SpellSubtype | undefined,
     public duration: SpellDuration | undefined,
     public area: string | undefined,
     public rrModifier: number | undefined,
