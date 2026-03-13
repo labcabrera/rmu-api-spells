@@ -22,7 +22,7 @@ export class SpellModifiersDto {
   @IsOptional()
   duration: SpellDurationDto | null;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ required: false, type: String, example: "20' x 20'" })
   @IsOptional()
   area: string | null;
 
