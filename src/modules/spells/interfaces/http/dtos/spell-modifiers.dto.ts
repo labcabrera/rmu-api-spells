@@ -2,51 +2,56 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsNumber, IsBoolean } from 'class-validator';
 import { SpellModifiers } from 'src/modules/spells/domain/value-objects/spell-modifiers.vo';
 import { SpellDurationDto } from './spell-duration.dto';
-import { SpellType } from 'src/modules/spells/domain/value-objects/spell-type.vo';
+import type { SpellType } from 'src/modules/spells/domain/value-objects/spell-type.vo';
 import { SpellSubtype as SpellSubtype } from 'src/modules/spells/domain/value-objects/spell-subtype.vo';
+import { SpellRangeDto } from './spell-range.dto';
 
 export class SpellModifiersDto {
-  @ApiProperty({ required: false, example: 'elemental' })
-  @IsOptional()
-  type: SpellType | undefined;
+  @ApiProperty({ required: true, example: 'elemental' })
+  type: SpellType;
 
   @ApiProperty({ required: false, example: 'ball' })
   @IsOptional()
-  subtype: SpellSubtype | undefined;
+  subtype: SpellSubtype | null;
+
+  @ApiProperty({ required: false, type: SpellRangeDto })
+  @IsOptional()
+  range: SpellRangeDto | null;
 
   @ApiProperty({ required: false, type: SpellDurationDto })
   @IsOptional()
-  duration: SpellDurationDto | undefined;
+  duration: SpellDurationDto | null;
 
   @ApiProperty({ required: false })
   @IsOptional()
-  area: string | undefined;
+  area: string | null;
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsNumber()
-  rrModifier: number | undefined;
+  rrModifier: number | null;
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsBoolean()
-  instant: boolean | undefined;
+  instant: boolean | null;
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsBoolean()
-  notRequiredPowerPoints: boolean | undefined;
+  notRequiredPowerPoints: boolean | null;
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsBoolean()
-  partOfSetOfSpells: boolean | undefined;
+  partOfSetOfSpells: boolean | null;
 
   static fromEntity(entity: SpellModifiers): SpellModifiersDto {
     const dto = new SpellModifiersDto();
     dto.type = entity.type;
     dto.subtype = entity.subtype;
-    dto.duration = entity.duration ? SpellDurationDto.fromEntity(entity.duration) : undefined;
+    dto.range = entity.range ? SpellRangeDto.fromEntity(entity.range) : null;
+    dto.duration = entity.duration ? SpellDurationDto.fromEntity(entity.duration) : null;
     dto.area = entity.area;
     dto.rrModifier = entity.rrModifier;
     dto.instant = entity.instant;
@@ -59,7 +64,8 @@ export class SpellModifiersDto {
     return new SpellModifiers(
       dto.type,
       dto.subtype,
-      dto.duration ? SpellDurationDto.toEntity(dto.duration) : undefined,
+      dto.range ? SpellRangeDto.toEntity(dto.range) : null,
+      dto.duration ? SpellDurationDto.toEntity(dto.duration) : null,
       dto.area,
       dto.rrModifier,
       dto.instant,
