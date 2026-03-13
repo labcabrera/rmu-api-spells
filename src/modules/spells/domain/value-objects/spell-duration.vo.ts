@@ -4,7 +4,8 @@ import { SpellDurationType } from './spell-duration-type.vo';
 export class SpellDuration {
   constructor(
     public type: SpellDurationType,
-    public duration: number | undefined,
-    public durationScale: SpellDurationScale | undefined,
+    public duration: number | null,
+    public durationScale: SpellDurationScale | null,
+    public requiredConcentration: boolean | null,
   ) {}
 }

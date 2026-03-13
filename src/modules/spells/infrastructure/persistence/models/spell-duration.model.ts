@@ -12,4 +12,7 @@ export class SpellDuration {
 
   @Prop({ type: String, required: false })
   durationScale: SpellDurationScale | undefined;
+
+  @Prop({ type: Boolean, required: false })
+  requiredConcentration: boolean | undefined;
 }
