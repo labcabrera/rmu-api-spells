@@ -6,8 +6,9 @@ export class CreateSpellListCommand {
     public readonly name: string,
     public readonly realm: RealmType,
     public readonly type: ListType,
-    public readonly description: string | undefined,
-    public readonly imageUrl: string | undefined,
+    public readonly professionId: string | null,
+    public readonly description: string | null,
+    public readonly imageUrl: string | null,
     public readonly userId: string,
     public readonly roles: string[],
   ) {}

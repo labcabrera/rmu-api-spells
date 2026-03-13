@@ -6,9 +6,10 @@ export class SpellListProps {
   name: string;
   realm: RealmType;
   type: ListType;
-  description?: string;
-  imageUrl?: string;
+  professionId: string | null;
+  description: string | null;
+  imageUrl: string | null;
   owner: string;
   createdAt: Date;
-  updatedAt?: Date;
+  updatedAt: Date | null;
 }

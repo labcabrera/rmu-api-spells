@@ -18,6 +18,10 @@ export class UpdateSpellListDto {
   @IsOptional()
   type: ListType | undefined;
 
+  @ApiProperty({ description: 'Profession id associated with the list', required: false, example: 'prof-123' })
+  @IsOptional()
+  professionId: string | undefined;
+
   @ApiProperty({
     description: 'Description of the spell list',
     required: false,
@@ -37,6 +41,16 @@ export class UpdateSpellListDto {
   imageUrl: string | undefined;
 
   static toCommand(id: string, dto: UpdateSpellListDto, userId: string, userRoles: string[]) {
-    return new UpdateSpellListCommand(id, dto.name, dto.realm, dto.type, dto.description, dto.imageUrl, userId, userRoles);
+    return new UpdateSpellListCommand(
+      id,
+      dto.name,
+      dto.realm,
+      dto.type,
+      dto.professionId,
+      dto.description,
+      dto.imageUrl,
+      userId,
+      userRoles,
+    );
   }
 }

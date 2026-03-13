@@ -1,6 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { SpellList } from 'src/modules/spell-lists/domain/aggregates/spell-list';
+import type { ListType } from 'src/modules/spell-lists/domain/value-objects/list-type.vo';
+import type { RealmType } from 'src/modules/spell-lists/domain/value-objects/realm-type.vo';
 
 export type SpellListDocument = SpellList & Document;
 
@@ -12,26 +14,29 @@ export class SpellListModel {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ required: true, type: String })
-  realm: import('src/modules/spell-lists/domain/value-objects/realm-type.vo').RealmType;
+  @Prop({ type: String, required: true })
+  realm: RealmType;
 
-  @Prop({ required: true, type: String })
-  type: import('src/modules/spell-lists/domain/value-objects/realm-type.vo').RealmType;
-
-  @Prop({ required: false })
-  description?: string;
+  @Prop({ type: String, required: true })
+  type: ListType;
 
   @Prop({ type: String, required: false })
-  imageUrl: string | undefined;
+  professionId: string | null;
 
-  @Prop({ required: true })
+  @Prop({ type: String, required: false })
+  description: string | null;
+
+  @Prop({ type: String, required: false })
+  imageUrl: string | null;
+
+  @Prop({ type: String, required: true })
   owner: string;
 
-  @Prop({ required: true })
+  @Prop({ type: Date, required: true })
   createdAt: Date;
 
-  @Prop({ required: false })
-  updatedAt?: Date;
+  @Prop({ type: Date, required: false })
+  updatedAt: Date | null;
 }
 
 export const SpellListSchema = SchemaFactory.createForClass(SpellListModel);

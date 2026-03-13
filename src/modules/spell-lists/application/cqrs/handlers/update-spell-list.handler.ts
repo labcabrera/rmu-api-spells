@@ -22,6 +22,7 @@ export class UpdateSpellListHandler implements ICommandHandler<UpdateSpellListCo
       name: command.name,
       realm: command.realm,
       type: command.type,
+      professionId: command.professionId,
       description: command.description,
       imageUrl: command.imageUrl,
     });

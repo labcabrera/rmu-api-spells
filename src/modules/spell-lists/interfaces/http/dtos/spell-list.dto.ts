@@ -14,6 +14,9 @@ export class SpellListDto {
   @ApiProperty({ description: 'Type of the spell list', example: 'channeling' })
   type: ListType;
 
+  @ApiProperty({ description: 'Profession id associated with the list', required: false, example: 'prof-123' })
+  professionId?: string | null;
+
   @ApiProperty({ description: 'Name of the spell list', example: 'Fireball' })
   name: string;
 
@@ -22,20 +25,21 @@ export class SpellListDto {
     required: false,
     example: 'A detailed description of the spell list with all its features and spells',
   })
-  description?: string;
+  description: string | null;
 
   @ApiProperty({
     description: 'Image URL of the spell list',
     required: false,
     example: 'https://example.com/images/spell-lists/fireball.jpg',
   })
-  imageUrl?: string;
+  imageUrl: string | null;
 
   static fromEntity(entity: SpellList): SpellListDto {
     const dto = new SpellListDto();
     dto.id = entity.id;
     dto.realm = entity.realm;
     dto.type = entity.type;
+    dto.professionId = entity.professionId ?? null;
     dto.name = entity.name;
     dto.description = entity.description;
     dto.imageUrl = entity.imageUrl;

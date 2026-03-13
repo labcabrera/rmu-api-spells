@@ -7,6 +7,7 @@ export class UpdateSpellListCommand {
     public readonly name: string | undefined,
     public readonly realm: RealmType | undefined,
     public readonly type: ListType | undefined,
+    public readonly professionId: string | undefined,
     public readonly description: string | undefined,
     public readonly imageUrl: string | undefined,
     public readonly userId: string,

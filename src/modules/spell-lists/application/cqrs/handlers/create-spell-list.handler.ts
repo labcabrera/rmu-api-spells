@@ -28,6 +28,7 @@ export class CreateSpellListHandler implements ICommandHandler<CreateSpellListCo
       name: command.name,
       realm: command.realm,
       type: command.type,
+      professionId: command.professionId,
       description: command.description,
       imageUrl: command.imageUrl,
       owner: command.userId,

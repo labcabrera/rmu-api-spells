@@ -1,1 +1,1 @@
-export type ListType = 'open' | 'closed';
+export type ListType = 'open' | 'closed' | 'base';

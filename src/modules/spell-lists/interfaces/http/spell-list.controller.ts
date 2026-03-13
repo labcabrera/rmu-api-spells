@@ -61,8 +61,9 @@ export class SpellListController {
   @ApiResponse({ status: 400, description: 'Bad request, invalid data', type: ErrorDto })
   @ApiResponse({ status: 409, description: 'Conflict, spell list already exists', type: ErrorDto })
   async create(@Body() dto: CreateSpellListDto, @Request() req) {
-    const user = req.user!;
-    const command = CreateSpellListDto.toCommand(dto, user.id as string, user.roles as string[]);
+    const userId: string = req.user!.id as string;
+    const roles: string[] = req.user!.roles as string[];
+    const command = CreateSpellListDto.toCommand(dto, userId, roles);
     const entity = await this.commandBus.execute<CreateSpellListCommand, SpellList>(command);
     return SpellListDto.fromEntity(entity);
   }
@@ -86,8 +87,9 @@ export class SpellListController {
   @ApiUnauthorizedResponse({ description: 'Invalid or missing authentication token', type: ErrorDto })
   @ApiNotFoundResponse({ description: 'Spell list not found', type: ErrorDto })
   async delete(@Param('id') id: string, @Request() req) {
-    const user = req.user!;
-    const command = new DeleteSpellListCommand(id, undefined, user.id as string, user.roles! as string[]);
+    const userId: string = req.user!.id as string;
+    const roles: string[] = req.user!.roles as string[];
+    const command = new DeleteSpellListCommand(id, userId, roles);
     await this.commandBus.execute(command);
   }
 }

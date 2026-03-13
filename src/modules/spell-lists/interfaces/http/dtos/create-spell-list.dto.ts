@@ -18,6 +18,11 @@ export class CreateSpellListDto {
   @IsString()
   type: ListType;
 
+  @ApiProperty({ description: 'Profession id associated with the list', required: false, example: 'prof-123' })
+  @IsString()
+  @IsOptional()
+  professionId: string | null;
+
   @ApiProperty({
     description: 'Description of the spell list',
     required: false,
@@ -25,7 +30,7 @@ export class CreateSpellListDto {
   })
   @IsString()
   @IsOptional()
-  description: string | undefined;
+  description: string | null;
 
   @ApiProperty({
     description: 'Image URL of the spell list',
@@ -34,9 +39,9 @@ export class CreateSpellListDto {
   })
   @IsString()
   @IsOptional()
-  imageUrl: string | undefined;
+  imageUrl: string | null;
 
   static toCommand(dto: CreateSpellListDto, userId: string, userRoles: string[]) {
-    return new CreateSpellListCommand(dto.name, dto.realm, dto.type, dto.description, dto.imageUrl, userId, userRoles);
+    return new CreateSpellListCommand(dto.name, dto.realm, dto.type, dto.professionId, dto.description, dto.imageUrl, userId, userRoles);
   }
 }
