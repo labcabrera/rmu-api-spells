@@ -4,12 +4,15 @@ import { SpellListUpdatedEvent } from '../events/spell-list-updated.event';
 import { randomUUID } from 'crypto';
 import { DomainEvent } from 'src/modules/shared/domain/events/domain-event';
 import { SpellListProps } from './spell-list.props';
+import { RealmType } from '../value-objects/realm-type.vo';
+import { ListType } from '../value-objects/list-type.vo';
 
 export class SpellList extends AggregateRoot<DomainEvent<SpellListProps>> {
   private constructor(
     public id: string,
+    public realm: RealmType,
+    public type: ListType,
     public name: string,
-    public shortDescription: string | undefined,
     public description: string | undefined,
     public imageUrl: string | undefined,
     public owner: string,
@@ -21,8 +24,9 @@ export class SpellList extends AggregateRoot<DomainEvent<SpellListProps>> {
   static create(props: Omit<SpellListProps, 'id' | 'createdAt' | 'updatedAt'>) {
     const spellList = new SpellList(
       randomUUID(),
+      props.realm,
+      props.type,
       props.name,
-      props.shortDescription,
       props.description,
       props.imageUrl,
       props.owner,
@@ -36,8 +40,9 @@ export class SpellList extends AggregateRoot<DomainEvent<SpellListProps>> {
   static fromProps(props: SpellListProps) {
     return new SpellList(
       props.id,
+      props.realm,
+      props.type,
       props.name,
-      props.shortDescription,
       props.description,
       props.imageUrl,
       props.owner,
@@ -49,8 +54,9 @@ export class SpellList extends AggregateRoot<DomainEvent<SpellListProps>> {
   getProps(): SpellListProps {
     return {
       id: this.id,
+      realm: this.realm,
+      type: this.type,
       name: this.name,
-      shortDescription: this.shortDescription,
       description: this.description,
       imageUrl: this.imageUrl,
       owner: this.owner,
@@ -61,7 +67,8 @@ export class SpellList extends AggregateRoot<DomainEvent<SpellListProps>> {
 
   update(props: Partial<Omit<SpellListProps, 'id' | 'owner' | 'createdAt' | 'updatedAt'>>) {
     if (props.name) this.name = props.name;
-    if (props.shortDescription) this.shortDescription = props.shortDescription;
+    if (props.realm) this.realm = props.realm;
+    if (props.type) this.type = props.type;
     if (props.description) this.description = props.description;
     if (props.imageUrl !== undefined) this.imageUrl = props.imageUrl;
     this.updatedAt = new Date();

@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsOptional } from 'class-validator';
 import { UpdateSpellListCommand } from 'src/modules/spell-lists/application/cqrs/commands/update-spell-list.command';
+import { ListType } from 'src/modules/spell-lists/domain/value-objects/list-type.vo';
+import type { RealmType } from 'src/modules/spell-lists/domain/value-objects/realm-type.vo';
 
 export class UpdateSpellListDto {
   @ApiProperty({ description: 'Name of the spell list', example: 'Fireball' })
@@ -8,10 +10,13 @@ export class UpdateSpellListDto {
   @IsOptional()
   name: string | undefined;
 
-  @ApiProperty({ description: 'Short description of the spell list', required: false, example: 'A powerful fire spell' })
-  @IsString()
+  @ApiProperty({ description: 'Realm of the spell list', required: false, example: 'channeling' })
   @IsOptional()
-  shortDescription: string | undefined;
+  realm: RealmType | undefined;
+
+  @ApiProperty({ description: 'Type of the spell list', required: false, example: 'open' })
+  @IsOptional()
+  type: ListType | undefined;
 
   @ApiProperty({
     description: 'Description of the spell list',
@@ -32,6 +37,6 @@ export class UpdateSpellListDto {
   imageUrl: string | undefined;
 
   static toCommand(id: string, dto: UpdateSpellListDto, userId: string, userRoles: string[]) {
-    return new UpdateSpellListCommand(id, dto.name, dto.shortDescription, dto.description, dto.imageUrl, userId, userRoles);
+    return new UpdateSpellListCommand(id, dto.name, dto.realm, dto.type, dto.description, dto.imageUrl, userId, userRoles);
   }
 }

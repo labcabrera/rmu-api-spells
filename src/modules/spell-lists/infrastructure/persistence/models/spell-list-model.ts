@@ -12,8 +12,11 @@ export class SpellListModel {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ required: false })
-  shortDescription?: string;
+  @Prop({ required: true, type: String })
+  realm: import('src/modules/spell-lists/domain/value-objects/realm-type.vo').RealmType;
+
+  @Prop({ required: true, type: String })
+  type: import('src/modules/spell-lists/domain/value-objects/realm-type.vo').RealmType;
 
   @Prop({ required: false })
   description?: string;

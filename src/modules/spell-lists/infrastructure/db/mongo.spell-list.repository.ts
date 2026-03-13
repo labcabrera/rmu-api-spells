@@ -58,8 +58,9 @@ export class MongoSpellListRepository implements SpellListRepository {
   private mapToEntity(doc: SpellListDocument): SpellList {
     return SpellList.fromProps({
       id: doc.id as string,
+      realm: doc.realm,
+      type: doc.type,
       name: doc.name,
-      shortDescription: doc.shortDescription,
       description: doc.description,
       imageUrl: doc.imageUrl,
       owner: doc.owner,

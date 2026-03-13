@@ -20,7 +20,8 @@ export class UpdateSpellListHandler implements ICommandHandler<UpdateSpellListCo
     }
     spellList.update({
       name: command.name,
-      shortDescription: command.shortDescription,
+      realm: command.realm,
+      type: command.type,
       description: command.description,
       imageUrl: command.imageUrl,
     });

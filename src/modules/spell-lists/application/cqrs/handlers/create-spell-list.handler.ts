@@ -21,7 +21,8 @@ export class CreateSpellListHandler implements ICommandHandler<CreateSpellListCo
     this.spellListGuard.checkCreate(command.roles);
     const spellList = SpellList.create({
       name: command.name,
-      shortDescription: command.shortDescription,
+      realm: command.realm,
+      type: command.type,
       description: command.description,
       imageUrl: command.imageUrl,
       owner: command.userId,
