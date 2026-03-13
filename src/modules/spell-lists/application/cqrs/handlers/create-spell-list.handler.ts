@@ -21,7 +21,7 @@ export class CreateSpellListHandler implements ICommandHandler<CreateSpellListCo
     this.logger.log(`Creating spell list ${command.name} for user ${command.userId}`);
     this.spellListGuard.checkCreate(command.roles);
 
-    const checkNameCount = (await this.spellListRepository.findByRsql(`name==${command.name}`, 0, 1)).pagination.totalElements;
+    const checkNameCount = (await this.spellListRepository.findByRsql(`name=="${command.name}"`, 0, 1)).pagination.totalElements;
     if (checkNameCount > 0) throw new ConflictError('Name already in use');
 
     const spellList = SpellList.create({

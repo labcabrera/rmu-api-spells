@@ -14,6 +14,7 @@ import { SpellModel, SpellSchema } from './infrastructure/persistence/models/spe
 import { GetSpellHandler } from './application/cqrs/handlers/get-spell.handler';
 import { UpdateSpellHandler } from './application/cqrs/handlers/update-spell.handler';
 import { DeleteSpellHandler } from './application/cqrs/handlers/delete-spell.handler';
+import { SpellTargetTypeController } from './interfaces/http/spell.controller copy';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { DeleteSpellHandler } from './application/cqrs/handlers/delete-spell.han
     AuthModule,
     SharedModule,
   ],
-  controllers: [SpellController],
+  controllers: [SpellController, SpellTargetTypeController],
   providers: [
     GetSpellHandler,
     GetSpellsHandler,
