@@ -7,5 +7,6 @@ export class SpellDuration {
     public duration: number | null,
     public durationScale: SpellDurationScale | null,
     public requiredConcentration: boolean | null,
+    public failureScale: number | null,
   ) {}
 }

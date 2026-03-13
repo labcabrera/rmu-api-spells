@@ -5,14 +5,17 @@ import { SpellDurationType } from 'src/modules/spells/domain/value-objects/spell
 @Schema({ id: false, _id: false })
 export class SpellDuration {
   @Prop({ type: String, required: false })
-  type: SpellDurationType | undefined;
+  type: SpellDurationType | null;
 
   @Prop({ type: Number, required: false })
-  duration: number | undefined;
+  duration: number | null;
 
   @Prop({ type: String, required: false })
-  durationScale: SpellDurationScale | undefined;
+  durationScale: SpellDurationScale | null;
 
   @Prop({ type: Boolean, required: false })
-  requiredConcentration: boolean | undefined;
+  requiredConcentration: boolean | null;
+
+  @Prop({ type: Number, required: false })
+  failureScale: number | null;
 }
