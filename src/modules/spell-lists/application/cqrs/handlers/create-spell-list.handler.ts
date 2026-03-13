@@ -5,6 +5,7 @@ import { CreateSpellListCommand } from '../commands/create-spell-list.command';
 import type { SpellListGuardPort } from '../../ports/spell-list-guard.port';
 import type { SpellListRepository } from '../../ports/spell-list-repository';
 import type { SpellListEventBusPort } from '../../ports/spell-list-event-bus.port';
+import { ConflictError } from 'src/modules/shared/domain/errors/errors';
 
 @CommandHandler(CreateSpellListCommand)
 export class CreateSpellListHandler implements ICommandHandler<CreateSpellListCommand, SpellList> {
@@ -19,6 +20,10 @@ export class CreateSpellListHandler implements ICommandHandler<CreateSpellListCo
   async execute(command: CreateSpellListCommand): Promise<SpellList> {
     this.logger.log(`Creating spell list ${command.name} for user ${command.userId}`);
     this.spellListGuard.checkCreate(command.roles);
+
+    const checkNameCount = (await this.spellListRepository.findByRsql(`name==${command.name}`, 0, 1)).pagination.totalElements;
+    if (checkNameCount > 0) throw new ConflictError('Name already in use');
+
     const spellList = SpellList.create({
       name: command.name,
       realm: command.realm,
