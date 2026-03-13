@@ -14,7 +14,7 @@ import { SpellsModule } from './modules/spells/spells.module';
       envFilePath: '.env',
       validationSchema: Joi.object({
         PORT: Joi.number().positive().default(3001),
-        RMU_MONGO_SPELL_URI: Joi.string().required(),
+        RMU_MONGO_SPELLS_URI: Joi.string().required(),
         RMU_IAM_JWK_URI: Joi.string().uri().required(),
         RMU_IAM_TOKEN_URI: Joi.string().uri().required(),
         RMU_IAM_CLIENT_ID: Joi.string().required(),
@@ -27,7 +27,7 @@ import { SpellsModule } from './modules/spells/spells.module';
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        uri: configService.get<string>('RMU_MONGO_SPELL_URI'),
+        uri: configService.get<string>('RMU_MONGO_SPELLS_URI'),
       }),
       inject: [ConfigService],
     }),
