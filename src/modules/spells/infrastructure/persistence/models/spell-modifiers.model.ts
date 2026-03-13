@@ -11,7 +11,7 @@ export class SpellModifiers {
   type: SpellType | null;
 
   @Prop({ type: String, required: false })
-  subType: SpellSubtype | null;
+  subtype: SpellSubtype | null;
 
   @Prop({ type: SpellRange, required: false })
   range: SpellRange | null;
