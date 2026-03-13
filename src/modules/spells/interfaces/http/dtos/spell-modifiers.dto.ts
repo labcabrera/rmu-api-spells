@@ -5,6 +5,7 @@ import { SpellDurationDto } from './spell-duration.dto';
 import type { SpellType } from 'src/modules/spells/domain/value-objects/spell-type.vo';
 import { SpellSubtype as SpellSubtype } from 'src/modules/spells/domain/value-objects/spell-subtype.vo';
 import { SpellRangeDto } from './spell-range.dto';
+import SpellTargetDto from './spell-target.dto';
 
 export class SpellModifiersDto {
   @ApiProperty({ required: true, example: 'elemental' })
@@ -22,9 +23,9 @@ export class SpellModifiersDto {
   @IsOptional()
   duration: SpellDurationDto | null;
 
-  @ApiProperty({ required: false, type: String, example: "20' x 20'" })
+  @ApiProperty({ required: false, type: SpellTargetDto })
   @IsOptional()
-  area: string | null;
+  target: SpellTargetDto | null;
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -52,7 +53,7 @@ export class SpellModifiersDto {
     dto.subtype = entity.subtype;
     dto.range = entity.range ? SpellRangeDto.fromEntity(entity.range) : null;
     dto.duration = entity.duration ? SpellDurationDto.fromEntity(entity.duration) : null;
-    dto.area = entity.area;
+    dto.target = entity.target ? SpellTargetDto.fromEntity(entity.target) : null;
     dto.rrModifier = entity.rrModifier;
     dto.instant = entity.instant;
     dto.notRequiredPowerPoints = entity.notRequiredPowerPoints;
@@ -66,7 +67,7 @@ export class SpellModifiersDto {
       dto.subtype,
       dto.range ? SpellRangeDto.toEntity(dto.range) : null,
       dto.duration ? SpellDurationDto.toEntity(dto.duration) : null,
-      dto.area,
+      dto.target ? SpellTargetDto.toEntity(dto.target) : null,
       dto.rrModifier,
       dto.instant,
       dto.notRequiredPowerPoints,

@@ -3,6 +3,7 @@ import { SpellSubtype } from 'src/modules/spells/domain/value-objects/spell-subt
 import { SpellType } from 'src/modules/spells/domain/value-objects/spell-type.vo';
 import { SpellDuration } from './spell-duration.model';
 import { SpellRange } from './spell-range.model';
+import { SpellTarget } from './spell-target.model';
 
 @Schema({ id: false, _id: false })
 export class SpellModifiers {
@@ -18,8 +19,8 @@ export class SpellModifiers {
   @Prop({ type: SpellDuration, required: false })
   duration: SpellDuration | null;
 
-  @Prop({ type: String, required: false })
-  area: string | null;
+  @Prop({ type: SpellTarget, required: false })
+  target: SpellTarget | null;
 
   @Prop({ type: Number, required: false })
   rrModifier: number | null;
