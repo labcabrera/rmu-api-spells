@@ -11,7 +11,7 @@ export class SpellModifiers {
   @Prop({ type: String, required: false })
   subType: SpellSubtype | undefined;
 
-  @Prop({ type: String, required: false })
+  @Prop({ type: SpellDuration, required: false })
   duration: SpellDuration | undefined;
 
   @Prop({ type: String, required: false })
