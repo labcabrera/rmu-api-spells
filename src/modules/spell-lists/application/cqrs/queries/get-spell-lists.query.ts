@@ -1,9 +1,13 @@
-export class GetSpellListsQuery {
+import { AuthenticatedCommand } from 'src/modules/shared/application/cqrs/authenticated-command';
+
+export class GetSpellListsQuery extends AuthenticatedCommand {
   constructor(
     public readonly rsql: string | undefined,
     public readonly page: number,
     public readonly size: number,
-    public readonly userId: string,
-    public readonly userRoles: string[],
-  ) {}
+    userId: string,
+    roles: string[],
+  ) {
+    super(userId, roles);
+  }
 }

@@ -1,7 +1,11 @@
-export class DeleteSpellListCommand {
+import { AuthenticatedCommand } from 'src/modules/shared/application/cqrs/authenticated-command';
+
+export class DeleteSpellListCommand extends AuthenticatedCommand {
   constructor(
     public readonly id: string,
-    public readonly userId: string,
-    public readonly roles: string[] | undefined,
-  ) {}
+    userId: string,
+    roles: string[],
+  ) {
+    super(userId, roles);
+  }
 }

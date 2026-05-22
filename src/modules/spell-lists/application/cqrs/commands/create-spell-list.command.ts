@@ -1,8 +1,9 @@
 import { ListType } from 'src/modules/spell-lists/domain/value-objects/list-type.vo';
 import { RealmType } from 'src/modules/spell-lists/domain/value-objects/realm-type.vo';
 import { AccessType } from 'src/modules/shared/domain/entities/access-type';
+import { AuthenticatedCommand } from 'src/modules/shared/application/cqrs/authenticated-command';
 
-export class CreateSpellListCommand {
+export class CreateSpellListCommand extends AuthenticatedCommand {
   constructor(
     public readonly name: string,
     public readonly realm: RealmType,
@@ -11,7 +12,9 @@ export class CreateSpellListCommand {
     public readonly accessType: AccessType,
     public readonly description: string | null,
     public readonly imageUrl: string | null,
-    public readonly userId: string,
-    public readonly roles: string[],
-  ) {}
+    userId: string,
+    roles: string[],
+  ) {
+    super(userId, roles);
+  }
 }
