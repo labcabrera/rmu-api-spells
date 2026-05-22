@@ -17,7 +17,7 @@ export class CreateSpellHandler implements ICommandHandler<CreateSpellCommand, S
   ) {}
 
   async execute(command: CreateSpellCommand): Promise<Spell> {
-    this.logger.log(`Creating spell ${command.name} for user ${command.user}`);
+    this.logger.log(`Creating spell ${command.name} for user ${command.userId}`);
     this.spellGuard.checkCreate(command.roles);
     const spell = Spell.create({
       spellListId: command.spellListId,
@@ -27,7 +27,7 @@ export class CreateSpellHandler implements ICommandHandler<CreateSpellCommand, S
       accessType: command.accessType,
       description: command.description,
       imageUrl: command.imageUrl,
-      owner: command.user,
+      owner: command.userId,
     });
     const savedSpell = await this.spellRepository.save(spell);
     spell.getUncommittedEvents().forEach((event) => this.spellEventBus.publish(event));

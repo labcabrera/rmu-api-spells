@@ -19,7 +19,7 @@ export class UpdateSpellHandler implements ICommandHandler<UpdateSpellCommand, S
     const spell = await this.spellRepository.findById(command.id);
     if (!spell) throw new NotFoundError('Spell', command.id);
 
-    this.spellGuard.checkUpdate(spell, command.user, command.roles);
+    this.spellGuard.checkUpdate(spell, command.userId, command.roles);
 
     spell.update({
       name: command.name,

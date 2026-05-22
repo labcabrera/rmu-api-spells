@@ -5,19 +5,20 @@ import { UpdateSpellListCommand } from '../commands/update-spell-list.command';
 import { NotFoundError } from 'src/modules/shared/domain/errors/errors';
 import type { SpellListRepository } from '../../ports/spell-list-repository';
 import type { SpellListEventBusPort } from '../../ports/spell-list-event-bus.port';
+import type { SpellListGuardPort } from '../../ports/spell-list-guard.port';
 
 @CommandHandler(UpdateSpellListCommand)
 export class UpdateSpellListHandler implements ICommandHandler<UpdateSpellListCommand, SpellList> {
   constructor(
     @Inject('SpellListRepository') private readonly spellListRepository: SpellListRepository,
+    @Inject('SpellListGuardPort') private readonly spellListGuard: SpellListGuardPort,
     @Inject('SpellListEventProducer') private readonly spellListEventBus: SpellListEventBusPort,
   ) {}
 
   async execute(command: UpdateSpellListCommand): Promise<SpellList> {
     const spellList = await this.spellListRepository.findById(command.id);
-    if (!spellList) {
-      throw new NotFoundError('SpellList', command.id);
-    }
+    if (!spellList) throw new NotFoundError('SpellList', command.id);
+    this.spellListGuard.checkUpdate(spellList, command.userId, command.roles);
     spellList.update({
       name: command.name,
       realm: command.realm,

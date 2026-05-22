@@ -5,7 +5,6 @@ import { InjectModel } from '@nestjs/mongoose/dist/common/mongoose.decorators';
 import { RsqlParser } from 'src/modules/shared/infrastructure/persistence/repositories/rsql-parser';
 import { SpellListRepository } from '../../application/ports/spell-list-repository';
 import { SpellList } from '../../domain/aggregates/spell-list';
-import { AccessType } from 'src/modules/shared/domain/entities/access-type';
 import { MongoBaseRepository } from 'src/modules/shared/infrastructure/db/mongo.base.repository';
 
 @Injectable()
@@ -20,7 +19,7 @@ export class MongoSpellListRepository extends MongoBaseRepository<SpellList, Spe
       realm: doc.realm,
       type: doc.type,
       professionId: doc.professionId,
-      accessType: (doc.accessType as AccessType) ?? 'public',
+      accessType: doc.accessType,
       name: doc.name,
       description: doc.description,
       imageUrl: doc.imageUrl,
