@@ -10,7 +10,7 @@ import { UpdateSpellDto } from './dtos/update-spell.dto';
 import { CreateSpellCommand } from '../../application/cqrs/commands/create-spell.command';
 import { DeleteSpellCommand } from '../../application/cqrs/commands/delete-spell.command';
 import { UpdateSpellCommand } from '../../application/cqrs/commands/update-spell.command';
-import { Page, Sort } from 'src/modules/shared/domain/entities/page';
+import { Page } from 'src/modules/shared/domain/entities/page';
 import { ErrorDto } from 'src/modules/shared/interfaces/http/dto/error-dto';
 import { PagedQueryDto } from 'src/modules/shared/interfaces/http/dto/paged-rsql-query';
 import { GetSpellQuery } from '../../application/cqrs/queries/get-spell.query';
@@ -47,9 +47,7 @@ export class SpellController {
   async find(@Query() dto: PagedQueryDto, @Request() req) {
     const userId: string = req.user!.id as string;
     const roles: string[] = req.user!.roles as string[];
-    //TODO read from params
-    const sort = { field: 'level', direction: 'asc' } as Sort;
-    const query = new GetSpellsQuery(dto.q, sort, dto.page, dto.size, userId, roles);
+    const query = new GetSpellsQuery(dto.q, dto.page, dto.size, userId, roles);
     const page = await this.queryBus.execute<GetSpellsQuery, Page<Spell>>(query);
     const mapped = page.content.map((spell) => SpellDto.fromEntity(spell));
     return new Page<SpellDto>(mapped, page.pagination.page, page.pagination.size, page.pagination.totalElements);
