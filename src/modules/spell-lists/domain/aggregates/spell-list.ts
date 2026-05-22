@@ -7,6 +7,7 @@ import { SpellListProps } from './spell-list.props';
 import { RealmType } from '../value-objects/realm-type.vo';
 import { ListType } from '../value-objects/list-type.vo';
 import { ValidationError } from 'src/modules/shared/domain/errors/errors';
+import { AccessType } from 'src/modules/shared/domain/entities/access-type';
 
 export class SpellList extends AggregateRoot<DomainEvent<SpellListProps>> {
   private constructor(
@@ -14,6 +15,7 @@ export class SpellList extends AggregateRoot<DomainEvent<SpellListProps>> {
     public realm: RealmType,
     public type: ListType,
     public professionId: string | null,
+    public accessType: AccessType,
     public name: string,
     public description: string | null,
     public imageUrl: string | null,
@@ -29,6 +31,7 @@ export class SpellList extends AggregateRoot<DomainEvent<SpellListProps>> {
       props.realm,
       props.type,
       props.professionId ?? null,
+      props.accessType,
       props.name,
       props.description,
       props.imageUrl,
@@ -47,6 +50,7 @@ export class SpellList extends AggregateRoot<DomainEvent<SpellListProps>> {
       props.realm,
       props.type,
       props.professionId ?? null,
+      props.accessType,
       props.name,
       props.description,
       props.imageUrl,
@@ -62,6 +66,7 @@ export class SpellList extends AggregateRoot<DomainEvent<SpellListProps>> {
       realm: this.realm,
       type: this.type,
       professionId: this.professionId,
+      accessType: this.accessType,
       name: this.name,
       description: this.description,
       imageUrl: this.imageUrl,
@@ -76,6 +81,7 @@ export class SpellList extends AggregateRoot<DomainEvent<SpellListProps>> {
     if (props.realm) this.realm = props.realm;
     if (props.type) this.type = props.type;
     if (props.professionId !== undefined) this.professionId = props.professionId ?? null;
+    if (props.accessType) this.accessType = props.accessType;
     if (props.description) this.description = props.description;
     if (props.imageUrl !== undefined) this.imageUrl = props.imageUrl;
     this.validate();

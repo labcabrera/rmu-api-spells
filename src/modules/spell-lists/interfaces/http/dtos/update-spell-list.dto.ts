@@ -1,8 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, IsIn } from 'class-validator';
 import { UpdateSpellListCommand } from 'src/modules/spell-lists/application/cqrs/commands/update-spell-list.command';
 import { ListType } from 'src/modules/spell-lists/domain/value-objects/list-type.vo';
 import type { RealmType } from 'src/modules/spell-lists/domain/value-objects/realm-type.vo';
+import { AccessType } from 'src/modules/shared/domain/entities/access-type';
 
 export class UpdateSpellListDto {
   @ApiProperty({ description: 'Name of the spell list', example: 'Fireball' })
@@ -21,6 +22,12 @@ export class UpdateSpellListDto {
   @ApiProperty({ description: 'Profession id associated with the list', required: false, example: 'prof-123' })
   @IsOptional()
   professionId: string | undefined;
+
+  @ApiProperty({ description: 'Access type of the spell list', required: false, example: 'public', enum: ['public', 'private'] })
+  @IsString()
+  @IsIn(['public', 'private'])
+  @IsOptional()
+  accessType: AccessType | undefined;
 
   @ApiProperty({
     description: 'Description of the spell list',
@@ -47,6 +54,7 @@ export class UpdateSpellListDto {
       dto.realm,
       dto.type,
       dto.professionId,
+      dto.accessType,
       dto.description,
       dto.imageUrl,
       userId,

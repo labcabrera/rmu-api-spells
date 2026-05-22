@@ -6,7 +6,7 @@ import type { RealmType } from 'src/modules/spell-lists/domain/value-objects/rea
 
 export type SpellListDocument = SpellList & Document;
 
-@Schema({ collection: 'spellLists', versionKey: false })
+@Schema({ collection: 'spell-lists', versionKey: false })
 export class SpellListModel {
   @Prop({ required: true })
   _id: string;
@@ -22,6 +22,9 @@ export class SpellListModel {
 
   @Prop({ type: String, required: false })
   professionId: string | null;
+
+  @Prop({ type: String, required: false, default: 'public' })
+  accessType: string;
 
   @Prop({ type: String, required: false })
   description: string | null;

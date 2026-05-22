@@ -17,6 +17,9 @@ export class SpellListDto {
   @ApiProperty({ description: 'Profession id associated with the list', required: false, example: 'prof-123' })
   professionId?: string | null;
 
+  @ApiProperty({ description: 'Access type of the spell list', required: false, example: 'public', enum: ['public', 'private'] })
+  accessType: string;
+
   @ApiProperty({ description: 'Name of the spell list', example: 'Fireball' })
   name: string;
 
@@ -40,6 +43,7 @@ export class SpellListDto {
     dto.realm = entity.realm;
     dto.type = entity.type;
     dto.professionId = entity.professionId ?? null;
+    dto.accessType = entity.accessType;
     dto.name = entity.name;
     dto.description = entity.description;
     dto.imageUrl = entity.imageUrl;

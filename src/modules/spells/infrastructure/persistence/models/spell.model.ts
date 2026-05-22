@@ -18,7 +18,7 @@ export class SpellModel {
   @Prop({ type: Number, required: true })
   level: number;
 
-  @Prop({ type: String, required: false, default: 'public' })
+  @Prop({ type: String, required: false })
   accessType: string;
 
   @Prop({ required: false })
