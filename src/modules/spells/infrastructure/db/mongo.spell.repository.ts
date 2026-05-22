@@ -6,6 +6,7 @@ import { RsqlParser } from 'src/modules/shared/infrastructure/persistence/reposi
 import { SpellRepository } from '../../application/ports/spell-list-repository';
 import { Spell } from '../../domain/aggregates/spell';
 import { MongoBaseRepository } from 'src/modules/shared/infrastructure/db/mongo.base.repository';
+import { AccessType } from 'src/modules/shared/domain/entities/access-type';
 
 @Injectable()
 export class MongoSpellRepository extends MongoBaseRepository<Spell, SpellDocument> implements SpellRepository {
@@ -20,6 +21,7 @@ export class MongoSpellRepository extends MongoBaseRepository<Spell, SpellDocume
       name: doc.name,
       level: doc.level,
       modifiers: doc.modifiers,
+      accessType: (doc.accessType as AccessType) ?? 'public',
       description: doc.description,
       imageUrl: doc.imageUrl,
       owner: doc.owner,

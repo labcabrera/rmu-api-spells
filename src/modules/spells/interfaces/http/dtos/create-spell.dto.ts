@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsOptional, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsNumber, IsIn } from 'class-validator';
 import { CreateSpellCommand } from 'src/modules/spells/application/cqrs/commands/create-spell.command';
 import SpellModifiersDto from './spell-modifiers.dto';
+import { AccessType } from 'src/modules/shared/domain/entities/access-type';
 
 export class CreateSpellDto {
   @ApiProperty({ description: 'Spell list reference', required: true })
@@ -21,6 +22,12 @@ export class CreateSpellDto {
   @ApiProperty({ description: 'Modifiers for the spell', required: true, type: SpellModifiersDto })
   @IsOptional()
   modifiers: SpellModifiersDto;
+
+  @ApiProperty({ description: 'Access type of the spell', required: false, example: 'public', enum: ['public', 'private'] })
+  @IsString()
+  @IsIn(['public', 'private'])
+  @IsOptional()
+  accessType: AccessType | undefined;
 
   @ApiProperty({
     description: 'Description of the spell',
@@ -46,6 +53,7 @@ export class CreateSpellDto {
       dto.name,
       dto.level,
       SpellModifiersDto.toEntity(dto.modifiers),
+      dto.accessType ?? 'public',
       dto.description,
       dto.imageUrl,
       user,

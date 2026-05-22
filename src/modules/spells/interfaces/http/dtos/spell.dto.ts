@@ -20,6 +20,9 @@ export class SpellDto {
   @ApiProperty({ description: 'Modifiers for the spell', required: true, type: () => SpellModifiersDto })
   modifiers: SpellModifiersDto;
 
+  @ApiProperty({ description: 'Access type of the spell', required: false, example: 'public', enum: ['public', 'private'] })
+  accessType: string;
+
   @ApiProperty({
     description: 'Description of the spell',
     required: false,
@@ -42,6 +45,7 @@ export class SpellDto {
     dto.spellListId = entity.spellListId;
     dto.description = entity.description;
     dto.imageUrl = entity.imageUrl;
+    dto.accessType = entity.accessType;
     dto.modifiers = SpellModifiersDto.fromEntity(entity.modifiers);
     return dto;
   }

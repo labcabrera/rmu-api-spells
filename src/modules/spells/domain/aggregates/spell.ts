@@ -5,6 +5,7 @@ import { randomUUID } from 'crypto';
 import { DomainEvent } from 'src/modules/shared/domain/events/domain-event';
 import { SpellProps } from './spell.props';
 import { SpellModifiers } from '../value-objects/spell-modifiers.vo';
+import { AccessType } from 'src/modules/shared/domain/entities/access-type';
 
 export class Spell extends AggregateRoot<DomainEvent<SpellProps>> {
   private constructor(
@@ -13,6 +14,7 @@ export class Spell extends AggregateRoot<DomainEvent<SpellProps>> {
     public name: string,
     public level: number,
     public modifiers: SpellModifiers,
+    public accessType: AccessType,
     public description: string | undefined,
     public imageUrl: string | undefined,
     public owner: string,
@@ -28,6 +30,7 @@ export class Spell extends AggregateRoot<DomainEvent<SpellProps>> {
       props.name,
       props.level,
       props.modifiers,
+      props.accessType,
       props.description,
       props.imageUrl,
       props.owner,
@@ -45,6 +48,7 @@ export class Spell extends AggregateRoot<DomainEvent<SpellProps>> {
       props.name,
       props.level,
       props.modifiers,
+      props.accessType,
       props.description,
       props.imageUrl,
       props.owner,
@@ -60,6 +64,7 @@ export class Spell extends AggregateRoot<DomainEvent<SpellProps>> {
       name: this.name,
       level: this.level,
       modifiers: this.modifiers,
+      accessType: this.accessType,
       description: this.description,
       imageUrl: this.imageUrl,
       owner: this.owner,
@@ -72,6 +77,7 @@ export class Spell extends AggregateRoot<DomainEvent<SpellProps>> {
     if (props.name) this.name = props.name;
     if (props.level) this.level = props.level;
     if (props.modifiers) this.modifiers = props.modifiers;
+    if (props.accessType) this.accessType = props.accessType;
     if (props.description) this.description = props.description;
     if (props.imageUrl !== undefined) this.imageUrl = props.imageUrl;
     this.updatedAt = new Date();

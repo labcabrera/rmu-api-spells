@@ -1,6 +1,4 @@
+import { EntityGuard } from 'src/modules/shared/application/ports/entity-guard';
 import { Spell } from '../../domain/aggregates/spell';
 
-export interface SpellGuardPort {
-  checkCreate(roles: string[]);
-  checkUpdate(spell: Spell, userId: string, roles: string[]);
-}
+export type SpellGuardPort = EntityGuard<Spell>;

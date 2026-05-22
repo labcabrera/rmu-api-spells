@@ -25,6 +25,7 @@ export class UpdateSpellHandler implements ICommandHandler<UpdateSpellCommand, S
       name: command.name,
       level: command.level,
       modifiers: command.modifiers,
+      accessType: command.accessType,
       description: command.description,
       imageUrl: command.imageUrl,
     });

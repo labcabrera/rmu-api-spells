@@ -1,8 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsNumber } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsIn } from 'class-validator';
 import { SpellModifiersDto } from './spell-modifiers.dto';
 import { UpdateSpellCommand } from 'src/modules/spells/application/cqrs/commands/update-spell.command';
 import { NamedEntityDto } from 'src/modules/shared/interfaces/http/dto/named-entity.dto';
+import { AccessType } from 'src/modules/shared/domain/entities/access-type';
 
 export class UpdateSpellDto {
   @ApiProperty({ description: 'Name of the spell', example: 'Fireball' })
@@ -22,6 +23,12 @@ export class UpdateSpellDto {
   @ApiProperty({ description: 'Modifiers for the spell', required: false, type: SpellModifiersDto })
   @IsOptional()
   modifiers: SpellModifiersDto | undefined;
+
+  @ApiProperty({ description: 'Access type of the spell', required: false, example: 'public', enum: ['public', 'private'] })
+  @IsString()
+  @IsIn(['public', 'private'])
+  @IsOptional()
+  accessType: AccessType | undefined;
 
   @ApiProperty({
     description: 'Description of the spell',
@@ -47,6 +54,7 @@ export class UpdateSpellDto {
       dto.name,
       dto.level,
       dto.modifiers ? SpellModifiersDto.toEntity(dto.modifiers) : undefined,
+      dto.accessType,
       dto.description,
       dto.imageUrl,
       user,
