@@ -7,7 +7,7 @@ import { SpellDuration } from '../../../domain/value-objects/spell-duration.vo.j
 export class SpellDurationDto {
   @ApiProperty({ type: String, required: false })
   @IsOptional()
-  type: SpellDurationType;
+  type: SpellDurationType | null;
 
   @ApiProperty({ type: Number, required: false })
   @IsOptional()

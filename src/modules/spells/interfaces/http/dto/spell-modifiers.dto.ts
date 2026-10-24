@@ -9,7 +9,7 @@ import SpellTargetDto from './spell-target.dto.js';
 
 export class SpellModifiersDto {
   @ApiProperty({ type: String, required: true, example: 'elemental' })
-  type: SpellType;
+  type: SpellType | null;
 
   @ApiProperty({ type: String, required: false, example: 'ball' })
   @IsOptional()
