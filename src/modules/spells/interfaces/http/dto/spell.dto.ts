@@ -1,14 +1,13 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { PaginationDto } from '../../../../shared/interfaces/http/dto/page.dto.js';
 import { Spell } from '../../../domain/aggregates/spell.js';
-import { NamedEntityDto } from '../../../../shared/interfaces/http/dto/named-entity.dto.js';
 import SpellModifiersDto from './spell-modifiers.dto.js';
 
 export class SpellDto {
   @ApiProperty({ description: 'Unique identifier for the spell', example: 'fireball' })
   id: string;
 
-  @ApiProperty({ description: 'Spell list reference', required: false, type: NamedEntityDto })
+  @ApiProperty({ type: String, description: 'Id of the spell list: the spell takes its permissions and visibility' })
   spellListId: string;
 
   @ApiProperty({ description: 'Name of the spell', example: 'Fireball' })
@@ -20,8 +19,25 @@ export class SpellDto {
   @ApiProperty({ description: 'Modifiers for the spell', required: true, type: () => SpellModifiersDto })
   modifiers: SpellModifiersDto;
 
-  @ApiProperty({ description: 'Access type of the spell', required: false, example: 'public', enum: ['public', 'private'] })
+  @ApiProperty({
+    description: 'Access type of the spell. Who reads the spell depends on its list; this one only counts if the list no longer exists',
+    example: 'public',
+    enum: ['public', 'private'],
+  })
   accessType: string;
+
+  @ApiProperty({ description: 'Id of the user that created the spell', example: 'b3a1c2d4-0000-4000-8000-000000000000' })
+  owner: string;
+
+  @ApiProperty({ type: Date, description: 'Creation time', example: '2026-10-24T10:00:00.000Z' })
+  createdAt: Date;
+
+  @ApiPropertyOptional({
+    type: Date,
+    description: 'Time of the last change; missing if it never changed',
+    example: '2026-10-24T11:00:00.000Z',
+  })
+  updatedAt?: Date;
 
   @ApiProperty({
     description: 'Description of the spell',
@@ -50,17 +66,16 @@ export class SpellDto {
     dto.description = entity.description;
     dto.imageUrl = entity.imageUrl;
     dto.accessType = entity.accessType;
+    dto.owner = entity.owner;
+    dto.createdAt = entity.createdAt;
+    dto.updatedAt = entity.updatedAt;
     dto.modifiers = SpellModifiersDto.fromEntity(entity.modifiers);
     return dto;
   }
 }
 
 export class SpellPageDto {
-  @ApiProperty({
-    type: [SpellDto],
-    description: 'Spells',
-    isArray: true,
-  })
+  @ApiProperty({ type: [SpellDto], description: 'Spells' })
   content: SpellDto[];
   @ApiProperty({
     type: PaginationDto,

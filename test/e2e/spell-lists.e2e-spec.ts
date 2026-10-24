@@ -47,6 +47,8 @@ describe('Spell lists (e2e)', () => {
 
       const created = await create('owner', { name: 'Fire Law', realm: 'essence', type: 'open' });
       expect(created).toMatchObject({ name: 'Fire Law', realm: 'essence', type: 'open', professionId: null, accessType: 'private' });
+      // F-spells-26: the response says who owns the list and when it changed.
+      expect(created).toMatchObject({ owner: 'e2e-owner', createdAt: expect.any(String) as unknown, updatedAt: null });
 
       const found = await request(e2e.server).get(`/v1/spell-lists/${created.id}`).set('Authorization', auth).expect(200);
       expect(found.body).toMatchObject({ id: created.id, name: 'Fire Law' });
@@ -107,11 +109,12 @@ describe('Spell lists (e2e)', () => {
     it('rejects an invalid RSQL expression and an invalid page size', async () => {
       const auth = e2e.auth('owner');
       const res = await request(e2e.server).get('/v1/spell-lists?q=name==').set('Authorization', auth).expect(400);
+      // F-receta-22: the path of the error has no query string.
       expect(res.body).toMatchObject({
         statusCode: 400,
         error: 'InvalidSearchExpression',
         code: 'invalid-search',
-        path: '/v1/spell-lists?q=name==',
+        path: '/v1/spell-lists',
       });
       await request(e2e.server).get('/v1/spell-lists?q=$where==1').set('Authorization', auth).expect(400);
       await request(e2e.server).get('/v1/spell-lists?size=0').set('Authorization', auth).expect(400);
@@ -172,8 +175,8 @@ describe('Spell lists (e2e)', () => {
         .set('Authorization', auth)
         .send(spellListBody({ type: 'open', professionId: 'mage' }))
         .expect(400);
-      // F-spells-17: the message is the one of the base list.
-      expect(res.body).toMatchObject({ error: 'ValidationError', message: 'Required professionId creating base spell type' });
+      // F-spells-17: a message for each case.
+      expect(res.body).toMatchObject({ error: 'ValidationError', message: 'Only a base spell list has a professionId' });
     });
 
     it('rejects an unknown access type', async () => {

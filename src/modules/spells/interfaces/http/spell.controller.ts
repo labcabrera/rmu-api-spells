@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
-import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { JwtAuthGuard } from '../../../shared/infrastructure/security/jwt-auth.guard.js';
 import { ApiErrors } from '../../../shared/interfaces/http/api-errors.decorator.js';
@@ -29,7 +29,7 @@ export class SpellController {
   @Get(':id')
   @ApiOperation({ operationId: 'findSpellById', summary: 'Find spell by id' })
   @ApiOkResponse({ type: SpellDto, description: 'Success' })
-  @ApiErrors({ 404: 'Spell not found' })
+  @ApiErrors({ 403: 'Not readable by the user', 404: 'Spell not found' })
   async findById(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     const userId = user.id;
     const roles = user.roles;
@@ -54,8 +54,8 @@ export class SpellController {
   @Post('')
   @ApiBody({ type: CreateSpellDto })
   @ApiOperation({ operationId: 'createSpell', summary: 'Create a new spell' })
-  @ApiOkResponse({ type: SpellDto, description: 'Success' })
-  @ApiErrors({ 400: 'Bad request, invalid data', 409: 'Conflict, spell list already exists' })
+  @ApiCreatedResponse({ type: SpellDto, description: 'Created' })
+  @ApiErrors({ 400: 'Bad request, invalid data', 403: 'The list is not one of the user', 404: 'Spell list not found' })
   async create(@Body() dto: CreateSpellDto, @CurrentUser() user: AuthenticatedUser) {
     const command = CreateSpellDto.toCommand(dto, user.id, user.roles);
     const entity = await this.commandBus.execute<CreateSpellCommand, Spell>(command);
@@ -65,7 +65,12 @@ export class SpellController {
   @Patch(':id')
   @ApiOperation({ operationId: 'updateSpell', summary: 'Update spell' })
   @ApiOkResponse({ type: SpellDto, description: 'Success' })
-  @ApiErrors({ 404: 'Spell not found', 400: 'Bad request, invalid data' })
+  @ApiErrors({
+    400: 'Bad request, invalid data',
+    403: 'Not changeable by the user',
+    404: 'Spell not found',
+    409: 'Stale version (version-conflict)',
+  })
   async updateSettings(@Param('id') id: string, @Body() dto: UpdateSpellDto, @CurrentUser() user: AuthenticatedUser) {
     const command = UpdateSpellDto.toCommand(id, dto, user.id, user.roles);
     const entity = await this.commandBus.execute<UpdateSpellCommand, Spell>(command);
@@ -74,8 +79,9 @@ export class SpellController {
 
   @Delete(':id')
   @HttpCode(204)
+  @ApiNoContentResponse({ description: 'Deleted' })
   @ApiOperation({ operationId: 'deleteSpell', summary: 'Delete spell by id' })
-  @ApiErrors({ 404: 'Spell not found' })
+  @ApiErrors({ 403: 'Not deletable by the user', 404: 'Spell not found' })
   async delete(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     const userId: string = user.id;
     const roles: string[] = user.roles;
