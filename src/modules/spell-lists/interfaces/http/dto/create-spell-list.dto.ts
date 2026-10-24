@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsNotEmpty, IsOptional, IsIn } from 'class-validator';
 import { CreateSpellListCommand } from '../../../application/cqrs/commands/create-spell-list.command.js';
-import type { ListType } from '../../../domain/value-objects/list-type.vo.js';
-import type { RealmType } from '../../../domain/value-objects/realm-type.vo.js';
+import { LIST_TYPES, type ListType } from '../../../domain/value-objects/list-type.vo.js';
+import { REALM_TYPES, type RealmType } from '../../../domain/value-objects/realm-type.vo.js';
 import type { AccessType } from '../../../../shared/domain/entities/access-type.js';
 
 export class CreateSpellListDto {
@@ -11,12 +11,12 @@ export class CreateSpellListDto {
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({ type: String, description: 'Realm of the spell list', example: 'channeling', required: true })
-  @IsString()
+  @ApiProperty({ type: String, enum: REALM_TYPES, description: 'Realm of the spell list', example: 'channeling' })
+  @IsIn(REALM_TYPES)
   realm: RealmType;
 
-  @ApiProperty({ type: String, description: 'Type of the spell list', example: 'open', required: true })
-  @IsString()
+  @ApiProperty({ type: String, enum: LIST_TYPES, description: 'Type of the spell list', example: 'open' })
+  @IsIn(LIST_TYPES)
   type: ListType;
 
   @ApiProperty({ type: String, description: 'Profession id associated with the list', required: false, example: 'prof-123' })

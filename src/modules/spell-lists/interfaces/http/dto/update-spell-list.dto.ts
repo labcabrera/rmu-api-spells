@@ -1,28 +1,37 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsIn, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { IsIn, IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
 import { UpdateSpellListCommand } from '../../../application/cqrs/commands/update-spell-list.command.js';
-import type { ListType } from '../../../domain/value-objects/list-type.vo.js';
-import type { RealmType } from '../../../domain/value-objects/realm-type.vo.js';
+import { LIST_TYPES, type ListType } from '../../../domain/value-objects/list-type.vo.js';
+import { REALM_TYPES, type RealmType } from '../../../domain/value-objects/realm-type.vo.js';
 import type { AccessType } from '../../../../shared/domain/entities/access-type.js';
 
 export class UpdateSpellListDto {
-  @ApiProperty({ type: String, description: 'Name of the spell list', example: 'Fireball' })
+  @ApiPropertyOptional({ type: String, description: 'Name of the spell list', example: 'Fireball' })
   @IsString()
+  @IsNotEmpty()
   @IsOptional()
   name: string | undefined;
 
-  @ApiProperty({ type: String, description: 'Realm of the spell list', required: false, example: 'channeling' })
+  @ApiPropertyOptional({ type: String, enum: REALM_TYPES, description: 'Realm of the spell list', example: 'channeling' })
+  @IsIn(REALM_TYPES)
   @IsOptional()
   realm: RealmType | undefined;
 
-  @ApiProperty({ type: String, description: 'Type of the spell list', required: false, example: 'open' })
+  @ApiPropertyOptional({ type: String, enum: LIST_TYPES, description: 'Type of the spell list', example: 'open' })
+  @IsIn(LIST_TYPES)
   @IsOptional()
   type: ListType | undefined;
 
-  @ApiProperty({ type: String, description: 'Profession id associated with the list', required: false, example: 'prof-123' })
+  @ApiPropertyOptional({
+    type: String,
+    nullable: true,
+    description: 'Profession id of a base list: an empty string or null clears it',
+    example: 'prof-123',
+  })
+  @IsString()
   @IsOptional()
-  professionId: string | undefined;
+  professionId: string | null | undefined;
 
   @ApiProperty({
     type: String,
@@ -36,25 +45,25 @@ export class UpdateSpellListDto {
   @IsOptional()
   accessType: AccessType | undefined;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     type: String,
-    description: 'Description of the spell list',
-    required: false,
+    nullable: true,
+    description: 'Description of the spell list: an empty string or null clears it',
     example: 'A detailed description of the fireball spell list',
   })
   @IsString()
   @IsOptional()
-  description: string | undefined;
+  description: string | null | undefined;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     type: String,
-    description: 'Image URL of the spell list',
-    required: false,
+    nullable: true,
+    description: 'Image URL of the spell list: an empty string or null clears it',
     example: 'https://example.com/images/spell-lists/fireball.jpg',
   })
   @IsString()
   @IsOptional()
-  imageUrl: string | undefined;
+  imageUrl: string | null | undefined;
 
   @ApiPropertyOptional({ description: 'Version the client read (from the GET); a different stored version is a 409', example: 3 })
   @Type(() => Number)
