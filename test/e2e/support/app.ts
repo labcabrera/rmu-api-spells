@@ -55,6 +55,8 @@ export async function startApp(
     RMU_KAFKA_BROKERS: 'localhost:9092',
     RMU_KAFKA_CLIENT_ID: 'rmu-api-spells-e2e',
     RMU_KAFKA_CONSUMER_GROUP_ID: 'rmu-api-spells-e2e',
+    RMU_THROTTLE_LIMIT: '0',
+    RMU_CORS_ORIGINS: '',
     ...env,
   });
 

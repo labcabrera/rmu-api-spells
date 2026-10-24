@@ -1,5 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsNumber, IsIn } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { IsIn, IsInt, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 import { SpellModifiersDto } from './spell-modifiers.dto.js';
 import { UpdateSpellCommand } from '../../../application/cqrs/commands/update-spell.command.js';
 import { NamedEntityDto } from '../../../../shared/interfaces/http/dto/named-entity.dto.js';
@@ -50,6 +51,13 @@ export class UpdateSpellDto {
   @IsOptional()
   imageUrl: string | undefined;
 
+  @ApiPropertyOptional({ description: 'Version the client read (from the GET); a different stored version is a 409', example: 3 })
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  @IsOptional()
+  version?: number;
+
   static toCommand(id: string, dto: UpdateSpellDto, user: string, roles: string[]) {
     return new UpdateSpellCommand(
       id,
@@ -61,6 +69,7 @@ export class UpdateSpellDto {
       dto.imageUrl,
       user,
       roles,
+      dto.version,
     );
   }
 }

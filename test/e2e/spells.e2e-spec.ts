@@ -116,6 +116,7 @@ describe('Spells (e2e)', () => {
   describe('validation', () => {
     it('rejects an empty body', async () => {
       const res = await request(e2e.server).post('/v1/spells').set('Authorization', e2e.auth('owner')).send({}).expect(400);
+      expect(res.body).toMatchObject({ statusCode: 400, error: 'BadRequestException', code: 'bad-request', path: '/v1/spells' });
       expect((res.body as { message: unknown }).message).toEqual(expect.arrayContaining([expect.any(String)]));
     });
 
@@ -141,11 +142,18 @@ describe('Spells (e2e)', () => {
 
     // F-spells-10: modifiers are optional in the DTO, but the controller reads them.
     it('fails with 500 when the modifiers are missing', async () => {
-      await request(e2e.server)
+      const res = await request(e2e.server)
         .post('/v1/spells')
         .set('Authorization', e2e.auth('owner'))
         .send(spellBody(listId, { modifiers: undefined }))
         .expect(500);
+      // The body never shows the internal error.
+      expect(res.body).toMatchObject({
+        statusCode: 500,
+        error: 'InternalServerError',
+        code: 'internal-error',
+        message: 'Internal server error',
+      });
     });
 
     it.skip('rejects a spell without modifiers [F-spells-10]', async () => {
@@ -237,6 +245,34 @@ describe('Spells (e2e)', () => {
         .send({ spellList: { id: 'other-list', name: 'Other' } })
         .expect(200);
       expect(res.body).toMatchObject({ spellListId: listId });
+    });
+
+    it('answers a patch without changes with the spell, without publishing an event', async () => {
+      const spell = await create('owner', { name: 'Same spell' });
+      takeTopics(e2e.events);
+      const res = await request(e2e.server)
+        .patch(`/v1/spells/${spell.id}`)
+        .set('Authorization', e2e.auth('owner'))
+        .send({ name: 'Same spell', version: 0 })
+        .expect(200);
+      expect(res.body).toMatchObject({ id: spell.id, version: 0 });
+      expect(takeTopics(e2e.events)).toEqual([]);
+    });
+
+    it('rejects a patch of a stale version', async () => {
+      const auth = e2e.auth('owner');
+      const spell = await create('owner');
+      await request(e2e.server)
+        .patch(`/v1/spells/${spell.id}`)
+        .set('Authorization', auth)
+        .send({ name: 'New name', version: 0 })
+        .expect(200);
+      const res = await request(e2e.server)
+        .patch(`/v1/spells/${spell.id}`)
+        .set('Authorization', auth)
+        .send({ name: 'Other name', version: 0 })
+        .expect(409);
+      expect(res.body).toMatchObject({ code: 'version-conflict' });
     });
 
     it('answers 404 for an unknown spell', async () => {

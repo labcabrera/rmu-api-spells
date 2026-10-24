@@ -1,5 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsIn } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { IsIn, IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { UpdateSpellListCommand } from '../../../application/cqrs/commands/update-spell-list.command.js';
 import type { ListType } from '../../../domain/value-objects/list-type.vo.js';
 import type { RealmType } from '../../../domain/value-objects/realm-type.vo.js';
@@ -55,6 +56,13 @@ export class UpdateSpellListDto {
   @IsOptional()
   imageUrl: string | undefined;
 
+  @ApiPropertyOptional({ description: 'Version the client read (from the GET); a different stored version is a 409', example: 3 })
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  @IsOptional()
+  version?: number;
+
   static toCommand(id: string, dto: UpdateSpellListDto, userId: string, userRoles: string[]) {
     return new UpdateSpellListCommand(
       id,
@@ -67,6 +75,7 @@ export class UpdateSpellListDto {
       dto.imageUrl,
       userId,
       userRoles,
+      dto.version,
     );
   }
 }

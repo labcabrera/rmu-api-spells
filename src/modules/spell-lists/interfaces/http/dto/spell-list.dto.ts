@@ -39,9 +39,13 @@ export class SpellListDto {
   })
   imageUrl: string | null;
 
+  @ApiProperty({ description: 'Version of optimistic concurrency: send it back in the PATCH to detect a concurrent change', example: 0 })
+  version: number;
+
   static fromEntity(entity: SpellList): SpellListDto {
     const dto = new SpellListDto();
     dto.id = entity.id;
+    dto.version = entity.version;
     dto.realm = entity.realm;
     dto.type = entity.type;
     dto.professionId = entity.professionId ?? null;

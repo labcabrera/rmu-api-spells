@@ -20,8 +20,9 @@ export class UpdateSpellHandler implements ICommandHandler<UpdateSpellCommand, S
     if (!spell) throw new NotFoundError('Spell', command.id);
 
     this.spellGuard.checkUpdate(spell, command.userId, command.roles);
+    spell.checkVersion(command.expectedVersion);
 
-    spell.update({
+    const changed = spell.update({
       name: command.name,
       level: command.level,
       modifiers: command.modifiers,
@@ -29,7 +30,8 @@ export class UpdateSpellHandler implements ICommandHandler<UpdateSpellCommand, S
       description: command.description,
       imageUrl: command.imageUrl,
     });
-    const updated = await this.spellRepository.update(spell.id, spell);
+    if (!changed) return spell;
+    const updated = await this.spellRepository.update(spell);
     await this.events.publishChanges('spell', spell);
     return updated;
   }
