@@ -1,12 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsOptional, IsNumber, IsIn } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsString, IsNotEmpty, IsOptional, IsInt, IsIn, IsDefined, IsObject, Min, ValidateNested } from 'class-validator';
 import { CreateSpellCommand } from '../../../application/cqrs/commands/create-spell.command.js';
 import SpellModifiersDto from './spell-modifiers.dto.js';
 import type { AccessType } from '../../../../shared/domain/entities/access-type.js';
 
 export class CreateSpellDto {
-  @ApiProperty({ description: 'Spell list reference', required: true })
-  @IsOptional()
+  @ApiProperty({ description: 'Id of the spell list: one of the lists of the user (or any list for an admin)' })
+  @IsString()
+  @IsNotEmpty()
   spellListId: string;
 
   @ApiProperty({ description: 'Name of the spell', example: 'Some name' })
@@ -15,12 +17,15 @@ export class CreateSpellDto {
   name: string;
 
   @ApiProperty({ description: 'Level of the spell', example: 1 })
-  @IsNumber()
-  @IsNotEmpty()
+  @IsInt()
+  @Min(1)
   level: number;
 
-  @ApiProperty({ description: 'Modifiers for the spell', required: true, type: SpellModifiersDto })
-  @IsOptional()
+  @ApiProperty({ description: 'Modifiers for the spell', type: SpellModifiersDto })
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => SpellModifiersDto)
   modifiers: SpellModifiersDto;
 
   @ApiProperty({ type: String, description: 'Access type of the spell', required: false, example: 'public', enum: ['public', 'private'] })

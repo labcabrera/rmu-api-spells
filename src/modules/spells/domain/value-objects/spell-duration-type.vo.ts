@@ -1,1 +1,3 @@
-export type SpellDurationType = 'concentration' | 'permanent' | 'lvl' | 'rr-failure';
+export const SPELL_DURATION_TYPES = ['concentration', 'permanent', 'lvl', 'rr-failure'] as const;
+
+export type SpellDurationType = (typeof SPELL_DURATION_TYPES)[number];

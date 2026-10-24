@@ -1,29 +1,32 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsBoolean } from 'class-validator';
-import type { SpellDurationScale } from '../../../domain/value-objects/spell-duration-scale.vo.js';
-import type { SpellDurationType } from '../../../domain/value-objects/spell-duration-type.vo.js';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsNumber, IsOptional, IsBoolean, IsIn } from 'class-validator';
+import { SPELL_DURATION_SCALES, type SpellDurationScale } from '../../../domain/value-objects/spell-duration-scale.vo.js';
+import { SPELL_DURATION_TYPES, type SpellDurationType } from '../../../domain/value-objects/spell-duration-type.vo.js';
 import { SpellDuration } from '../../../domain/value-objects/spell-duration.vo.js';
 
 export class SpellDurationDto {
-  @ApiProperty({ type: String, required: false })
+  // Optional: rmu-mfe-spells sends a duration without type when only requiredConcentration is set.
+  @ApiPropertyOptional({ type: String, enum: SPELL_DURATION_TYPES, nullable: true })
   @IsOptional()
+  @IsIn(SPELL_DURATION_TYPES)
   type: SpellDurationType | null;
 
-  @ApiProperty({ type: Number, required: false })
+  @ApiPropertyOptional({ type: Number, nullable: true })
   @IsOptional()
   @IsNumber()
   duration: number | null;
 
-  @ApiProperty({ type: String, required: false })
+  @ApiPropertyOptional({ type: String, enum: SPELL_DURATION_SCALES, nullable: true })
   @IsOptional()
+  @IsIn(SPELL_DURATION_SCALES)
   durationScale: SpellDurationScale | null;
 
-  @ApiProperty({ type: Boolean, required: false })
+  @ApiPropertyOptional({ type: Boolean, nullable: true })
   @IsOptional()
   @IsBoolean()
   requiredConcentration: boolean | null;
 
-  @ApiProperty({ type: Number, required: false })
+  @ApiPropertyOptional({ type: Number, nullable: true })
   @IsOptional()
   @IsNumber()
   failureScale: number | null;
@@ -39,6 +42,12 @@ export class SpellDurationDto {
   }
 
   static toEntity(dto: SpellDurationDto): SpellDuration {
-    return new SpellDuration(dto.type, dto.duration, dto.durationScale, dto.requiredConcentration, dto.failureScale);
+    return new SpellDuration(
+      dto.type ?? null,
+      dto.duration ?? null,
+      dto.durationScale ?? null,
+      dto.requiredConcentration ?? null,
+      dto.failureScale ?? null,
+    );
   }
 }

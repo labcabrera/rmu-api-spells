@@ -6,6 +6,16 @@ import { SpellProps } from './spell.props.js';
 import { SpellModifiers } from '../value-objects/spell-modifiers.vo.js';
 import type { AccessType } from '../../../shared/domain/entities/access-type.js';
 
+export type SpellPatch = Partial<{
+  spellListId: string;
+  name: string;
+  level: number;
+  modifiers: Partial<SpellModifiers>;
+  accessType: AccessType;
+  description: string | null;
+  imageUrl: string | null;
+}>;
+
 export class Spell extends BaseAggregateRoot<SpellProps> {
   private constructor(
     id: string,
@@ -72,14 +82,18 @@ export class Spell extends BaseAggregateRoot<SpellProps> {
     };
   }
 
-  update(props: Partial<Omit<SpellProps, 'id' | 'owner' | 'createdAt' | 'updatedAt'>>): void {
-    if (props.spellListId) this.spellListId = props.spellListId;
-    if (props.name) this.name = props.name;
-    if (props.level) this.level = props.level;
-    if (props.modifiers) this.modifiers = props.modifiers;
-    if (props.accessType) this.accessType = props.accessType;
-    if (props.description) this.description = props.description;
-    if (props.imageUrl !== undefined) this.imageUrl = props.imageUrl;
+  /**
+   * Applies a patch: undefined keeps a field, '' or null clears the optional texts (F-spells-18), and the modifiers are
+   * merged field by field (F-spells-19).
+   */
+  update(props: SpellPatch): void {
+    if (props.spellListId !== undefined) this.spellListId = props.spellListId;
+    if (props.name !== undefined) this.name = props.name;
+    if (props.level !== undefined) this.level = props.level;
+    if (props.modifiers !== undefined) this.modifiers = this.modifiers.merge(props.modifiers);
+    if (props.accessType !== undefined) this.accessType = props.accessType;
+    if (props.description !== undefined) this.description = props.description || undefined;
+    if (props.imageUrl !== undefined) this.imageUrl = props.imageUrl || undefined;
     // A patch that changes nothing is not an update: no new updatedAt, no write and no event (hasChanges()).
     if (!this.hasChanges()) return;
     this.updatedAt = new Date();
