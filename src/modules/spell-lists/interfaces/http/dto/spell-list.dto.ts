@@ -17,8 +17,17 @@ export class SpellListDto {
   @ApiProperty({ type: String, description: 'Profession id associated with the list', required: false, example: 'prof-123' })
   professionId?: string | null;
 
-  @ApiProperty({ description: 'Access type of the spell list', required: false, example: 'public', enum: ['public', 'private'] })
+  @ApiProperty({ description: 'Access type of the spell list, which its spells take', example: 'public', enum: ['public', 'private'] })
   accessType: string;
+
+  @ApiProperty({ description: 'Id of the user that created the list: only this user (or an admin) changes it and its spells' })
+  owner: string;
+
+  @ApiProperty({ type: Date, description: 'Creation time', example: '2026-10-24T10:00:00.000Z' })
+  createdAt: Date;
+
+  @ApiProperty({ type: Date, nullable: true, description: 'Time of the last change; null if it never changed', example: null })
+  updatedAt: Date | null;
 
   @ApiProperty({ description: 'Name of the spell list', example: 'Fireball' })
   name: string;
@@ -50,6 +59,9 @@ export class SpellListDto {
     dto.type = entity.type;
     dto.professionId = entity.professionId ?? null;
     dto.accessType = entity.accessType;
+    dto.owner = entity.owner;
+    dto.createdAt = entity.createdAt;
+    dto.updatedAt = entity.updatedAt ?? null;
     dto.name = entity.name;
     dto.description = entity.description;
     dto.imageUrl = entity.imageUrl;
@@ -58,11 +70,7 @@ export class SpellListDto {
 }
 
 export class SpellListPageDto {
-  @ApiProperty({
-    type: [SpellListDto],
-    description: 'Spell lists',
-    isArray: true,
-  })
+  @ApiProperty({ type: [SpellListDto], description: 'Spell lists' })
   content: SpellListDto[];
   @ApiProperty({
     type: PaginationDto,

@@ -4,6 +4,7 @@ import { spellBody, spellListBody, spellModifiers } from './support/fixtures.js'
 
 type SpellBody = {
   id: string;
+  createdAt?: string;
   spellListId?: string;
   name: string;
   level: number;
@@ -49,6 +50,9 @@ describe('Spells (e2e)', () => {
       takeTopics(e2e.events);
 
       const created = await create('owner', { name: 'Fire Bolt', level: 5 });
+      // F-spells-26: the response says who owns the spell and when it changed.
+      expect(created).toMatchObject({ owner: 'e2e-owner', createdAt: expect.any(String) as unknown });
+      expect(created).not.toHaveProperty('updatedAt');
       expect(created).toMatchObject({
         name: 'Fire Bolt',
         level: 5,
@@ -71,6 +75,7 @@ describe('Spells (e2e)', () => {
         .send({ name: 'Fire Lance', level: 7, accessType: 'public', description: 'Changed' })
         .expect(200);
       expect(updated.body).toMatchObject({ name: 'Fire Lance', level: 7, accessType: 'public', description: 'Changed' });
+      expect(updated.body).toMatchObject({ owner: 'e2e-owner', createdAt: created.createdAt, updatedAt: expect.any(String) as unknown });
 
       await request(e2e.server).delete(`/v1/spells/${created.id}`).set('Authorization', auth).expect(204);
       await request(e2e.server).get(`/v1/spells/${created.id}`).set('Authorization', auth).expect(404);
@@ -518,8 +523,8 @@ describe('Spells (e2e)', () => {
   describe('target types', () => {
     it('lists the target types to any authenticated user', async () => {
       const res = await request(e2e.server).get('/v1/target-types').set('Authorization', e2e.auth('noRole')).expect(200);
-      // F-spells-21: 'other' comes twice.
-      expect(res.body).toEqual(['person', 'item', 'spell', 'gateway', 'lock', 'other', 'plant', 'animal', 'other']);
+      // F-spells-21: each type once.
+      expect(res.body).toEqual(['person', 'item', 'spell', 'gateway', 'lock', 'plant', 'animal', 'other']);
       await request(e2e.server).get('/v1/target-types').expect(401);
     });
   });

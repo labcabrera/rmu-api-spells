@@ -95,7 +95,7 @@ export class SpellList extends BaseAggregateRoot<SpellListProps> {
     if (this.type === 'base' && !this.professionId) {
       throw new ValidationError('Required professionId creating base spell type');
     } else if (this.type !== 'base' && this.professionId) {
-      throw new ValidationError('Required professionId creating base spell type');
+      throw new ValidationError('Only a base spell list has a professionId');
     }
   }
 }
