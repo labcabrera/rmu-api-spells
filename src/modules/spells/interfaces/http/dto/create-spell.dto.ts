@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsNotEmpty, IsOptional, IsNumber, IsIn } from 'class-validator';
-import { CreateSpellCommand } from '../../../application/cqrs/commands/create-spell.command';
-import SpellModifiersDto from './spell-modifiers.dto';
-import { AccessType } from '../../../../shared/domain/entities/access-type';
+import { CreateSpellCommand } from '../../../application/cqrs/commands/create-spell.command.js';
+import SpellModifiersDto from './spell-modifiers.dto.js';
+import type { AccessType } from '../../../../shared/domain/entities/access-type.js';
 
 export class CreateSpellDto {
   @ApiProperty({ description: 'Spell list reference', required: true })

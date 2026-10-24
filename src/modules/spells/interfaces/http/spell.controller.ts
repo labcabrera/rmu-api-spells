@@ -1,21 +1,21 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { JwtAuthGuard } from '../../../shared/infrastructure/security/jwt-auth.guard';
-import { ApiErrors } from '../../../shared/interfaces/http/api-errors.decorator';
-import type { AuthenticatedUser } from '../../../shared/interfaces/http/authenticated-request';
-import { CurrentUser } from '../../../shared/interfaces/http/current-user.decorator';
-import { SpellDto, SpellPageDto } from './dto/spell.dto';
-import { CreateSpellDto } from './dto/create-spell.dto';
-import { UpdateSpellDto } from './dto/update-spell.dto';
-import { CreateSpellCommand } from '../../application/cqrs/commands/create-spell.command';
-import { DeleteSpellCommand } from '../../application/cqrs/commands/delete-spell.command';
-import { UpdateSpellCommand } from '../../application/cqrs/commands/update-spell.command';
-import { Page } from '../../../shared/application/pagination/page';
-import { PagedQueryDto } from '../../../shared/interfaces/http/dto/paged-rsql-query';
-import { GetSpellQuery } from '../../application/cqrs/queries/get-spell.query';
-import { GetSpellsQuery } from '../../application/cqrs/queries/get-spells.query';
-import { Spell } from '../../domain/aggregates/spell';
+import { JwtAuthGuard } from '../../../shared/infrastructure/security/jwt-auth.guard.js';
+import { ApiErrors } from '../../../shared/interfaces/http/api-errors.decorator.js';
+import type { AuthenticatedUser } from '../../../shared/interfaces/http/authenticated-request.js';
+import { CurrentUser } from '../../../shared/interfaces/http/current-user.decorator.js';
+import { SpellDto, SpellPageDto } from './dto/spell.dto.js';
+import { CreateSpellDto } from './dto/create-spell.dto.js';
+import { UpdateSpellDto } from './dto/update-spell.dto.js';
+import { CreateSpellCommand } from '../../application/cqrs/commands/create-spell.command.js';
+import { DeleteSpellCommand } from '../../application/cqrs/commands/delete-spell.command.js';
+import { UpdateSpellCommand } from '../../application/cqrs/commands/update-spell.command.js';
+import { Page } from '../../../shared/application/pagination/page.js';
+import { PagedQueryDto } from '../../../shared/interfaces/http/dto/paged-rsql-query.js';
+import { GetSpellQuery } from '../../application/cqrs/queries/get-spell.query.js';
+import { GetSpellsQuery } from '../../application/cqrs/queries/get-spells.query.js';
+import { Spell } from '../../domain/aggregates/spell.js';
 
 @UseGuards(JwtAuthGuard)
 @Controller('v1/spells')

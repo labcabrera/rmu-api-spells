@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsString, IsNumber, IsArray } from 'class-validator';
-import type { SpellTargetMode, SpellTargetType } from '../../../domain/value-objects/spell-target.vo';
-import { SpellTarget } from '../../../domain/value-objects/spell-target.vo';
+import type { SpellTargetMode, SpellTargetType } from '../../../domain/value-objects/spell-target.vo.js';
+import { SpellTarget } from '../../../domain/value-objects/spell-target.vo.js';
 
 export class SpellTargetDto {
   @ApiProperty({ type: String, required: true, example: 'target' })

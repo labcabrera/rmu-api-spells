@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PaginationDto } from '../../../../shared/interfaces/http/dto/page.dto';
-import { Spell } from '../../../domain/aggregates/spell';
-import { NamedEntityDto } from '../../../../shared/interfaces/http/dto/named-entity.dto';
-import SpellModifiersDto from './spell-modifiers.dto';
+import { PaginationDto } from '../../../../shared/interfaces/http/dto/page.dto.js';
+import { Spell } from '../../../domain/aggregates/spell.js';
+import { NamedEntityDto } from '../../../../shared/interfaces/http/dto/named-entity.dto.js';
+import SpellModifiersDto from './spell-modifiers.dto.js';
 
 export class SpellDto {
   @ApiProperty({ description: 'Unique identifier for the spell', example: 'fireball' })

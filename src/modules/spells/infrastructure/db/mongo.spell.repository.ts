@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { SpellDocument, SpellModel } from '../persistence/models/spell.model';
+import { type SpellDocument, SpellModel } from '../persistence/models/spell.model.js';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { RsqlParser } from '../../../shared/infrastructure/db/rsql-parser';
-import { SpellRepository } from '../../application/ports/spell-repository.port';
-import type { SpellModifiers } from '../../domain/value-objects/spell-modifiers.vo';
-import { Spell } from '../../domain/aggregates/spell';
-import { MongoBaseRepository } from '../../../shared/infrastructure/db/mongo.base.repository';
+import { RsqlParser } from '../../../shared/infrastructure/db/rsql-parser.js';
+import type { SpellRepository } from '../../application/ports/spell-repository.port.js';
+import type { SpellModifiers } from '../../domain/value-objects/spell-modifiers.vo.js';
+import { Spell } from '../../domain/aggregates/spell.js';
+import { MongoBaseRepository } from '../../../shared/infrastructure/db/mongo.base.repository.js';
 
 @Injectable()
 export class MongoSpellRepository extends MongoBaseRepository<Spell, SpellDocument> implements SpellRepository {

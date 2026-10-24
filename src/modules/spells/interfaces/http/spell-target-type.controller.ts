@@ -1,8 +1,8 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../../shared/infrastructure/security/jwt-auth.guard';
-import { ApiErrors } from '../../../shared/interfaces/http/api-errors.decorator';
-import { SPELL_TARGET_TYPES, SpellTargetType } from '../../domain/value-objects/spell-target.vo';
+import { JwtAuthGuard } from '../../../shared/infrastructure/security/jwt-auth.guard.js';
+import { ApiErrors } from '../../../shared/interfaces/http/api-errors.decorator.js';
+import { SPELL_TARGET_TYPES, type SpellTargetType } from '../../domain/value-objects/spell-target.vo.js';
 
 @UseGuards(JwtAuthGuard)
 @Controller('v1/target-types')

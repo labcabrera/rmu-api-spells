@@ -1,10 +1,10 @@
 import { Inject, Logger } from '@nestjs/common';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { CreateSpellCommand } from '../commands/create-spell.command';
-import { type SpellRepository, SPELL_REPOSITORY } from '../../ports/spell-repository.port';
-import { Spell } from '../../../domain/aggregates/spell';
-import { type SpellGuardPort, SPELL_GUARD_PORT } from '../../ports/spell-guard.port';
-import { DOMAIN_EVENT_PUBLISHER, type DomainEventPublisher } from '../../../../shared/application/ports/domain-event-publisher.port';
+import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
+import { CreateSpellCommand } from '../commands/create-spell.command.js';
+import { type SpellRepository, SPELL_REPOSITORY } from '../../ports/spell-repository.port.js';
+import { Spell } from '../../../domain/aggregates/spell.js';
+import { type SpellGuardPort, SPELL_GUARD_PORT } from '../../ports/spell-guard.port.js';
+import { DOMAIN_EVENT_PUBLISHER, type DomainEventPublisher } from '../../../../shared/application/ports/domain-event-publisher.port.js';
 
 @CommandHandler(CreateSpellCommand)
 export class CreateSpellHandler implements ICommandHandler<CreateSpellCommand, Spell> {

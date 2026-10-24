@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsOptional, IsNumber, IsIn } from 'class-validator';
-import { SpellModifiersDto } from './spell-modifiers.dto';
-import { UpdateSpellCommand } from '../../../application/cqrs/commands/update-spell.command';
-import { NamedEntityDto } from '../../../../shared/interfaces/http/dto/named-entity.dto';
-import { AccessType } from '../../../../shared/domain/entities/access-type';
+import { SpellModifiersDto } from './spell-modifiers.dto.js';
+import { UpdateSpellCommand } from '../../../application/cqrs/commands/update-spell.command.js';
+import { NamedEntityDto } from '../../../../shared/interfaces/http/dto/named-entity.dto.js';
+import type { AccessType } from '../../../../shared/domain/entities/access-type.js';
 
 export class UpdateSpellDto {
   @ApiProperty({ type: String, description: 'Name of the spell', example: 'Fireball' })

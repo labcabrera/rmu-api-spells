@@ -1,11 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsNumber, IsBoolean } from 'class-validator';
-import { SpellModifiers } from '../../../domain/value-objects/spell-modifiers.vo';
-import { SpellDurationDto } from './spell-duration.dto';
-import type { SpellType } from '../../../domain/value-objects/spell-type.vo';
-import { SpellSubtype as SpellSubtype } from '../../../domain/value-objects/spell-subtype.vo';
-import { SpellRangeDto } from './spell-range.dto';
-import SpellTargetDto from './spell-target.dto';
+import { SpellModifiers } from '../../../domain/value-objects/spell-modifiers.vo.js';
+import { SpellDurationDto } from './spell-duration.dto.js';
+import type { SpellType } from '../../../domain/value-objects/spell-type.vo.js';
+import type { SpellSubtype as SpellSubtype } from '../../../domain/value-objects/spell-subtype.vo.js';
+import { SpellRangeDto } from './spell-range.dto.js';
+import SpellTargetDto from './spell-target.dto.js';
 
 export class SpellModifiersDto {
   @ApiProperty({ type: String, required: true, example: 'elemental' })

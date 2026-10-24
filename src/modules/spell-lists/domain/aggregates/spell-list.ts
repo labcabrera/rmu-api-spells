@@ -1,13 +1,13 @@
 import { AggregateRoot } from '@nestjs/cqrs';
-import { SpellListCreatedEvent } from '../events/spell-list-created.event';
-import { SpellListUpdatedEvent } from '../events/spell-list-updated.event';
+import { SpellListCreatedEvent } from '../events/spell-list-created.event.js';
+import { SpellListUpdatedEvent } from '../events/spell-list-updated.event.js';
 import { randomUUID } from 'crypto';
-import { DomainEvent } from '../../../shared/domain/events/domain-event';
-import { SpellListProps } from './spell-list.props';
-import { RealmType } from '../value-objects/realm-type.vo';
-import { ListType } from '../value-objects/list-type.vo';
-import { ValidationError } from '../../../shared/domain/errors/errors';
-import { AccessType } from '../../../shared/domain/entities/access-type';
+import { DomainEvent } from '../../../shared/domain/events/domain-event.js';
+import { SpellListProps } from './spell-list.props.js';
+import type { RealmType } from '../value-objects/realm-type.vo.js';
+import type { ListType } from '../value-objects/list-type.vo.js';
+import { ValidationError } from '../../../shared/domain/errors/errors.js';
+import type { AccessType } from '../../../shared/domain/entities/access-type.js';
 
 export class SpellList extends AggregateRoot<DomainEvent<SpellListProps>> {
   private constructor(

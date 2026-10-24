@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsOptional, IsBoolean } from 'class-validator';
-import { SpellDurationScale } from '../../../domain/value-objects/spell-duration-scale.vo';
-import type { SpellDurationType } from '../../../domain/value-objects/spell-duration-type.vo';
-import { SpellDuration } from '../../../domain/value-objects/spell-duration.vo';
+import type { SpellDurationScale } from '../../../domain/value-objects/spell-duration-scale.vo.js';
+import type { SpellDurationType } from '../../../domain/value-objects/spell-duration-type.vo.js';
+import { SpellDuration } from '../../../domain/value-objects/spell-duration.vo.js';
 
 export class SpellDurationDto {
   @ApiProperty({ type: String, required: false })

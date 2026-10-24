@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PaginationDto } from '../../../../shared/interfaces/http/dto/page.dto';
-import { SpellList } from '../../../domain/aggregates/spell-list';
-import type { ListType } from '../../../domain/value-objects/list-type.vo';
-import type { RealmType } from '../../../domain/value-objects/realm-type.vo';
+import { PaginationDto } from '../../../../shared/interfaces/http/dto/page.dto.js';
+import { SpellList } from '../../../domain/aggregates/spell-list.js';
+import type { ListType } from '../../../domain/value-objects/list-type.vo.js';
+import type { RealmType } from '../../../domain/value-objects/realm-type.vo.js';
 
 export class SpellListDto {
   @ApiProperty({ description: 'Unique identifier for the spell list', example: 'fireball' })

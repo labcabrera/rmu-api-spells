@@ -1,11 +1,11 @@
 import { AggregateRoot } from '@nestjs/cqrs';
-import { SpellCreatedEvent } from '../events/spell-created.event';
-import { SpellUpdatedEvent } from '../events/spell-updated.event';
+import { SpellCreatedEvent } from '../events/spell-created.event.js';
+import { SpellUpdatedEvent } from '../events/spell-updated.event.js';
 import { randomUUID } from 'crypto';
-import { DomainEvent } from '../../../shared/domain/events/domain-event';
-import { SpellProps } from './spell.props';
-import { SpellModifiers } from '../value-objects/spell-modifiers.vo';
-import { AccessType } from '../../../shared/domain/entities/access-type';
+import { DomainEvent } from '../../../shared/domain/events/domain-event.js';
+import { SpellProps } from './spell.props.js';
+import { SpellModifiers } from '../value-objects/spell-modifiers.vo.js';
+import type { AccessType } from '../../../shared/domain/entities/access-type.js';
 
 export class Spell extends AggregateRoot<DomainEvent<SpellProps>> {
   private constructor(

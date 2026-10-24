@@ -1,5 +1,5 @@
-import { SpellDurationScale } from './spell-duration-scale.vo';
-import { SpellDurationType } from './spell-duration-type.vo';
+import type { SpellDurationScale } from './spell-duration-scale.vo.js';
+import type { SpellDurationType } from './spell-duration-type.vo.js';
 
 export class SpellDuration {
   constructor(

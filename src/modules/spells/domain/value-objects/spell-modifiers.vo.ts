@@ -1,8 +1,8 @@
-import { SpellDuration } from './spell-duration.vo';
-import { SpellRange } from './spell-range.vo';
-import { SpellSubtype } from './spell-subtype.vo';
-import { SpellType } from './spell-type.vo';
-import { SpellTarget } from './spell-target.vo';
+import { SpellDuration } from './spell-duration.vo.js';
+import { SpellRange } from './spell-range.vo.js';
+import type { SpellSubtype } from './spell-subtype.vo.js';
+import type { SpellType } from './spell-type.vo.js';
+import { SpellTarget } from './spell-target.vo.js';
 
 export class SpellModifiers {
   constructor(

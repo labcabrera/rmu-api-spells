@@ -1,21 +1,21 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { JwtAuthGuard } from '../../../shared/infrastructure/security/jwt-auth.guard';
-import { ApiErrors } from '../../../shared/interfaces/http/api-errors.decorator';
-import type { AuthenticatedUser } from '../../../shared/interfaces/http/authenticated-request';
-import { CurrentUser } from '../../../shared/interfaces/http/current-user.decorator';
-import { GetSpellListQuery } from '../../application/cqrs/queries/get-spell-list.query';
-import { GetSpellListsQuery } from '../../application/cqrs/queries/get-spell-lists.query';
-import { SpellListDto, SpellListPageDto } from './dto/spell-list.dto';
-import { SpellList } from '../../domain/aggregates/spell-list';
-import { CreateSpellListDto } from './dto/create-spell-list.dto';
-import { UpdateSpellListDto } from './dto/update-spell-list.dto';
-import { CreateSpellListCommand } from '../../application/cqrs/commands/create-spell-list.command';
-import { DeleteSpellListCommand } from '../../application/cqrs/commands/delete-spell-list.command';
-import { UpdateSpellListCommand } from '../../application/cqrs/commands/update-spell-list.command';
-import { Page } from '../../../shared/application/pagination/page';
-import { PagedQueryDto } from '../../../shared/interfaces/http/dto/paged-rsql-query';
+import { JwtAuthGuard } from '../../../shared/infrastructure/security/jwt-auth.guard.js';
+import { ApiErrors } from '../../../shared/interfaces/http/api-errors.decorator.js';
+import type { AuthenticatedUser } from '../../../shared/interfaces/http/authenticated-request.js';
+import { CurrentUser } from '../../../shared/interfaces/http/current-user.decorator.js';
+import { GetSpellListQuery } from '../../application/cqrs/queries/get-spell-list.query.js';
+import { GetSpellListsQuery } from '../../application/cqrs/queries/get-spell-lists.query.js';
+import { SpellListDto, SpellListPageDto } from './dto/spell-list.dto.js';
+import { SpellList } from '../../domain/aggregates/spell-list.js';
+import { CreateSpellListDto } from './dto/create-spell-list.dto.js';
+import { UpdateSpellListDto } from './dto/update-spell-list.dto.js';
+import { CreateSpellListCommand } from '../../application/cqrs/commands/create-spell-list.command.js';
+import { DeleteSpellListCommand } from '../../application/cqrs/commands/delete-spell-list.command.js';
+import { UpdateSpellListCommand } from '../../application/cqrs/commands/update-spell-list.command.js';
+import { Page } from '../../../shared/application/pagination/page.js';
+import { PagedQueryDto } from '../../../shared/interfaces/http/dto/paged-rsql-query.js';
 
 @UseGuards(JwtAuthGuard)
 @Controller('v1/spell-lists')

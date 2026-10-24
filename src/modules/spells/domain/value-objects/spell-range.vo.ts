@@ -1,4 +1,4 @@
-import { SpellRangeType } from './spell-range-type.vo';
+import type { SpellRangeType } from './spell-range-type.vo.js';
 
 export class SpellRange {
   constructor(
