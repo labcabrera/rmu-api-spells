@@ -1,4 +1,6 @@
 import { Inject, Logger } from '@nestjs/common';
+import { type SpellListRepository, SPELL_LIST_REPOSITORY } from '../../../../spell-lists/application/ports/spell-list-repository.port.js';
+import { NotFoundError } from '../../../../shared/domain/errors/errors.js';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
 import { CreateSpellCommand } from '../commands/create-spell.command.js';
 import { type SpellRepository, SPELL_REPOSITORY } from '../../ports/spell-repository.port.js';
@@ -12,13 +14,16 @@ export class CreateSpellHandler implements ICommandHandler<CreateSpellCommand, S
 
   constructor(
     @Inject(SPELL_REPOSITORY) private readonly spellRepository: SpellRepository,
+    @Inject(SPELL_LIST_REPOSITORY) private readonly spellListRepository: SpellListRepository,
     @Inject(SPELL_GUARD_PORT) private readonly spellGuard: SpellGuardPort,
     @Inject(DOMAIN_EVENT_PUBLISHER) private readonly events: DomainEventPublisher,
   ) {}
 
   async execute(command: CreateSpellCommand): Promise<Spell> {
     this.logger.log(`Creating spell ${command.name} for user ${command.userId}`);
-    this.spellGuard.checkCreate(command.roles);
+    const list = await this.spellListRepository.findById(command.spellListId);
+    if (!list) throw new NotFoundError('SpellList', command.spellListId);
+    this.spellGuard.checkCreate(list, command.userId, command.roles);
     const spell = Spell.create({
       spellListId: command.spellListId,
       name: command.name,

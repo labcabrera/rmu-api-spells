@@ -15,6 +15,8 @@ export class UpdateSpellCommand extends AuthenticatedCommand {
     roles: string[],
     /** The version the client read; undefined applies the change to the current one. */
     public readonly expectedVersion?: number,
+    /** The list the spell moves to; undefined keeps it in its list. */
+    public readonly spellListId?: string,
   ) {
     super(userId, roles);
   }

@@ -40,6 +40,6 @@ import { SPELL_LIST_REPOSITORY } from './application/ports/spell-list-repository
       useClass: SpellListGuardAdapter,
     },
   ],
-  exports: [SPELL_LIST_REPOSITORY],
+  exports: [SPELL_LIST_REPOSITORY, SPELL_LIST_GUARD_PORT],
 })
 export class SpellListsModule {}

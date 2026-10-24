@@ -183,15 +183,7 @@ describe('Spells (e2e)', () => {
         .expect(400);
     });
 
-    // F-spells-13: the list of the spell is neither required nor checked.
-    it('creates a spell without a list or in a list that does not exist', async () => {
-      const orphan = await create('owner', { spellListId: undefined });
-      expect(orphan).not.toHaveProperty('spellListId');
-      const missing = await create('owner', { spellListId: 'missing-list' });
-      expect(missing.spellListId).toBe('missing-list');
-    });
-
-    it.skip('rejects a spell in a list that does not exist [F-spells-13]', async () => {
+    it('rejects a spell in a list that does not exist [F-spells-13]', async () => {
       await request(e2e.server).post('/v1/spells').set('Authorization', e2e.auth('owner')).send(spellBody('missing-list')).expect(404);
     });
 
@@ -236,17 +228,6 @@ describe('Spells (e2e)', () => {
       expect((res.body as SpellBody).modifiers).toEqual({ range: null, duration: null, target: null, rrModifier: 5 });
     });
 
-    // F-spells-20: the spellList field of the patch is ignored.
-    it('does not move a spell to another list', async () => {
-      const spell = await create('owner');
-      const res = await request(e2e.server)
-        .patch(`/v1/spells/${spell.id}`)
-        .set('Authorization', e2e.auth('owner'))
-        .send({ spellList: { id: 'other-list', name: 'Other' } })
-        .expect(200);
-      expect(res.body).toMatchObject({ spellListId: listId });
-    });
-
     it('answers a patch without changes with the spell, without publishing an event', async () => {
       const spell = await create('owner', { name: 'Same spell' });
       takeTopics(e2e.events);
@@ -287,14 +268,48 @@ describe('Spells (e2e)', () => {
       await request(e2e.server).post('/v1/spells').set('Authorization', e2e.auth('noRole')).send(spellBody(listId)).expect(403);
     });
 
-    // F-spells-14: anyone with a role adds spells to any list.
-    it('lets another user add a spell to a private list that is not theirs', async () => {
-      const spell = await create('other');
-      expect(spell.spellListId).toBe(listId);
+    it('rejects a spell in a list of another user, even a public one [F-spells-14]', async () => {
+      await request(e2e.server).post('/v1/spells').set('Authorization', e2e.auth('other')).send(spellBody(listId)).expect(403);
+      const publicList = await request(e2e.server)
+        .post('/v1/spell-lists')
+        .set('Authorization', e2e.auth('owner'))
+        .send(spellListBody({ accessType: 'public' }))
+        .expect(201);
+      const publicListId = (publicList.body as { id: string }).id;
+      await request(e2e.server).post('/v1/spells').set('Authorization', e2e.auth('other')).send(spellBody(publicListId)).expect(403);
+      await request(e2e.server).post('/v1/spells').set('Authorization', e2e.auth('admin')).send(spellBody(publicListId)).expect(201);
     });
 
-    it.skip('rejects a spell in a list of another user [F-spells-14]', async () => {
-      await request(e2e.server).post('/v1/spells').set('Authorization', e2e.auth('other')).send(spellBody(listId)).expect(403);
+    it('lets only the owner of the list and admins create, update and delete its spells [F-spells-14]', async () => {
+      const spell = await create('owner', { name: 'Matrix spell' });
+      const path = `/v1/spells/${spell.id}`;
+      const body = spellBody(listId);
+
+      // Create
+      await request(e2e.server).post('/v1/spells').send(body).expect(401);
+      await request(e2e.server).post('/v1/spells').set('Authorization', e2e.auth('noRole')).send(body).expect(403);
+      await request(e2e.server).post('/v1/spells').set('Authorization', e2e.auth('other')).send(body).expect(403);
+      // Update
+      await request(e2e.server).patch(path).send({ name: 'X' }).expect(401);
+      await request(e2e.server).patch(path).set('Authorization', e2e.auth('noRole')).send({ name: 'X' }).expect(403);
+      await request(e2e.server).patch(path).set('Authorization', e2e.auth('other')).send({ name: 'X' }).expect(403);
+      await request(e2e.server).patch(path).set('Authorization', e2e.auth('owner')).send({ name: 'By owner' }).expect(200);
+      await request(e2e.server).patch(path).set('Authorization', e2e.auth('admin')).send({ name: 'By admin' }).expect(200);
+      // Delete
+      await request(e2e.server).delete(path).expect(401);
+      await request(e2e.server).delete(path).set('Authorization', e2e.auth('noRole')).expect(403);
+      await request(e2e.server).delete(path).set('Authorization', e2e.auth('other')).expect(403);
+      await request(e2e.server).delete(path).set('Authorization', e2e.auth('admin')).expect(204);
+      const own = await create('owner');
+      await request(e2e.server).delete(`/v1/spells/${own.id}`).set('Authorization', e2e.auth('owner')).expect(204);
+    });
+
+    it('lets the owner of the list change a spell that another user added to it', async () => {
+      // A spell stored before spec 021 by another user, in the list of the owner.
+      const spell = await create('admin', { name: 'Added by admin' });
+      const path = `/v1/spells/${spell.id}`;
+      await request(e2e.server).patch(path).set('Authorization', e2e.auth('owner')).send({ name: 'Taken over' }).expect(200);
+      await request(e2e.server).delete(path).set('Authorization', e2e.auth('owner')).expect(204);
     });
 
     it('shows a private spell only to its owner and admins, and lets only them change it', async () => {
@@ -316,15 +331,102 @@ describe('Spells (e2e)', () => {
       await request(e2e.server).delete(path).set('Authorization', e2e.auth('admin')).expect(204);
     });
 
-    it('shows a public spell to everyone, even of a private list, but lets only its owner and admins change it', async () => {
+    it('hides a public spell of a private list: the spell takes the visibility of its list [F-spells-14]', async () => {
       const spell = await create('owner', { name: 'Public spell', accessType: 'public' });
+      const path = `/v1/spells/${spell.id}`;
+
+      await request(e2e.server).get(path).set('Authorization', e2e.auth('other')).expect(403);
+      await request(e2e.server).get(path).set('Authorization', e2e.auth('noRole')).expect(403);
+      const listed = await request(e2e.server).get('/v1/spells?size=100').set('Authorization', e2e.auth('other')).expect(200);
+      expect(ids(listed.body)).not.toContain(spell.id);
+      await request(e2e.server).delete(path).set('Authorization', e2e.auth('owner')).expect(204);
+    });
+
+    it('shows a private spell of a public list to everyone, but lets only the owner of the list change it', async () => {
+      const auth = e2e.auth('owner');
+      const list = await request(e2e.server)
+        .post('/v1/spell-lists')
+        .set('Authorization', auth)
+        .send(spellListBody({ accessType: 'public' }));
+      const publicListId = (list.body as { id: string }).id;
+      const res = await request(e2e.server)
+        .post('/v1/spells')
+        .set('Authorization', auth)
+        .send(spellBody(publicListId, { accessType: 'private' }))
+        .expect(201);
+      const spell = res.body as SpellBody;
       const path = `/v1/spells/${spell.id}`;
 
       await request(e2e.server).get(path).set('Authorization', e2e.auth('other')).expect(200);
       await request(e2e.server).get(path).set('Authorization', e2e.auth('noRole')).expect(200);
+      const listed = await request(e2e.server)
+        .get(`/v1/spells?q=spellListId==${publicListId}`)
+        .set('Authorization', e2e.auth('noRole'))
+        .expect(200);
+      expect(ids(listed.body)).toEqual([spell.id]);
       await request(e2e.server).patch(path).set('Authorization', e2e.auth('other')).send({ name: 'Taken' }).expect(403);
       await request(e2e.server).delete(path).set('Authorization', e2e.auth('noRole')).expect(403);
-      await request(e2e.server).delete(path).set('Authorization', e2e.auth('owner')).expect(204);
+      await request(e2e.server).delete(path).set('Authorization', auth).expect(204);
+    });
+
+    it('keeps the own access type of a spell whose list does not exist', async () => {
+      const raw = (id: string, accessType: string) => ({
+        _id: id as never,
+        spellListId: 'gone-list',
+        name: 'Orphan spell',
+        level: 1,
+        modifiers: { type: 'utility' },
+        owner: 'e2e-owner',
+        accessType,
+        createdAt: new Date(),
+      });
+      await e2e.connection.collection('spells').insertMany([raw('e2e-orphan-public', 'public'), raw('e2e-orphan-private', 'private')]);
+
+      await request(e2e.server).get('/v1/spells/e2e-orphan-public').set('Authorization', e2e.auth('other')).expect(200);
+      await request(e2e.server).get('/v1/spells/e2e-orphan-private').set('Authorization', e2e.auth('other')).expect(403);
+      await request(e2e.server).get('/v1/spells/e2e-orphan-private').set('Authorization', e2e.auth('owner')).expect(200);
+      const ofOther = await request(e2e.server)
+        .get('/v1/spells?q=spellListId==gone-list')
+        .set('Authorization', e2e.auth('other'))
+        .expect(200);
+      expect(ids(ofOther.body)).toEqual(['e2e-orphan-public']);
+      const ofOwner = await request(e2e.server)
+        .get('/v1/spells?q=spellListId==gone-list')
+        .set('Authorization', e2e.auth('owner'))
+        .expect(200);
+      expect(ids(ofOwner.body).sort()).toEqual(['e2e-orphan-private', 'e2e-orphan-public']);
+      await request(e2e.server)
+        .patch('/v1/spells/e2e-orphan-public')
+        .set('Authorization', e2e.auth('other'))
+        .send({ name: 'X' })
+        .expect(403);
+      await request(e2e.server).delete('/v1/spells/e2e-orphan-public').set('Authorization', e2e.auth('owner')).expect(204);
+      await request(e2e.server).delete('/v1/spells/e2e-orphan-private').set('Authorization', e2e.auth('admin')).expect(204);
+    });
+
+    it('moves a spell only to another list of the user [F-spells-20]', async () => {
+      const auth = e2e.auth('owner');
+      const spell = await create('owner');
+      const path = `/v1/spells/${spell.id}`;
+      const own = await request(e2e.server).post('/v1/spell-lists').set('Authorization', auth).send(spellListBody()).expect(201);
+      const ofOther = await request(e2e.server)
+        .post('/v1/spell-lists')
+        .set('Authorization', e2e.auth('other'))
+        .send(spellListBody({ accessType: 'public' }))
+        .expect(201);
+      const ownId = (own.body as { id: string }).id;
+
+      await request(e2e.server).patch(path).set('Authorization', auth).send({ spellListId: 'missing-list' }).expect(404);
+      await request(e2e.server)
+        .patch(path)
+        .set('Authorization', auth)
+        .send({ spellListId: (ofOther.body as { id: string }).id })
+        .expect(403);
+      const moved = await request(e2e.server).patch(path).set('Authorization', auth).send({ spellListId: ownId }).expect(200);
+      expect(moved.body).toMatchObject({ spellListId: ownId, version: 1 });
+      // The MFE sends the whole spell back, with the list it already has.
+      const same = await request(e2e.server).patch(path).set('Authorization', auth).send({ spellListId: ownId, version: 1 }).expect(200);
+      expect(same.body).toMatchObject({ version: 1 });
     });
   });
 

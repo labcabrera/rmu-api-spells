@@ -15,6 +15,7 @@ import { UpdateSpellHandler } from './application/cqrs/handlers/update-spell.han
 import { DeleteSpellHandler } from './application/cqrs/handlers/delete-spell.handler.js';
 import { SpellTargetTypeController } from './interfaces/http/spell-target-type.controller.js';
 import { SPELL_GUARD_PORT } from './application/ports/spell-guard.port.js';
+import { SpellListsModule } from '../spell-lists/spell-lists.module.js';
 import { SPELL_REPOSITORY } from './application/ports/spell-repository.port.js';
 
 @Module({
@@ -24,6 +25,7 @@ import { SPELL_REPOSITORY } from './application/ports/spell-repository.port.js';
     MongooseModule.forFeature([{ name: SpellModel.name, schema: SpellSchema }]),
     AuthModule,
     SharedModule,
+    SpellListsModule,
   ],
   controllers: [SpellController, SpellTargetTypeController],
   providers: [

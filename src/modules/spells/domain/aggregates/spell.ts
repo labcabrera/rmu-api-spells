@@ -72,7 +72,8 @@ export class Spell extends BaseAggregateRoot<SpellProps> {
     };
   }
 
-  update(props: Partial<Omit<SpellProps, 'id' | 'spellListId' | 'owner' | 'createdAt' | 'updatedAt'>>): void {
+  update(props: Partial<Omit<SpellProps, 'id' | 'owner' | 'createdAt' | 'updatedAt'>>): void {
+    if (props.spellListId) this.spellListId = props.spellListId;
     if (props.name) this.name = props.name;
     if (props.level) this.level = props.level;
     if (props.modifiers) this.modifiers = props.modifiers;
