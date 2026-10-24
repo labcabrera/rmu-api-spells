@@ -10,6 +10,10 @@ export class MongoQueryCriteriaMapper {
     switch (criteria.type) {
       case 'eq':
         return { [criteria.field]: criteria.value };
+      case 'in':
+        return { [criteria.field]: { $in: criteria.values } };
+      case 'notIn':
+        return { [criteria.field]: { $nin: criteria.values } };
       case 'anyOf':
         return { $or: criteria.criteria.map(item => this.toFilterQuery(item)) };
       case 'allOf':

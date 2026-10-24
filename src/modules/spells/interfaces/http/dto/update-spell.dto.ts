@@ -1,9 +1,8 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsIn, IsInt, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 import { SpellModifiersDto } from './spell-modifiers.dto.js';
 import { UpdateSpellCommand } from '../../../application/cqrs/commands/update-spell.command.js';
-import { NamedEntityDto } from '../../../../shared/interfaces/http/dto/named-entity.dto.js';
 import type { AccessType } from '../../../../shared/domain/entities/access-type.js';
 
 export class UpdateSpellDto {
@@ -17,9 +16,11 @@ export class UpdateSpellDto {
   @IsOptional()
   level: number | undefined;
 
-  @ApiProperty({ description: 'Short description of the spell', required: false, example: 'A powerful fire spell' })
+  @ApiPropertyOptional({ type: String, description: 'List the spell moves to: it must exist and be one of the lists of the user' })
+  @IsString()
+  @IsNotEmpty()
   @IsOptional()
-  spellList: NamedEntityDto | undefined;
+  spellListId: string | undefined;
 
   @ApiProperty({ description: 'Modifiers for the spell', required: false, type: SpellModifiersDto })
   @IsOptional()
@@ -70,6 +71,7 @@ export class UpdateSpellDto {
       user,
       roles,
       dto.version,
+      dto.spellListId,
     );
   }
 }

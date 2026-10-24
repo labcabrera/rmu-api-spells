@@ -353,6 +353,17 @@ describe('Spell lists (e2e)', () => {
       await request(e2e.server).delete(path).set('Authorization', e2e.auth('admin')).expect(204);
     });
 
+    it('answers 401 without a token and 403 without a role to create, update and delete', async () => {
+      const list = await create('owner', { accessType: 'public' });
+      const path = `/v1/spell-lists/${list.id}`;
+      await request(e2e.server).post('/v1/spell-lists').send(spellListBody()).expect(401);
+      await request(e2e.server).patch(path).send({ name: 'X' }).expect(401);
+      await request(e2e.server).delete(path).expect(401);
+      await request(e2e.server).patch(path).set('Authorization', e2e.auth('noRole')).send({ name: 'X' }).expect(403);
+      await request(e2e.server).delete(path).set('Authorization', e2e.auth('other')).expect(403);
+      await request(e2e.server).delete(path).set('Authorization', e2e.auth('owner')).expect(204);
+    });
+
     it('shows a public list to everyone but lets only its owner and admins change it', async () => {
       const list = await create('owner', { name: 'Public list', accessType: 'public' });
       const path = `/v1/spell-lists/${list.id}`;

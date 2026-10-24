@@ -6,11 +6,18 @@ import { RsqlParser } from '../../../shared/infrastructure/db/rsql-parser.js';
 import type { SpellListRepository } from '../../application/ports/spell-list-repository.port.js';
 import { SpellList } from '../../domain/aggregates/spell-list.js';
 import { MongoBaseRepository } from '../../../shared/infrastructure/db/mongo.base.repository.js';
+import type { QueryCriteria } from '../../../shared/application/criteria/query-criteria.js';
+import { MongoQueryCriteriaMapper } from '../../../shared/infrastructure/db/mongo-query-criteria.mapper.js';
 
 @Injectable()
 export class MongoSpellListRepository extends MongoBaseRepository<SpellList, SpellListModel> implements SpellListRepository {
   constructor(@InjectModel(SpellListModel.name) model: Model<SpellListModel>, rsqlParser: RsqlParser) {
     super(model, rsqlParser);
+  }
+
+  async findIds(filter: QueryCriteria): Promise<string[]> {
+    const docs = await this.model.find(MongoQueryCriteriaMapper.toFilterQuery(filter), { _id: 1 }).lean();
+    return docs.map(doc => String(doc._id));
   }
 
   protected mapToEntity(doc: SpellListDocument): SpellList {

@@ -1,4 +1,5 @@
 import { Inject, Logger } from '@nestjs/common';
+import { type SpellListRepository, SPELL_LIST_REPOSITORY } from '../../../../spell-lists/application/ports/spell-list-repository.port.js';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
 import { DeleteSpellCommand } from '../commands/delete-spell.command.js';
 import { NotFoundError } from '../../../../shared/domain/errors/errors.js';
@@ -13,6 +14,7 @@ export class DeleteSpellHandler implements ICommandHandler<DeleteSpellCommand> {
 
   constructor(
     @Inject(SPELL_REPOSITORY) private readonly spellRepository: SpellRepository,
+    @Inject(SPELL_LIST_REPOSITORY) private readonly spellListRepository: SpellListRepository,
     @Inject(SPELL_GUARD_PORT) private readonly spellGuard: SpellGuardPort,
     @Inject(DOMAIN_EVENT_PUBLISHER) private readonly events: DomainEventPublisher,
   ) {}
@@ -21,7 +23,8 @@ export class DeleteSpellHandler implements ICommandHandler<DeleteSpellCommand> {
     this.logger.log(`Deleting spell ${command.spellId}`);
     const spell = await this.spellRepository.findById(command.spellId);
     if (!spell) throw new NotFoundError('Spell', command.spellId);
-    this.spellGuard.checkDelete(spell, command.userId, command.roles);
+    const list = await this.spellListRepository.findById(spell.spellListId);
+    this.spellGuard.checkDelete(spell, list, command.userId, command.roles);
 
     const deleted = await this.spellRepository.deleteById(command.spellId);
     if (!deleted) {
