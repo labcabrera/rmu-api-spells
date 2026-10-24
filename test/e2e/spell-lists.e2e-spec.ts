@@ -78,11 +78,11 @@ describe('Spell lists (e2e)', () => {
       const list = await create('owner', { name: 'Event list' });
       const [event] = e2e.events.splice(0);
       expect(event.topic).toBe('internal.rmu-spells.spell-list.created.v1');
-      // F-spells-09: the producer of the spells events says rmu-api-core.
+      // F-spells-09: the producer is the Kafka client id of the API.
       expect(event.message).toMatchObject({
         eventType: 'created',
         eventVersion: '1',
-        producer: 'rmu-api-core',
+        producer: 'rmu-api-spells-e2e',
         data: { id: list.id, name: 'Event list', owner: 'e2e-owner', accessType: 'private' },
       });
     });

@@ -20,7 +20,7 @@ export class UpdateSpellListHandler implements ICommandHandler<UpdateSpellListCo
     if (!spellList) throw new NotFoundError('SpellList', command.id);
     this.spellListGuard.checkUpdate(spellList, command.userId, command.roles);
     spellList.checkVersion(command.expectedVersion);
-    const changed = spellList.update({
+    spellList.update({
       name: command.name,
       realm: command.realm,
       type: command.type,
@@ -29,7 +29,7 @@ export class UpdateSpellListHandler implements ICommandHandler<UpdateSpellListCo
       description: command.description,
       imageUrl: command.imageUrl,
     });
-    if (!changed) return spellList;
+    if (!spellList.hasChanges()) return spellList;
     const updated = await this.spellListRepository.update(spellList);
     await this.events.publishChanges('spell-list', spellList);
     return updated;

@@ -72,18 +72,16 @@ export class Spell extends BaseAggregateRoot<SpellProps> {
     };
   }
 
-  update(props: Partial<Omit<SpellProps, 'id' | 'spellListId' | 'owner' | 'createdAt' | 'updatedAt'>>): boolean {
-    // A patch that changes nothing is not an update: no new updatedAt, no write and no event.
-    const before = JSON.stringify(this.getProps());
+  update(props: Partial<Omit<SpellProps, 'id' | 'spellListId' | 'owner' | 'createdAt' | 'updatedAt'>>): void {
     if (props.name) this.name = props.name;
     if (props.level) this.level = props.level;
     if (props.modifiers) this.modifiers = props.modifiers;
     if (props.accessType) this.accessType = props.accessType;
     if (props.description) this.description = props.description;
     if (props.imageUrl !== undefined) this.imageUrl = props.imageUrl;
-    if (JSON.stringify(this.getProps()) === before) return false;
+    // A patch that changes nothing is not an update: no new updatedAt, no write and no event (hasChanges()).
+    if (!this.hasChanges()) return;
     this.updatedAt = new Date();
     this.apply(new SpellUpdatedEvent(this.getProps()));
-    return true;
   }
 }

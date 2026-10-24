@@ -75,9 +75,7 @@ export class SpellList extends BaseAggregateRoot<SpellListProps> {
     };
   }
 
-  update(props: Partial<Omit<SpellListProps, 'id' | 'owner' | 'createdAt' | 'updatedAt'>>): boolean {
-    // A patch that changes nothing is not an update: no new updatedAt, no write and no event.
-    const before = JSON.stringify(this.getProps());
+  update(props: Partial<Omit<SpellListProps, 'id' | 'owner' | 'createdAt' | 'updatedAt'>>): void {
     if (props.name) this.name = props.name;
     if (props.realm) this.realm = props.realm;
     if (props.type) this.type = props.type;
@@ -86,10 +84,10 @@ export class SpellList extends BaseAggregateRoot<SpellListProps> {
     if (props.description) this.description = props.description;
     if (props.imageUrl !== undefined) this.imageUrl = props.imageUrl;
     this.validate();
-    if (JSON.stringify(this.getProps()) === before) return false;
+    // A patch that changes nothing is not an update: no new updatedAt, no write and no event (hasChanges()).
+    if (!this.hasChanges()) return;
     this.updatedAt = new Date();
     this.apply(new SpellListUpdatedEvent(this.getProps()));
-    return true;
   }
 
   validate() {

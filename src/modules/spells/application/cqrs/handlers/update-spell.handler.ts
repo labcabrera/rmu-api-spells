@@ -22,7 +22,7 @@ export class UpdateSpellHandler implements ICommandHandler<UpdateSpellCommand, S
     this.spellGuard.checkUpdate(spell, command.userId, command.roles);
     spell.checkVersion(command.expectedVersion);
 
-    const changed = spell.update({
+    spell.update({
       name: command.name,
       level: command.level,
       modifiers: command.modifiers,
@@ -30,7 +30,7 @@ export class UpdateSpellHandler implements ICommandHandler<UpdateSpellCommand, S
       description: command.description,
       imageUrl: command.imageUrl,
     });
-    if (!changed) return spell;
+    if (!spell.hasChanges()) return spell;
     const updated = await this.spellRepository.update(spell);
     await this.events.publishChanges('spell', spell);
     return updated;
