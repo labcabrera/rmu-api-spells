@@ -5,7 +5,7 @@ import { CreateSpellListCommand } from '../commands/create-spell-list.command';
 import type { SpellListGuardPort } from '../../ports/spell-list-guard.port';
 import type { SpellListRepository } from '../../ports/spell-list-repository';
 import type { SpellListEventBusPort } from '../../ports/spell-list-event-bus.port';
-import { ConflictError } from 'src/modules/shared/domain/errors/errors';
+import { ConflictError } from '../../../../shared/domain/errors/errors';
 
 @CommandHandler(CreateSpellListCommand)
 export class CreateSpellListHandler implements ICommandHandler<CreateSpellListCommand, SpellList> {
@@ -35,7 +35,7 @@ export class CreateSpellListHandler implements ICommandHandler<CreateSpellListCo
       owner: command.userId,
     });
     const savedSpellList = await this.spellListRepository.save(spellList);
-    spellList.getUncommittedEvents().forEach((event) => this.spellListEventBus.publish(event));
+    spellList.getUncommittedEvents().forEach(event => this.spellListEventBus.publish(event));
     return savedSpellList;
   }
 }

@@ -1,6 +1,6 @@
-import { SpellModifiers } from 'src/modules/spells/domain/value-objects/spell-modifiers.vo';
-import { AccessType } from 'src/modules/shared/domain/entities/access-type';
-import { AuthenticatedCommand } from 'src/modules/shared/application/cqrs/authenticated-command';
+import { SpellModifiers } from '../../../domain/value-objects/spell-modifiers.vo';
+import { AccessType } from '../../../../shared/domain/entities/access-type';
+import { AuthenticatedCommand } from '../../../../shared/application/cqrs/authenticated-command';
 
 export class CreateSpellCommand extends AuthenticatedCommand {
   constructor(

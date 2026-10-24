@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { SpellDocument, SpellModel } from '../persistence/models/spell.model';
 import { Model } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose/dist/common/mongoose.decorators';
-import { RsqlParser } from 'src/modules/shared/infrastructure/persistence/repositories/rsql-parser';
+import { InjectModel } from '@nestjs/mongoose';
+import { RsqlParser } from '../../../shared/infrastructure/persistence/repositories/rsql-parser';
 import { SpellRepository } from '../../application/ports/spell-list-repository';
+import type { SpellModifiers } from '../../domain/value-objects/spell-modifiers.vo';
 import { Spell } from '../../domain/aggregates/spell';
-import { MongoBaseRepository } from 'src/modules/shared/infrastructure/db/mongo.base.repository';
+import { MongoBaseRepository } from '../../../shared/infrastructure/db/mongo.base.repository';
 
 @Injectable()
 export class MongoSpellRepository extends MongoBaseRepository<Spell, SpellDocument> implements SpellRepository {
@@ -19,7 +20,7 @@ export class MongoSpellRepository extends MongoBaseRepository<Spell, SpellDocume
       spellListId: doc.spellListId,
       name: doc.name,
       level: doc.level,
-      modifiers: doc.modifiers,
+      modifiers: doc.modifiers as SpellModifiers,
       accessType: doc.accessType,
       description: doc.description,
       imageUrl: doc.imageUrl,

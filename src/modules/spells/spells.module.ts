@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { TerminusModule } from '@nestjs/terminus';
-import { AuthModule } from 'src/modules/auth/auth.module';
+import { AuthModule } from '../auth/auth.module';
 import { MongoSpellRepository } from './infrastructure/db/mongo.spell.repository';
 import { MongooseModule } from '@nestjs/mongoose';
 import { KafkaSpellListProducerService } from './infrastructure/messaging/kafka.spell-list-bus.adapter';

@@ -1,6 +1,6 @@
 import { Prop, Schema } from '@nestjs/mongoose';
-import { SpellDurationScale } from 'src/modules/spells/domain/value-objects/spell-duration-scale.vo';
-import { SpellDurationType } from 'src/modules/spells/domain/value-objects/spell-duration-type.vo';
+import { SpellDurationScale } from '../../../domain/value-objects/spell-duration-scale.vo';
+import { SpellDurationType } from '../../../domain/value-objects/spell-duration-type.vo';
 
 @Schema({ id: false, _id: false })
 export class SpellDuration {

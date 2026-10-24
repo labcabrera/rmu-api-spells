@@ -1,29 +1,29 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsOptional, IsBoolean } from 'class-validator';
-import { SpellDurationScale } from 'src/modules/spells/domain/value-objects/spell-duration-scale.vo';
-import type { SpellDurationType } from 'src/modules/spells/domain/value-objects/spell-duration-type.vo';
-import { SpellDuration } from 'src/modules/spells/domain/value-objects/spell-duration.vo';
+import { SpellDurationScale } from '../../../domain/value-objects/spell-duration-scale.vo';
+import type { SpellDurationType } from '../../../domain/value-objects/spell-duration-type.vo';
+import { SpellDuration } from '../../../domain/value-objects/spell-duration.vo';
 
 export class SpellDurationDto {
-  @ApiProperty({ required: false })
+  @ApiProperty({ type: String, required: false })
   @IsOptional()
   type: SpellDurationType;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ type: Number, required: false })
   @IsOptional()
   @IsNumber()
   duration: number | null;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ type: String, required: false })
   @IsOptional()
   durationScale: SpellDurationScale | null;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ type: Boolean, required: false })
   @IsOptional()
   @IsBoolean()
   requiredConcentration: boolean | null;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ type: Number, required: false })
   @IsOptional()
   @IsNumber()
   failureScale: number | null;

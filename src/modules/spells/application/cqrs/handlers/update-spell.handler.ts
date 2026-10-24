@@ -1,8 +1,8 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UpdateSpellCommand } from '../commands/update-spell.command';
-import { NotFoundError } from 'src/modules/shared/domain/errors/errors';
-import { Spell } from 'src/modules/spells/domain/aggregates/spell';
+import { NotFoundError } from '../../../../shared/domain/errors/errors';
+import { Spell } from '../../../domain/aggregates/spell';
 import type { SpellEventBusPort } from '../../ports/spell-event-bus.port';
 import type { SpellRepository } from '../../ports/spell-list-repository';
 import type { SpellGuardPort } from '../../ports/spell-guard.port';
@@ -30,7 +30,7 @@ export class UpdateSpellHandler implements ICommandHandler<UpdateSpellCommand, S
       imageUrl: command.imageUrl,
     });
     const updated = await this.spellRepository.update(spell.id, spell);
-    spell.getUncommittedEvents().forEach((event) => this.spellEventBus.publish(event));
+    spell.getUncommittedEvents().forEach(event => this.spellEventBus.publish(event));
     return updated;
   }
 }

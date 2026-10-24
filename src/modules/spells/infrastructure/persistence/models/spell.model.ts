@@ -1,8 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Spell } from 'src/modules/spells/domain/aggregates/spell';
+import type { HydratedDocument } from 'mongoose';
+import type { AccessType } from '../../../../shared/domain/entities/access-type';
 import { SpellModifiers } from './spell-modifiers.model';
 
-export type SpellDocument = Spell & Document;
+export type SpellDocument = HydratedDocument<SpellModel>;
 
 @Schema({ collection: 'spells', versionKey: false })
 export class SpellModel {
@@ -19,7 +20,7 @@ export class SpellModel {
   level: number;
 
   @Prop({ type: String, required: false })
-  accessType: string;
+  accessType: AccessType;
 
   @Prop({ required: false })
   description?: string;

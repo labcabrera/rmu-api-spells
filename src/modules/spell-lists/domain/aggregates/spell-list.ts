@@ -2,12 +2,12 @@ import { AggregateRoot } from '@nestjs/cqrs';
 import { SpellListCreatedEvent } from '../events/spell-list-created.event';
 import { SpellListUpdatedEvent } from '../events/spell-list-updated.event';
 import { randomUUID } from 'crypto';
-import { DomainEvent } from 'src/modules/shared/domain/events/domain-event';
+import { DomainEvent } from '../../../shared/domain/events/domain-event';
 import { SpellListProps } from './spell-list.props';
 import { RealmType } from '../value-objects/realm-type.vo';
 import { ListType } from '../value-objects/list-type.vo';
-import { ValidationError } from 'src/modules/shared/domain/errors/errors';
-import { AccessType } from 'src/modules/shared/domain/entities/access-type';
+import { ValidationError } from '../../../shared/domain/errors/errors';
+import { AccessType } from '../../../shared/domain/entities/access-type';
 
 export class SpellList extends AggregateRoot<DomainEvent<SpellListProps>> {
   private constructor(

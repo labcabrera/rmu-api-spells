@@ -1,10 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
-import { SpellList } from 'src/modules/spell-lists/domain/aggregates/spell-list';
-import type { ListType } from 'src/modules/spell-lists/domain/value-objects/list-type.vo';
-import type { RealmType } from 'src/modules/spell-lists/domain/value-objects/realm-type.vo';
+import type { HydratedDocument } from 'mongoose';
+import type { AccessType } from '../../../../shared/domain/entities/access-type';
+import type { ListType } from '../../../domain/value-objects/list-type.vo';
+import type { RealmType } from '../../../domain/value-objects/realm-type.vo';
 
-export type SpellListDocument = SpellList & Document;
+export type SpellListDocument = HydratedDocument<SpellListModel>;
 
 @Schema({ collection: 'spell-lists', versionKey: false })
 export class SpellListModel {
@@ -24,7 +24,7 @@ export class SpellListModel {
   professionId: string | null;
 
   @Prop({ type: String, required: false, default: 'public' })
-  accessType: string;
+  accessType: AccessType;
 
   @Prop({ type: String, required: false })
   description: string | null;

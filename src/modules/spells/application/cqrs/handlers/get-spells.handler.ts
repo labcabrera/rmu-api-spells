@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { Page } from 'src/modules/shared/domain/entities/page';
-import { Spell } from 'src/modules/spells/domain/aggregates/spell';
+import { Page } from '../../../../shared/domain/entities/page';
+import { Spell } from '../../../domain/aggregates/spell';
 import type { SpellRepository } from '../../ports/spell-list-repository';
 import { GetSpellsQuery } from '../queries/get-spell-lists.query';
 import type { SpellGuardPort } from '../../ports/spell-guard.port';

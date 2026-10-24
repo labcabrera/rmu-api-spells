@@ -1,17 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsNumber, IsBoolean } from 'class-validator';
-import { SpellModifiers } from 'src/modules/spells/domain/value-objects/spell-modifiers.vo';
+import { SpellModifiers } from '../../../domain/value-objects/spell-modifiers.vo';
 import { SpellDurationDto } from './spell-duration.dto';
-import type { SpellType } from 'src/modules/spells/domain/value-objects/spell-type.vo';
-import { SpellSubtype as SpellSubtype } from 'src/modules/spells/domain/value-objects/spell-subtype.vo';
+import type { SpellType } from '../../../domain/value-objects/spell-type.vo';
+import { SpellSubtype as SpellSubtype } from '../../../domain/value-objects/spell-subtype.vo';
 import { SpellRangeDto } from './spell-range.dto';
 import SpellTargetDto from './spell-target.dto';
 
 export class SpellModifiersDto {
-  @ApiProperty({ required: true, example: 'elemental' })
+  @ApiProperty({ type: String, required: true, example: 'elemental' })
   type: SpellType;
 
-  @ApiProperty({ required: false, example: 'ball' })
+  @ApiProperty({ type: String, required: false, example: 'ball' })
   @IsOptional()
   subtype: SpellSubtype | null;
 
@@ -27,22 +27,22 @@ export class SpellModifiersDto {
   @IsOptional()
   target: SpellTargetDto | null;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ type: Number, required: false })
   @IsOptional()
   @IsNumber()
   rrModifier: number | null;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ type: Boolean, required: false })
   @IsOptional()
   @IsBoolean()
   instant: boolean | null;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ type: Boolean, required: false })
   @IsOptional()
   @IsBoolean()
   notRequiredPowerPoints: boolean | null;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ type: Boolean, required: false })
   @IsOptional()
   @IsBoolean()
   partOfSetOfSpells: boolean | null;

@@ -1,35 +1,42 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsOptional, IsIn } from 'class-validator';
-import { UpdateSpellListCommand } from 'src/modules/spell-lists/application/cqrs/commands/update-spell-list.command';
-import { ListType } from 'src/modules/spell-lists/domain/value-objects/list-type.vo';
-import type { RealmType } from 'src/modules/spell-lists/domain/value-objects/realm-type.vo';
-import { AccessType } from 'src/modules/shared/domain/entities/access-type';
+import { UpdateSpellListCommand } from '../../../application/cqrs/commands/update-spell-list.command';
+import { ListType } from '../../../domain/value-objects/list-type.vo';
+import type { RealmType } from '../../../domain/value-objects/realm-type.vo';
+import { AccessType } from '../../../../shared/domain/entities/access-type';
 
 export class UpdateSpellListDto {
-  @ApiProperty({ description: 'Name of the spell list', example: 'Fireball' })
+  @ApiProperty({ type: String, description: 'Name of the spell list', example: 'Fireball' })
   @IsString()
   @IsOptional()
   name: string | undefined;
 
-  @ApiProperty({ description: 'Realm of the spell list', required: false, example: 'channeling' })
+  @ApiProperty({ type: String, description: 'Realm of the spell list', required: false, example: 'channeling' })
   @IsOptional()
   realm: RealmType | undefined;
 
-  @ApiProperty({ description: 'Type of the spell list', required: false, example: 'open' })
+  @ApiProperty({ type: String, description: 'Type of the spell list', required: false, example: 'open' })
   @IsOptional()
   type: ListType | undefined;
 
-  @ApiProperty({ description: 'Profession id associated with the list', required: false, example: 'prof-123' })
+  @ApiProperty({ type: String, description: 'Profession id associated with the list', required: false, example: 'prof-123' })
   @IsOptional()
   professionId: string | undefined;
 
-  @ApiProperty({ description: 'Access type of the spell list', required: false, example: 'public', enum: ['public', 'private'] })
+  @ApiProperty({
+    type: String,
+    description: 'Access type of the spell list',
+    required: false,
+    example: 'public',
+    enum: ['public', 'private'],
+  })
   @IsString()
   @IsIn(['public', 'private'])
   @IsOptional()
   accessType: AccessType | undefined;
 
   @ApiProperty({
+    type: String,
     description: 'Description of the spell list',
     required: false,
     example: 'A detailed description of the fireball spell list',
@@ -39,6 +46,7 @@ export class UpdateSpellListDto {
   description: string | undefined;
 
   @ApiProperty({
+    type: String,
     description: 'Image URL of the spell list',
     required: false,
     example: 'https://example.com/images/spell-lists/fireball.jpg',

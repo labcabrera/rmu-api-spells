@@ -1,8 +1,8 @@
 import { Inject, Logger } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DeleteSpellListCommand } from '../commands/delete-spell-list.command';
-import { NotFoundError } from 'src/modules/shared/domain/errors/errors';
-import { SpellListDeletedEvent } from 'src/modules/spell-lists/domain/events/spell-list-deleted.event';
+import { NotFoundError } from '../../../../shared/domain/errors/errors';
+import { SpellListDeletedEvent } from '../../../domain/events/spell-list-deleted.event';
 import type { SpellListEventBusPort } from '../../ports/spell-list-event-bus.port';
 import type { SpellListRepository } from '../../ports/spell-list-repository';
 import type { SpellListGuardPort } from '../../ports/spell-list-guard.port';

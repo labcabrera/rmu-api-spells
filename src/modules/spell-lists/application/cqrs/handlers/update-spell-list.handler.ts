@@ -2,7 +2,7 @@ import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { SpellList } from '../../../domain/aggregates/spell-list';
 import { UpdateSpellListCommand } from '../commands/update-spell-list.command';
-import { NotFoundError } from 'src/modules/shared/domain/errors/errors';
+import { NotFoundError } from '../../../../shared/domain/errors/errors';
 import type { SpellListRepository } from '../../ports/spell-list-repository';
 import type { SpellListEventBusPort } from '../../ports/spell-list-event-bus.port';
 import type { SpellListGuardPort } from '../../ports/spell-list-guard.port';
@@ -29,7 +29,7 @@ export class UpdateSpellListHandler implements ICommandHandler<UpdateSpellListCo
       imageUrl: command.imageUrl,
     });
     const updated = await this.spellListRepository.update(spellList.id, spellList);
-    spellList.getUncommittedEvents().forEach((event) => this.spellListEventBus.publish(event));
+    spellList.getUncommittedEvents().forEach(event => this.spellListEventBus.publish(event));
     return updated;
   }
 }

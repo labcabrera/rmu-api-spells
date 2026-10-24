@@ -1,6 +1,6 @@
 import { Prop, Schema } from '@nestjs/mongoose';
-import { SpellSubtype } from 'src/modules/spells/domain/value-objects/spell-subtype.vo';
-import { SpellType } from 'src/modules/spells/domain/value-objects/spell-type.vo';
+import { SpellSubtype } from '../../../domain/value-objects/spell-subtype.vo';
+import { SpellType } from '../../../domain/value-objects/spell-type.vo';
 import { SpellDuration } from './spell-duration.model';
 import { SpellRange } from './spell-range.model';
 import { SpellTarget } from './spell-target.model';
