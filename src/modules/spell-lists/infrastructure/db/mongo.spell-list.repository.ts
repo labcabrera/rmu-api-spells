@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { SpellListModel, SpellListDocument } from '../persistence/models/spell-list-model';
+import { SpellListModel, SpellListDocument } from '../persistence/models/spell-list.model';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { RsqlParser } from '../../../shared/infrastructure/persistence/repositories/rsql-parser';
-import { SpellListRepository } from '../../application/ports/spell-list-repository';
+import { RsqlParser } from '../../../shared/infrastructure/db/rsql-parser';
+import { SpellListRepository } from '../../application/ports/spell-list-repository.port';
 import { SpellList } from '../../domain/aggregates/spell-list';
 import { MongoBaseRepository } from '../../../shared/infrastructure/db/mongo.base.repository';
 

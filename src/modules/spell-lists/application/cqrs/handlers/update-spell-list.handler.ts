@@ -3,16 +3,16 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { SpellList } from '../../../domain/aggregates/spell-list';
 import { UpdateSpellListCommand } from '../commands/update-spell-list.command';
 import { NotFoundError } from '../../../../shared/domain/errors/errors';
-import type { SpellListRepository } from '../../ports/spell-list-repository';
-import type { SpellListEventBusPort } from '../../ports/spell-list-event-bus.port';
-import type { SpellListGuardPort } from '../../ports/spell-list-guard.port';
+import { type SpellListRepository, SPELL_LIST_REPOSITORY } from '../../ports/spell-list-repository.port';
+import { type SpellListGuardPort, SPELL_LIST_GUARD_PORT } from '../../ports/spell-list-guard.port';
+import { DOMAIN_EVENT_PUBLISHER, type DomainEventPublisher } from '../../../../shared/application/ports/domain-event-publisher.port';
 
 @CommandHandler(UpdateSpellListCommand)
 export class UpdateSpellListHandler implements ICommandHandler<UpdateSpellListCommand, SpellList> {
   constructor(
-    @Inject('SpellListRepository') private readonly spellListRepository: SpellListRepository,
-    @Inject('SpellListGuardPort') private readonly spellListGuard: SpellListGuardPort,
-    @Inject('SpellListEventProducer') private readonly spellListEventBus: SpellListEventBusPort,
+    @Inject(SPELL_LIST_REPOSITORY) private readonly spellListRepository: SpellListRepository,
+    @Inject(SPELL_LIST_GUARD_PORT) private readonly spellListGuard: SpellListGuardPort,
+    @Inject(DOMAIN_EVENT_PUBLISHER) private readonly events: DomainEventPublisher,
   ) {}
 
   async execute(command: UpdateSpellListCommand): Promise<SpellList> {
@@ -29,7 +29,7 @@ export class UpdateSpellListHandler implements ICommandHandler<UpdateSpellListCo
       imageUrl: command.imageUrl,
     });
     const updated = await this.spellListRepository.update(spellList.id, spellList);
-    spellList.getUncommittedEvents().forEach(event => this.spellListEventBus.publish(event));
+    await this.events.publishChanges('spell-list', spellList);
     return updated;
   }
 }

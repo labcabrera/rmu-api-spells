@@ -1,16 +1,16 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { Page } from '../../../../shared/domain/entities/page';
+import { Page } from '../../../../shared/application/pagination/page';
 import { Spell } from '../../../domain/aggregates/spell';
-import type { SpellRepository } from '../../ports/spell-list-repository';
-import { GetSpellsQuery } from '../queries/get-spell-lists.query';
-import type { SpellGuardPort } from '../../ports/spell-guard.port';
+import { type SpellRepository, SPELL_REPOSITORY } from '../../ports/spell-repository.port';
+import { GetSpellsQuery } from '../queries/get-spells.query';
+import { type SpellGuardPort, SPELL_GUARD_PORT } from '../../ports/spell-guard.port';
 
 @QueryHandler(GetSpellsQuery)
 export class GetSpellsHandler implements IQueryHandler<GetSpellsQuery, Page<Spell>> {
   constructor(
-    @Inject('SpellRepository') private readonly spellRepository: SpellRepository,
-    @Inject('SpellGuardPort') private readonly spellGuard: SpellGuardPort,
+    @Inject(SPELL_REPOSITORY) private readonly spellRepository: SpellRepository,
+    @Inject(SPELL_GUARD_PORT) private readonly spellGuard: SpellGuardPort,
   ) {}
 
   async execute(query: GetSpellsQuery): Promise<Page<Spell>> {

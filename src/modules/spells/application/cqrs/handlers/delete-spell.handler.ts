@@ -2,19 +2,19 @@ import { Inject, Logger } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DeleteSpellCommand } from '../commands/delete-spell.command';
 import { NotFoundError } from '../../../../shared/domain/errors/errors';
-import type { SpellEventBusPort } from '../../ports/spell-event-bus.port';
-import type { SpellRepository } from '../../ports/spell-list-repository';
+import { type SpellRepository, SPELL_REPOSITORY } from '../../ports/spell-repository.port';
 import { SpellDeletedEvent } from '../../../domain/events/spell-deleted.event';
-import type { SpellGuardPort } from '../../ports/spell-guard.port';
+import { type SpellGuardPort, SPELL_GUARD_PORT } from '../../ports/spell-guard.port';
+import { DOMAIN_EVENT_PUBLISHER, type DomainEventPublisher } from '../../../../shared/application/ports/domain-event-publisher.port';
 
 @CommandHandler(DeleteSpellCommand)
 export class DeleteSpellHandler implements ICommandHandler<DeleteSpellCommand> {
   private readonly logger = new Logger(DeleteSpellHandler.name);
 
   constructor(
-    @Inject('SpellRepository') private readonly spellRepository: SpellRepository,
-    @Inject('SpellGuardPort') private readonly spellGuard: SpellGuardPort,
-    @Inject('SpellEventProducer') private readonly spellEventBus: SpellEventBusPort,
+    @Inject(SPELL_REPOSITORY) private readonly spellRepository: SpellRepository,
+    @Inject(SPELL_GUARD_PORT) private readonly spellGuard: SpellGuardPort,
+    @Inject(DOMAIN_EVENT_PUBLISHER) private readonly events: DomainEventPublisher,
   ) {}
 
   async execute(command: DeleteSpellCommand): Promise<void> {
@@ -27,6 +27,6 @@ export class DeleteSpellHandler implements ICommandHandler<DeleteSpellCommand> {
     if (!deleted) {
       throw new NotFoundError('Spell', command.spellId);
     }
-    this.spellEventBus.publish(new SpellDeletedEvent(deleted.getProps()));
+    await this.events.publish('spell', new SpellDeletedEvent(deleted.getProps()));
   }
 }
