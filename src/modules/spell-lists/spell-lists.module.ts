@@ -14,6 +14,8 @@ import { SpellListGuardAdapter } from './infrastructure/security/spell-list.guar
 import { SpellListController } from './interfaces/http/spell-list.controller.js';
 import { GetSpellListsHandler } from './application/cqrs/handlers/get-spell-lists.handler.js';
 import { SPELL_LIST_GUARD_PORT } from './application/ports/spell-list-guard.port.js';
+import { SPELL_LIST_CONTENTS_PORT } from './application/ports/spell-list-contents.port.js';
+import { MongoSpellListContentsAdapter } from './infrastructure/db/mongo.spell-list-contents.adapter.js';
 import { SPELL_LIST_REPOSITORY } from './application/ports/spell-list-repository.port.js';
 
 @Module({
@@ -34,6 +36,10 @@ import { SPELL_LIST_REPOSITORY } from './application/ports/spell-list-repository
     {
       provide: SPELL_LIST_REPOSITORY,
       useClass: MongoSpellListRepository,
+    },
+    {
+      provide: SPELL_LIST_CONTENTS_PORT,
+      useClass: MongoSpellListContentsAdapter,
     },
     {
       provide: SPELL_LIST_GUARD_PORT,
