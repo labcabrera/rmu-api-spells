@@ -3,14 +3,14 @@ import { Inject } from '@nestjs/common';
 import { GetSpellListQuery } from '../queries/get-spell-list.query';
 import { NotFoundError } from '../../../../shared/domain/errors/errors';
 import { SpellList } from '../../../domain/aggregates/spell-list';
-import type { SpellListRepository } from '../../ports/spell-list-repository';
-import type { SpellListGuardPort } from '../../ports/spell-list-guard.port';
+import { type SpellListRepository, SPELL_LIST_REPOSITORY } from '../../ports/spell-list-repository.port';
+import { type SpellListGuardPort, SPELL_LIST_GUARD_PORT } from '../../ports/spell-list-guard.port';
 
 @QueryHandler(GetSpellListQuery)
 export class GetSpellListHandler implements IQueryHandler<GetSpellListQuery, SpellList> {
   constructor(
-    @Inject('SpellListRepository') private readonly spellListRepository: SpellListRepository,
-    @Inject('SpellListGuardPort') private readonly spellListGuard: SpellListGuardPort,
+    @Inject(SPELL_LIST_REPOSITORY) private readonly spellListRepository: SpellListRepository,
+    @Inject(SPELL_LIST_GUARD_PORT) private readonly spellListGuard: SpellListGuardPort,
   ) {}
 
   async execute(query: GetSpellListQuery): Promise<SpellList> {

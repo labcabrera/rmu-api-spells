@@ -1,19 +1,19 @@
 import { Inject, Logger } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreateSpellCommand } from '../commands/create-spell.command';
-import type { SpellRepository } from '../../ports/spell-list-repository';
+import { type SpellRepository, SPELL_REPOSITORY } from '../../ports/spell-repository.port';
 import { Spell } from '../../../domain/aggregates/spell';
-import type { SpellEventBusPort } from '../../ports/spell-event-bus.port';
-import type { SpellGuardPort } from '../../ports/spell-guard.port';
+import { type SpellGuardPort, SPELL_GUARD_PORT } from '../../ports/spell-guard.port';
+import { DOMAIN_EVENT_PUBLISHER, type DomainEventPublisher } from '../../../../shared/application/ports/domain-event-publisher.port';
 
 @CommandHandler(CreateSpellCommand)
 export class CreateSpellHandler implements ICommandHandler<CreateSpellCommand, Spell> {
   private readonly logger = new Logger(CreateSpellHandler.name);
 
   constructor(
-    @Inject('SpellRepository') private readonly spellRepository: SpellRepository,
-    @Inject('SpellGuardPort') private readonly spellGuard: SpellGuardPort,
-    @Inject('SpellEventProducer') private readonly spellEventBus: SpellEventBusPort,
+    @Inject(SPELL_REPOSITORY) private readonly spellRepository: SpellRepository,
+    @Inject(SPELL_GUARD_PORT) private readonly spellGuard: SpellGuardPort,
+    @Inject(DOMAIN_EVENT_PUBLISHER) private readonly events: DomainEventPublisher,
   ) {}
 
   async execute(command: CreateSpellCommand): Promise<Spell> {
@@ -30,7 +30,7 @@ export class CreateSpellHandler implements ICommandHandler<CreateSpellCommand, S
       owner: command.userId,
     });
     const savedSpell = await this.spellRepository.save(spell);
-    spell.getUncommittedEvents().forEach(event => this.spellEventBus.publish(event));
+    await this.events.publishChanges('spell', spell);
     return savedSpell;
   }
 }
