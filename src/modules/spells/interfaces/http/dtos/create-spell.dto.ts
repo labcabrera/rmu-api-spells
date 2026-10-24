@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsNotEmpty, IsOptional, IsNumber, IsIn } from 'class-validator';
-import { CreateSpellCommand } from 'src/modules/spells/application/cqrs/commands/create-spell.command';
+import { CreateSpellCommand } from '../../../application/cqrs/commands/create-spell.command';
 import SpellModifiersDto from './spell-modifiers.dto';
-import { AccessType } from 'src/modules/shared/domain/entities/access-type';
+import { AccessType } from '../../../../shared/domain/entities/access-type';
 
 export class CreateSpellDto {
   @ApiProperty({ description: 'Spell list reference', required: true })
@@ -23,13 +23,14 @@ export class CreateSpellDto {
   @IsOptional()
   modifiers: SpellModifiersDto;
 
-  @ApiProperty({ description: 'Access type of the spell', required: false, example: 'public', enum: ['public', 'private'] })
+  @ApiProperty({ type: String, description: 'Access type of the spell', required: false, example: 'public', enum: ['public', 'private'] })
   @IsString()
   @IsIn(['public', 'private'])
   @IsOptional()
   accessType: AccessType | undefined;
 
   @ApiProperty({
+    type: String,
     description: 'Description of the spell',
     required: false,
     example: 'A detailed description of the spell with all its features and effects',
@@ -39,6 +40,7 @@ export class CreateSpellDto {
   description: string | undefined;
 
   @ApiProperty({
+    type: String,
     description: 'Image URL of the spell',
     required: false,
     example: 'https://example.com/images/spells/some-spell.jpg',

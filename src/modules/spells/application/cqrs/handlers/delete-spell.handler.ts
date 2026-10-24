@@ -1,10 +1,10 @@
 import { Inject, Logger } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DeleteSpellCommand } from '../commands/delete-spell.command';
-import { NotFoundError } from 'src/modules/shared/domain/errors/errors';
+import { NotFoundError } from '../../../../shared/domain/errors/errors';
 import type { SpellEventBusPort } from '../../ports/spell-event-bus.port';
 import type { SpellRepository } from '../../ports/spell-list-repository';
-import { SpellDeletedEvent } from 'src/modules/spells/domain/events/spell-deleted.event';
+import { SpellDeletedEvent } from '../../../domain/events/spell-deleted.event';
 import type { SpellGuardPort } from '../../ports/spell-guard.port';
 
 @CommandHandler(DeleteSpellCommand)

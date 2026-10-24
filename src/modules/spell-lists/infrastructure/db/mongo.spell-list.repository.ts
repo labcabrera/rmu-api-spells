@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { SpellListModel, SpellListDocument } from '../persistence/models/spell-list-model';
 import { Model } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose/dist/common/mongoose.decorators';
-import { RsqlParser } from 'src/modules/shared/infrastructure/persistence/repositories/rsql-parser';
+import { InjectModel } from '@nestjs/mongoose';
+import { RsqlParser } from '../../../shared/infrastructure/persistence/repositories/rsql-parser';
 import { SpellListRepository } from '../../application/ports/spell-list-repository';
 import { SpellList } from '../../domain/aggregates/spell-list';
-import { MongoBaseRepository } from 'src/modules/shared/infrastructure/db/mongo.base.repository';
+import { MongoBaseRepository } from '../../../shared/infrastructure/db/mongo.base.repository';
 
 @Injectable()
 export class MongoSpellListRepository extends MongoBaseRepository<SpellList, SpellListDocument> implements SpellListRepository {

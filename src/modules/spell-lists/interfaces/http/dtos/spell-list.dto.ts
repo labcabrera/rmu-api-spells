@@ -1,20 +1,20 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PaginationDto } from 'src/modules/shared/interfaces/http/dto/page.dto';
-import { SpellList } from 'src/modules/spell-lists/domain/aggregates/spell-list';
-import type { ListType } from 'src/modules/spell-lists/domain/value-objects/list-type.vo';
-import type { RealmType } from 'src/modules/spell-lists/domain/value-objects/realm-type.vo';
+import { PaginationDto } from '../../../../shared/interfaces/http/dto/page.dto';
+import { SpellList } from '../../../domain/aggregates/spell-list';
+import type { ListType } from '../../../domain/value-objects/list-type.vo';
+import type { RealmType } from '../../../domain/value-objects/realm-type.vo';
 
 export class SpellListDto {
   @ApiProperty({ description: 'Unique identifier for the spell list', example: 'fireball' })
   id: string;
 
-  @ApiProperty({ description: 'Realm of the spell list', example: 'channeling' })
+  @ApiProperty({ type: String, description: 'Realm of the spell list', example: 'channeling' })
   realm: RealmType;
 
-  @ApiProperty({ description: 'Type of the spell list', example: 'channeling' })
+  @ApiProperty({ type: String, description: 'Type of the spell list', example: 'channeling' })
   type: ListType;
 
-  @ApiProperty({ description: 'Profession id associated with the list', required: false, example: 'prof-123' })
+  @ApiProperty({ type: String, description: 'Profession id associated with the list', required: false, example: 'prof-123' })
   professionId?: string | null;
 
   @ApiProperty({ description: 'Access type of the spell list', required: false, example: 'public', enum: ['public', 'private'] })
@@ -24,6 +24,7 @@ export class SpellListDto {
   name: string;
 
   @ApiProperty({
+    type: String,
     description: 'Description of the spell list',
     required: false,
     example: 'A detailed description of the spell list with all its features and spells',
@@ -31,6 +32,7 @@ export class SpellListDto {
   description: string | null;
 
   @ApiProperty({
+    type: String,
     description: 'Image URL of the spell list',
     required: false,
     example: 'https://example.com/images/spell-lists/fireball.jpg',

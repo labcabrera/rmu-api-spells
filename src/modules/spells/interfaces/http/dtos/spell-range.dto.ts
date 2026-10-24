@@ -1,14 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsString } from 'class-validator';
-import type { SpellRangeType } from 'src/modules/spells/domain/value-objects/spell-range-type.vo';
-import { SpellRange } from 'src/modules/spells/domain/value-objects/spell-range.vo';
+import type { SpellRangeType } from '../../../domain/value-objects/spell-range-type.vo';
+import { SpellRange } from '../../../domain/value-objects/spell-range.vo';
 
 export class SpellRangeDto {
-  @ApiProperty({ required: true, example: 'distance' })
+  @ApiProperty({ type: String, required: true, example: 'distance' })
   @IsString()
   type: SpellRangeType;
 
-  @ApiProperty({ required: false, example: 10 })
+  @ApiProperty({ type: Number, required: false, example: 10 })
   @IsNumber()
   value: number | null;
 

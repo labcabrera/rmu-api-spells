@@ -1,7 +1,7 @@
-import { ListType } from 'src/modules/spell-lists/domain/value-objects/list-type.vo';
-import { RealmType } from 'src/modules/spell-lists/domain/value-objects/realm-type.vo';
-import { AccessType } from 'src/modules/shared/domain/entities/access-type';
-import { AuthenticatedCommand } from 'src/modules/shared/application/cqrs/authenticated-command';
+import { ListType } from '../../../domain/value-objects/list-type.vo';
+import { RealmType } from '../../../domain/value-objects/realm-type.vo';
+import { AccessType } from '../../../../shared/domain/entities/access-type';
+import { AuthenticatedCommand } from '../../../../shared/application/cqrs/authenticated-command';
 
 export class UpdateSpellListCommand extends AuthenticatedCommand {
   constructor(

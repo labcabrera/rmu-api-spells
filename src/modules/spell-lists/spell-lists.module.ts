@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { TerminusModule } from '@nestjs/terminus';
-import { AuthModule } from 'src/modules/auth/auth.module';
+import { AuthModule } from '../auth/auth.module';
 import { MongoSpellListRepository } from './infrastructure/db/mongo.spell-list.repository';
 import { MongooseModule } from '@nestjs/mongoose';
 import { SpellListModel, SpellListSchema } from './infrastructure/persistence/models/spell-list-model';

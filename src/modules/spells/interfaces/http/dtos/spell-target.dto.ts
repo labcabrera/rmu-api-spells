@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsString, IsNumber, IsArray } from 'class-validator';
-import type { SpellTargetMode, SpellTargetType } from 'src/modules/spells/domain/value-objects/spell-target.vo';
-import { SpellTarget } from 'src/modules/spells/domain/value-objects/spell-target.vo';
+import type { SpellTargetMode, SpellTargetType } from '../../../domain/value-objects/spell-target.vo';
+import { SpellTarget } from '../../../domain/value-objects/spell-target.vo';
 
 export class SpellTargetDto {
-  @ApiProperty({ required: true, example: 'target' })
+  @ApiProperty({ type: String, required: true, example: 'target' })
   @IsString()
   mode: SpellTargetMode;
 
@@ -13,12 +13,12 @@ export class SpellTargetDto {
   @IsArray()
   types: SpellTargetType[] | null;
 
-  @ApiProperty({ required: false, example: 1 })
+  @ApiProperty({ type: Number, required: false, example: 1 })
   @IsOptional()
   @IsNumber()
   count: number | null;
 
-  @ApiProperty({ required: false, example: 'adjacent' })
+  @ApiProperty({ type: String, required: false, example: 'adjacent' })
   @IsOptional()
   @IsString()
   modifier: string | null;

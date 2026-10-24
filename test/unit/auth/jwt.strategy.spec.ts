@@ -1,10 +1,10 @@
 import { ConfigService } from '@nestjs/config';
 import { generateKeyPairSync, sign } from 'crypto';
-import { JwtStrategy } from 'src/modules/auth/jwt.strategy';
+import { JwtStrategy } from '../../../src/modules/auth/jwt.strategy';
 
 const mockKeys = generateKeyPairSync('rsa', { modulusLength: 2048 });
 
-jest.mock('jwks-rsa', () => ({
+vi.mock('jwks-rsa', () => ({
   passportJwtSecret: () => (_req: unknown, _token: unknown, done: (err: Error | null, key?: string) => void) =>
     done(null, mockKeys.publicKey.export({ type: 'spki', format: 'pem' }).toString()),
 }));
@@ -38,8 +38,8 @@ const authenticate = (token: string): Promise<AuthResult> => {
     fail: () => void;
     error: () => void;
   };
-  return new Promise((resolve) => {
-    strategy.success = (user) => resolve({ outcome: 'success', user });
+  return new Promise(resolve => {
+    strategy.success = user => resolve({ outcome: 'success', user });
     strategy.fail = () => resolve({ outcome: 'fail' });
     strategy.error = () => resolve({ outcome: 'error' });
     strategy.authenticate({ headers: { authorization: `Bearer ${token}` } });

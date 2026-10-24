@@ -2,7 +2,7 @@ import { Inject, Logger } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreateSpellCommand } from '../commands/create-spell.command';
 import type { SpellRepository } from '../../ports/spell-list-repository';
-import { Spell } from 'src/modules/spells/domain/aggregates/spell';
+import { Spell } from '../../../domain/aggregates/spell';
 import type { SpellEventBusPort } from '../../ports/spell-event-bus.port';
 import type { SpellGuardPort } from '../../ports/spell-guard.port';
 
@@ -30,7 +30,7 @@ export class CreateSpellHandler implements ICommandHandler<CreateSpellCommand, S
       owner: command.userId,
     });
     const savedSpell = await this.spellRepository.save(spell);
-    spell.getUncommittedEvents().forEach((event) => this.spellEventBus.publish(event));
+    spell.getUncommittedEvents().forEach(event => this.spellEventBus.publish(event));
     return savedSpell;
   }
 }

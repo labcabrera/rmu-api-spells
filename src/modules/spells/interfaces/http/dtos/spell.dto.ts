@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PaginationDto } from 'src/modules/shared/interfaces/http/dto/page.dto';
-import { Spell } from 'src/modules/spells/domain/aggregates/spell';
-import { NamedEntityDto } from 'src/modules/shared/interfaces/http/dto/named-entity.dto';
+import { PaginationDto } from '../../../../shared/interfaces/http/dto/page.dto';
+import { Spell } from '../../../domain/aggregates/spell';
+import { NamedEntityDto } from '../../../../shared/interfaces/http/dto/named-entity.dto';
 import SpellModifiersDto from './spell-modifiers.dto';
 
 export class SpellDto {

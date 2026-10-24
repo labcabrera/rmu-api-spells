@@ -2,10 +2,10 @@ import { AggregateRoot } from '@nestjs/cqrs';
 import { SpellCreatedEvent } from '../events/spell-created.event';
 import { SpellUpdatedEvent } from '../events/spell-updated.event';
 import { randomUUID } from 'crypto';
-import { DomainEvent } from 'src/modules/shared/domain/events/domain-event';
+import { DomainEvent } from '../../../shared/domain/events/domain-event';
 import { SpellProps } from './spell.props';
 import { SpellModifiers } from '../value-objects/spell-modifiers.vo';
-import { AccessType } from 'src/modules/shared/domain/entities/access-type';
+import { AccessType } from '../../../shared/domain/entities/access-type';
 
 export class Spell extends AggregateRoot<DomainEvent<SpellProps>> {
   private constructor(

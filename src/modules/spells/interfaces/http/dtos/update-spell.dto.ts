@@ -1,17 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsOptional, IsNumber, IsIn } from 'class-validator';
 import { SpellModifiersDto } from './spell-modifiers.dto';
-import { UpdateSpellCommand } from 'src/modules/spells/application/cqrs/commands/update-spell.command';
-import { NamedEntityDto } from 'src/modules/shared/interfaces/http/dto/named-entity.dto';
-import { AccessType } from 'src/modules/shared/domain/entities/access-type';
+import { UpdateSpellCommand } from '../../../application/cqrs/commands/update-spell.command';
+import { NamedEntityDto } from '../../../../shared/interfaces/http/dto/named-entity.dto';
+import { AccessType } from '../../../../shared/domain/entities/access-type';
 
 export class UpdateSpellDto {
-  @ApiProperty({ description: 'Name of the spell', example: 'Fireball' })
+  @ApiProperty({ type: String, description: 'Name of the spell', example: 'Fireball' })
   @IsString()
   @IsOptional()
   name: string | undefined;
 
-  @ApiProperty({ description: 'Level of the spell', example: 1 })
+  @ApiProperty({ type: Number, description: 'Level of the spell', example: 1 })
   @IsNumber()
   @IsOptional()
   level: number | undefined;
@@ -24,13 +24,14 @@ export class UpdateSpellDto {
   @IsOptional()
   modifiers: SpellModifiersDto | undefined;
 
-  @ApiProperty({ description: 'Access type of the spell', required: false, example: 'public', enum: ['public', 'private'] })
+  @ApiProperty({ type: String, description: 'Access type of the spell', required: false, example: 'public', enum: ['public', 'private'] })
   @IsString()
   @IsIn(['public', 'private'])
   @IsOptional()
   accessType: AccessType | undefined;
 
   @ApiProperty({
+    type: String,
     description: 'Description of the spell',
     required: false,
     example: 'A detailed description of the fireball spell',
@@ -40,6 +41,7 @@ export class UpdateSpellDto {
   description: string | undefined;
 
   @ApiProperty({
+    type: String,
     description: 'Image URL of the spell',
     required: false,
     example: 'https://example.com/images/spells/fireball.jpg',
