@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AuthModule } from './modules/shared/infrastructure/security/auth.module';
-import { SpellListsModule } from './modules/spell-lists/spell-lists.module';
-import { envSchema } from './config/env.schema';
-import { SharedModule } from './modules/shared/shared.module';
-import { SpellsModule } from './modules/spells/spells.module';
+import { AuthModule } from './modules/shared/infrastructure/security/auth.module.js';
+import { SpellListsModule } from './modules/spell-lists/spell-lists.module.js';
+import { envSchema } from './config/env.schema.js';
+import { SharedModule } from './modules/shared/shared.module.js';
+import { SpellsModule } from './modules/spells/spells.module.js';
 
 @Module({
   imports: [

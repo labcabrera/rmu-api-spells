@@ -1,11 +1,11 @@
 import { Inject } from '@nestjs/common';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UpdateSpellCommand } from '../commands/update-spell.command';
-import { NotFoundError } from '../../../../shared/domain/errors/errors';
-import { Spell } from '../../../domain/aggregates/spell';
-import { type SpellRepository, SPELL_REPOSITORY } from '../../ports/spell-repository.port';
-import { type SpellGuardPort, SPELL_GUARD_PORT } from '../../ports/spell-guard.port';
-import { DOMAIN_EVENT_PUBLISHER, type DomainEventPublisher } from '../../../../shared/application/ports/domain-event-publisher.port';
+import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
+import { UpdateSpellCommand } from '../commands/update-spell.command.js';
+import { NotFoundError } from '../../../../shared/domain/errors/errors.js';
+import { Spell } from '../../../domain/aggregates/spell.js';
+import { type SpellRepository, SPELL_REPOSITORY } from '../../ports/spell-repository.port.js';
+import { type SpellGuardPort, SPELL_GUARD_PORT } from '../../ports/spell-guard.port.js';
+import { DOMAIN_EVENT_PUBLISHER, type DomainEventPublisher } from '../../../../shared/application/ports/domain-event-publisher.port.js';
 
 @CommandHandler(UpdateSpellCommand)
 export class UpdateSpellHandler implements ICommandHandler<UpdateSpellCommand, Spell> {

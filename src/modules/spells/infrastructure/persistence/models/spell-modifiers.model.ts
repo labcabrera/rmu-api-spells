@@ -1,9 +1,9 @@
 import { Prop, Schema } from '@nestjs/mongoose';
-import { SpellSubtype } from '../../../domain/value-objects/spell-subtype.vo';
-import { SpellType } from '../../../domain/value-objects/spell-type.vo';
-import { SpellDuration } from './spell-duration.model';
-import { SpellRange } from './spell-range.model';
-import { SpellTarget } from './spell-target.model';
+import type { SpellSubtype } from '../../../domain/value-objects/spell-subtype.vo.js';
+import type { SpellType } from '../../../domain/value-objects/spell-type.vo.js';
+import { SpellDuration } from './spell-duration.model.js';
+import { SpellRange } from './spell-range.model.js';
+import { SpellTarget } from './spell-target.model.js';
 
 @Schema({ id: false, _id: false })
 export class SpellModifiers {

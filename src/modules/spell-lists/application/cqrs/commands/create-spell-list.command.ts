@@ -1,7 +1,7 @@
-import { ListType } from '../../../domain/value-objects/list-type.vo';
-import { RealmType } from '../../../domain/value-objects/realm-type.vo';
-import { AccessType } from '../../../../shared/domain/entities/access-type';
-import { AuthenticatedCommand } from '../../../../shared/application/cqrs/authenticated-command';
+import type { ListType } from '../../../domain/value-objects/list-type.vo.js';
+import type { RealmType } from '../../../domain/value-objects/realm-type.vo.js';
+import type { AccessType } from '../../../../shared/domain/entities/access-type.js';
+import { AuthenticatedCommand } from '../../../../shared/application/cqrs/authenticated-command.js';
 
 export class CreateSpellListCommand extends AuthenticatedCommand {
   constructor(

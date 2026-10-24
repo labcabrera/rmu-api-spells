@@ -1,5 +1,5 @@
 import { Prop, Schema } from '@nestjs/mongoose';
-import type { SpellTargetMode, SpellTargetType } from '../../../domain/value-objects/spell-target.vo';
+import type { SpellTargetMode, SpellTargetType } from '../../../domain/value-objects/spell-target.vo.js';
 
 @Schema({ id: false, _id: false })
 export class SpellTarget {

@@ -1,5 +1,5 @@
-import { SpellList } from '../../domain/aggregates/spell-list';
-import { BaseRepository } from '../../../shared/application/ports/base-repository.port';
+import { SpellList } from '../../domain/aggregates/spell-list.js';
+import type { BaseRepository } from '../../../shared/application/ports/base-repository.port.js';
 
 export type SpellListRepository = BaseRepository<SpellList>;
 

@@ -1,10 +1,10 @@
-import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { type IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { GetSpellListQuery } from '../queries/get-spell-list.query';
-import { NotFoundError } from '../../../../shared/domain/errors/errors';
-import { SpellList } from '../../../domain/aggregates/spell-list';
-import { type SpellListRepository, SPELL_LIST_REPOSITORY } from '../../ports/spell-list-repository.port';
-import { type SpellListGuardPort, SPELL_LIST_GUARD_PORT } from '../../ports/spell-list-guard.port';
+import { GetSpellListQuery } from '../queries/get-spell-list.query.js';
+import { NotFoundError } from '../../../../shared/domain/errors/errors.js';
+import { SpellList } from '../../../domain/aggregates/spell-list.js';
+import { type SpellListRepository, SPELL_LIST_REPOSITORY } from '../../ports/spell-list-repository.port.js';
+import { type SpellListGuardPort, SPELL_LIST_GUARD_PORT } from '../../ports/spell-list-guard.port.js';
 
 @QueryHandler(GetSpellListQuery)
 export class GetSpellListHandler implements IQueryHandler<GetSpellListQuery, SpellList> {

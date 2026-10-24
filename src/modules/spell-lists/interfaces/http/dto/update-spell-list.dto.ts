@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsOptional, IsIn } from 'class-validator';
-import { UpdateSpellListCommand } from '../../../application/cqrs/commands/update-spell-list.command';
-import { ListType } from '../../../domain/value-objects/list-type.vo';
-import type { RealmType } from '../../../domain/value-objects/realm-type.vo';
-import { AccessType } from '../../../../shared/domain/entities/access-type';
+import { UpdateSpellListCommand } from '../../../application/cqrs/commands/update-spell-list.command.js';
+import type { ListType } from '../../../domain/value-objects/list-type.vo.js';
+import type { RealmType } from '../../../domain/value-objects/realm-type.vo.js';
+import type { AccessType } from '../../../../shared/domain/entities/access-type.js';
 
 export class UpdateSpellListDto {
   @ApiProperty({ type: String, description: 'Name of the spell list', example: 'Fireball' })

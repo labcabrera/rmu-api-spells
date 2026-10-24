@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import type { HydratedDocument } from 'mongoose';
-import type { AccessType } from '../../../../shared/domain/entities/access-type';
-import { SpellModifiers } from './spell-modifiers.model';
+import type { AccessType } from '../../../../shared/domain/entities/access-type.js';
+import { SpellModifiers } from './spell-modifiers.model.js';
 
 export type SpellDocument = HydratedDocument<SpellModel>;
 

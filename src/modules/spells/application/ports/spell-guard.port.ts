@@ -1,5 +1,5 @@
-import { EntityGuard } from '../../../shared/application/ports/entity-guard.port';
-import { Spell } from '../../domain/aggregates/spell';
+import type { EntityGuard } from '../../../shared/application/ports/entity-guard.port.js';
+import { Spell } from '../../domain/aggregates/spell.js';
 
 export type SpellGuardPort = EntityGuard<Spell>;
 

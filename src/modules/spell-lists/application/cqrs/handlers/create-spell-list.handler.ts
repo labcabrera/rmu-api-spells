@@ -1,11 +1,11 @@
 import { Inject, Logger } from '@nestjs/common';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { SpellList } from '../../../domain/aggregates/spell-list';
-import { CreateSpellListCommand } from '../commands/create-spell-list.command';
-import { type SpellListGuardPort, SPELL_LIST_GUARD_PORT } from '../../ports/spell-list-guard.port';
-import { type SpellListRepository, SPELL_LIST_REPOSITORY } from '../../ports/spell-list-repository.port';
-import { ConflictError } from '../../../../shared/domain/errors/errors';
-import { DOMAIN_EVENT_PUBLISHER, type DomainEventPublisher } from '../../../../shared/application/ports/domain-event-publisher.port';
+import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
+import { SpellList } from '../../../domain/aggregates/spell-list.js';
+import { CreateSpellListCommand } from '../commands/create-spell-list.command.js';
+import { type SpellListGuardPort, SPELL_LIST_GUARD_PORT } from '../../ports/spell-list-guard.port.js';
+import { type SpellListRepository, SPELL_LIST_REPOSITORY } from '../../ports/spell-list-repository.port.js';
+import { ConflictError } from '../../../../shared/domain/errors/errors.js';
+import { DOMAIN_EVENT_PUBLISHER, type DomainEventPublisher } from '../../../../shared/application/ports/domain-event-publisher.port.js';
 
 @CommandHandler(CreateSpellListCommand)
 export class CreateSpellListHandler implements ICommandHandler<CreateSpellListCommand, SpellList> {

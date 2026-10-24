@@ -1,6 +1,6 @@
-import { ListType } from '../value-objects/list-type.vo';
-import { RealmType } from '../value-objects/realm-type.vo';
-import { AccessType } from '../../../shared/domain/entities/access-type';
+import type { ListType } from '../value-objects/list-type.vo.js';
+import type { RealmType } from '../value-objects/realm-type.vo.js';
+import type { AccessType } from '../../../shared/domain/entities/access-type.js';
 
 export class SpellListProps {
   id: string;

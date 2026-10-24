@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import type { HydratedDocument } from 'mongoose';
-import type { AccessType } from '../../../../shared/domain/entities/access-type';
-import type { ListType } from '../../../domain/value-objects/list-type.vo';
-import type { RealmType } from '../../../domain/value-objects/realm-type.vo';
+import type { AccessType } from '../../../../shared/domain/entities/access-type.js';
+import type { ListType } from '../../../domain/value-objects/list-type.vo.js';
+import type { RealmType } from '../../../domain/value-objects/realm-type.vo.js';
 
 export type SpellListDocument = HydratedDocument<SpellListModel>;
 

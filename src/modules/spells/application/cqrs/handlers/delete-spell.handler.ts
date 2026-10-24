@@ -1,11 +1,11 @@
 import { Inject, Logger } from '@nestjs/common';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { DeleteSpellCommand } from '../commands/delete-spell.command';
-import { NotFoundError } from '../../../../shared/domain/errors/errors';
-import { type SpellRepository, SPELL_REPOSITORY } from '../../ports/spell-repository.port';
-import { SpellDeletedEvent } from '../../../domain/events/spell-deleted.event';
-import { type SpellGuardPort, SPELL_GUARD_PORT } from '../../ports/spell-guard.port';
-import { DOMAIN_EVENT_PUBLISHER, type DomainEventPublisher } from '../../../../shared/application/ports/domain-event-publisher.port';
+import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
+import { DeleteSpellCommand } from '../commands/delete-spell.command.js';
+import { NotFoundError } from '../../../../shared/domain/errors/errors.js';
+import { type SpellRepository, SPELL_REPOSITORY } from '../../ports/spell-repository.port.js';
+import { SpellDeletedEvent } from '../../../domain/events/spell-deleted.event.js';
+import { type SpellGuardPort, SPELL_GUARD_PORT } from '../../ports/spell-guard.port.js';
+import { DOMAIN_EVENT_PUBLISHER, type DomainEventPublisher } from '../../../../shared/application/ports/domain-event-publisher.port.js';
 
 @CommandHandler(DeleteSpellCommand)
 export class DeleteSpellHandler implements ICommandHandler<DeleteSpellCommand> {
