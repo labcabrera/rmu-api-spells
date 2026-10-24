@@ -77,7 +77,7 @@ export class SpellListController {
   @Delete(':id')
   @HttpCode(204)
   @ApiOperation({ operationId: 'deleteSpellList', summary: 'Delete spell list by id' })
-  @ApiErrors({ 404: 'Spell list not found' })
+  @ApiErrors({ 404: 'Spell list not found', 409: 'The spell list still has spells (has-spells)' })
   async delete(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     const userId: string = user.id;
     const roles: string[] = user.roles;

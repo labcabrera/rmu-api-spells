@@ -136,17 +136,21 @@ describe('Spell lists (e2e)', () => {
       expect(res.body).toMatchObject({ accessType: 'public' });
     });
 
-    it('does not delete the spells of a deleted list', async () => {
-      // F-spells-15: the spells keep pointing to the deleted list.
+    it('does not delete a list that still has spells [F-spells-15]', async () => {
       const auth = e2e.auth('owner');
       const list = await create('owner');
       const spell = await request(e2e.server).post('/v1/spells').set('Authorization', auth).send(spellBody(list.id)).expect(201);
-      await request(e2e.server).delete(`/v1/spell-lists/${list.id}`).set('Authorization', auth).expect(204);
-      const found = await request(e2e.server)
-        .get(`/v1/spells/${(spell.body as { id: string }).id}`)
+      takeTopics(e2e.events);
+      const res = await request(e2e.server).delete(`/v1/spell-lists/${list.id}`).set('Authorization', auth).expect(409);
+      expect(res.body).toMatchObject({ statusCode: 409, error: 'ConflictError', code: 'has-spells' });
+      expect(takeTopics(e2e.events)).toEqual([]);
+      await request(e2e.server).get(`/v1/spell-lists/${list.id}`).set('Authorization', auth).expect(200);
+
+      await request(e2e.server)
+        .delete(`/v1/spells/${(spell.body as { id: string }).id}`)
         .set('Authorization', auth)
-        .expect(200);
-      expect(found.body).toMatchObject({ spellListId: list.id });
+        .expect(204);
+      await request(e2e.server).delete(`/v1/spell-lists/${list.id}`).set('Authorization', auth).expect(204);
     });
   });
 

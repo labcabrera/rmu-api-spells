@@ -187,8 +187,7 @@ describe('Spells (e2e)', () => {
       await request(e2e.server).post('/v1/spells').set('Authorization', e2e.auth('owner')).send(spellBody('missing-list')).expect(404);
     });
 
-    // F-spells-06: a stored spell without modifiers breaks its response and the whole listing.
-    it('fails with 500 on a stored spell without modifiers', async () => {
+    it('reads a stored spell without modifiers with empty modifiers [F-spells-06]', async () => {
       const auth = e2e.auth('owner');
       await e2e.connection.collection('spells').insertOne({
         _id: 'e2e-raw-spell' as never,
@@ -199,8 +198,31 @@ describe('Spells (e2e)', () => {
         accessType: 'public',
         createdAt: new Date(),
       });
-      await request(e2e.server).get('/v1/spells/e2e-raw-spell').set('Authorization', auth).expect(500);
-      await request(e2e.server).get('/v1/spells?q=spellListId==raw-list').set('Authorization', auth).expect(500);
+      const empty = {
+        type: null,
+        subtype: null,
+        range: null,
+        duration: null,
+        target: null,
+        rrModifier: null,
+        instant: null,
+        notRequiredPowerPoints: null,
+        partOfSetOfSpells: null,
+      };
+      const found = await request(e2e.server).get('/v1/spells/e2e-raw-spell').set('Authorization', auth).expect(200);
+      expect(found.body).toMatchObject({ id: 'e2e-raw-spell', modifiers: empty });
+      const listed = await request(e2e.server).get('/v1/spells?q=spellListId==raw-list').set('Authorization', auth).expect(200);
+      expect(ids(listed.body)).toEqual(['e2e-raw-spell']);
+
+      // A spell whose modifiers miss some fields, with a null type.
+      await e2e.connection
+        .collection('spells')
+        .updateOne({ _id: 'e2e-raw-spell' as never }, { $set: { modifiers: { type: null, rrModifier: 5 } } });
+      const partial = await request(e2e.server).get('/v1/spells/e2e-raw-spell').set('Authorization', auth).expect(200);
+      expect(partial.body).toMatchObject({ modifiers: { ...empty, rrModifier: 5 } });
+
+      // A patch of another field keeps reading it.
+      await request(e2e.server).patch('/v1/spells/e2e-raw-spell').set('Authorization', auth).send({ name: 'Raw renamed' }).expect(200);
       await e2e.connection.collection('spells').deleteOne({ _id: 'e2e-raw-spell' as never });
     });
   });
@@ -225,7 +247,7 @@ describe('Spells (e2e)', () => {
         .set('Authorization', e2e.auth('owner'))
         .send({ modifiers: { rrModifier: 5 } })
         .expect(200);
-      expect((res.body as SpellBody).modifiers).toEqual({ range: null, duration: null, target: null, rrModifier: 5 });
+      expect((res.body as SpellBody).modifiers).toMatchObject({ type: null, range: null, duration: null, target: null, rrModifier: 5 });
     });
 
     it('answers a patch without changes with the spell, without publishing an event', async () => {

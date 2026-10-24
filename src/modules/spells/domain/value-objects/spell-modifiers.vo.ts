@@ -6,7 +6,7 @@ import { SpellTarget } from './spell-target.vo.js';
 
 export class SpellModifiers {
   constructor(
-    public type: SpellType,
+    public type: SpellType | null,
     public subtype: SpellSubtype | null,
     public range: SpellRange | null,
     public duration: SpellDuration | null,
@@ -16,4 +16,9 @@ export class SpellModifiers {
     public notRequiredPowerPoints: boolean | null,
     public partOfSetOfSpells: boolean | null,
   ) {}
+
+  /** The modifiers of a spell stored without them (spec 021, decision 5): every field empty. */
+  static empty(): SpellModifiers {
+    return new SpellModifiers(null, null, null, null, null, null, null, null, null);
+  }
 }
