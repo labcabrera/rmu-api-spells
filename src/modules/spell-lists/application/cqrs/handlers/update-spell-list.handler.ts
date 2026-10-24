@@ -2,7 +2,7 @@ import { Inject } from '@nestjs/common';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
 import { SpellList } from '../../../domain/aggregates/spell-list.js';
 import { UpdateSpellListCommand } from '../commands/update-spell-list.command.js';
-import { NotFoundError } from '../../../../shared/domain/errors/errors.js';
+import { ConflictError, NotFoundError } from '../../../../shared/domain/errors/errors.js';
 import { type SpellListRepository, SPELL_LIST_REPOSITORY } from '../../ports/spell-list-repository.port.js';
 import { type SpellListGuardPort, SPELL_LIST_GUARD_PORT } from '../../ports/spell-list-guard.port.js';
 import { DOMAIN_EVENT_PUBLISHER, type DomainEventPublisher } from '../../../../shared/application/ports/domain-event-publisher.port.js';
@@ -30,6 +30,12 @@ export class UpdateSpellListHandler implements ICommandHandler<UpdateSpellListCo
       imageUrl: command.imageUrl,
     });
     if (!spellList.hasChanges()) return spellList;
+    if (
+      command.name !== undefined &&
+      (await this.spellListRepository.existsByOwnerAndName(spellList.owner, spellList.name, spellList.id))
+    ) {
+      throw new ConflictError('Name already in use', 'name-in-use');
+    }
     const updated = await this.spellListRepository.update(spellList);
     await this.events.publishChanges('spell-list', spellList);
     return updated;

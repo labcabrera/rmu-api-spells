@@ -1,24 +1,30 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString, IsNumber, IsArray } from 'class-validator';
-import type { SpellTargetMode, SpellTargetType } from '../../../domain/value-objects/spell-target.vo.js';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional, IsString, IsNumber, IsArray, IsIn } from 'class-validator';
+import {
+  SPELL_TARGET_MODES,
+  SPELL_TARGET_TYPES,
+  type SpellTargetMode,
+  type SpellTargetType,
+} from '../../../domain/value-objects/spell-target.vo.js';
 import { SpellTarget } from '../../../domain/value-objects/spell-target.vo.js';
 
 export class SpellTargetDto {
-  @ApiProperty({ type: String, required: true, example: 'target' })
-  @IsString()
+  @ApiProperty({ type: String, enum: SPELL_TARGET_MODES, example: 'target' })
+  @IsIn(SPELL_TARGET_MODES)
   mode: SpellTargetMode;
 
-  @ApiProperty({ required: false, type: [String], example: ['person'] })
+  @ApiPropertyOptional({ type: [String], enum: SPELL_TARGET_TYPES, nullable: true, example: ['person'] })
   @IsOptional()
   @IsArray()
+  @IsIn(SPELL_TARGET_TYPES, { each: true })
   types: SpellTargetType[] | null;
 
-  @ApiProperty({ type: Number, required: false, example: 1 })
+  @ApiPropertyOptional({ type: Number, nullable: true, example: 1 })
   @IsOptional()
   @IsNumber()
   count: number | null;
 
-  @ApiProperty({ type: String, required: false, example: 'adjacent' })
+  @ApiPropertyOptional({ type: String, nullable: true, example: 'adjacent' })
   @IsOptional()
   @IsString()
   modifier: string | null;
@@ -33,7 +39,7 @@ export class SpellTargetDto {
   }
 
   static toEntity(dto: SpellTargetDto): SpellTarget {
-    return new SpellTarget(dto.mode, dto.types, dto.count, dto.modifier);
+    return new SpellTarget(dto.mode, dto.types ?? null, dto.count ?? null, dto.modifier ?? null);
   }
 }
 

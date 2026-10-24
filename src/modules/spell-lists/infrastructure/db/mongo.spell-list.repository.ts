@@ -20,6 +20,11 @@ export class MongoSpellListRepository extends MongoBaseRepository<SpellList, Spe
     return docs.map(doc => String(doc._id));
   }
 
+  async existsByOwnerAndName(owner: string, name: string, exceptId?: string): Promise<boolean> {
+    const filter = exceptId === undefined ? { owner, name } : { owner, name, _id: { $ne: exceptId } };
+    return (await this.model.exists(filter)) !== null;
+  }
+
   protected mapToEntity(doc: SpellListDocument): SpellList {
     return SpellList.fromProps({
       id: doc._id.toString(),

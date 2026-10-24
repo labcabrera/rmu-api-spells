@@ -21,4 +21,20 @@ export class SpellModifiers {
   static empty(): SpellModifiers {
     return new SpellModifiers(null, null, null, null, null, null, null, null, null);
   }
+
+  /** A copy with the fields of the patch: a null clears a field, a missing one keeps it (F-spells-19). */
+  merge(patch: Partial<SpellModifiers>): SpellModifiers {
+    const merged = { ...this, ...patch };
+    return new SpellModifiers(
+      merged.type ?? null,
+      merged.subtype ?? null,
+      merged.range ?? null,
+      merged.duration ?? null,
+      merged.target ?? null,
+      merged.rrModifier ?? null,
+      merged.instant ?? null,
+      merged.notRequiredPowerPoints ?? null,
+      merged.partOfSetOfSpells ?? null,
+    );
+  }
 }

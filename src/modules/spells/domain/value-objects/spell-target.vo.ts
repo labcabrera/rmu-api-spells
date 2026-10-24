@@ -1,4 +1,6 @@
-export type SpellTargetMode = 'target' | 'area' | 'volume';
+export const SPELL_TARGET_MODES = ['target', 'area', 'volume'] as const;
+
+export type SpellTargetMode = (typeof SPELL_TARGET_MODES)[number];
 export type SpellTargetType = 'person' | 'item' | 'spell' | 'gateway' | 'lock' | 'plant' | 'animal' | 'other';
 
 export const SPELL_TARGET_TYPES: SpellTargetType[] = ['person', 'item', 'spell', 'gateway', 'lock', 'other', 'plant', 'animal', 'other'];

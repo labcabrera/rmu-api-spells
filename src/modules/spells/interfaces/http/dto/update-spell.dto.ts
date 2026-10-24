@@ -1,18 +1,20 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { IsIn, IsInt, IsNotEmpty, IsObject, IsOptional, IsString, Min, ValidateNested } from 'class-validator';
 import { SpellModifiersDto } from './spell-modifiers.dto.js';
 import { UpdateSpellCommand } from '../../../application/cqrs/commands/update-spell.command.js';
 import type { AccessType } from '../../../../shared/domain/entities/access-type.js';
 
 export class UpdateSpellDto {
-  @ApiProperty({ type: String, description: 'Name of the spell', example: 'Fireball' })
+  @ApiPropertyOptional({ type: String, description: 'Name of the spell', example: 'Fireball' })
   @IsString()
+  @IsNotEmpty()
   @IsOptional()
   name: string | undefined;
 
-  @ApiProperty({ type: Number, description: 'Level of the spell', example: 1 })
-  @IsNumber()
+  @ApiPropertyOptional({ type: Number, description: 'Level of the spell', example: 1, minimum: 1 })
+  @IsInt()
+  @Min(1)
   @IsOptional()
   level: number | undefined;
 
@@ -22,8 +24,14 @@ export class UpdateSpellDto {
   @IsOptional()
   spellListId: string | undefined;
 
-  @ApiProperty({ description: 'Modifiers for the spell', required: false, type: SpellModifiersDto })
+  @ApiPropertyOptional({
+    description: 'Modifiers to change: the fields sent replace the stored ones (null clears one), the others stay',
+    type: SpellModifiersDto,
+  })
   @IsOptional()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => SpellModifiersDto)
   modifiers: SpellModifiersDto | undefined;
 
   @ApiProperty({ type: String, description: 'Access type of the spell', required: false, example: 'public', enum: ['public', 'private'] })
@@ -32,25 +40,25 @@ export class UpdateSpellDto {
   @IsOptional()
   accessType: AccessType | undefined;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     type: String,
-    description: 'Description of the spell',
-    required: false,
+    nullable: true,
+    description: 'Description of the spell: an empty string or null clears it',
     example: 'A detailed description of the fireball spell',
   })
   @IsString()
   @IsOptional()
-  description: string | undefined;
+  description: string | null | undefined;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     type: String,
-    description: 'Image URL of the spell',
-    required: false,
+    nullable: true,
+    description: 'Image URL of the spell: an empty string or null clears it',
     example: 'https://example.com/images/spells/fireball.jpg',
   })
   @IsString()
   @IsOptional()
-  imageUrl: string | undefined;
+  imageUrl: string | null | undefined;
 
   @ApiPropertyOptional({ description: 'Version the client read (from the GET); a different stored version is a 409', example: 3 })
   @Type(() => Number)
@@ -64,7 +72,7 @@ export class UpdateSpellDto {
       id,
       dto.name,
       dto.level,
-      dto.modifiers ? SpellModifiersDto.toEntity(dto.modifiers) : undefined,
+      dto.modifiers ? SpellModifiersDto.toPatch(dto.modifiers) : undefined,
       dto.accessType,
       dto.description,
       dto.imageUrl,

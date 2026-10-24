@@ -1,48 +1,62 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsNumber, IsBoolean } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { IsOptional, IsNumber, IsBoolean, IsIn, ValidateNested } from 'class-validator';
 import { SpellModifiers } from '../../../domain/value-objects/spell-modifiers.vo.js';
 import { SpellDurationDto } from './spell-duration.dto.js';
-import type { SpellType } from '../../../domain/value-objects/spell-type.vo.js';
-import type { SpellSubtype as SpellSubtype } from '../../../domain/value-objects/spell-subtype.vo.js';
+import { SPELL_TYPES, type SpellType } from '../../../domain/value-objects/spell-type.vo.js';
+import { SPELL_SUBTYPES, type SpellSubtype } from '../../../domain/value-objects/spell-subtype.vo.js';
 import { SpellRangeDto } from './spell-range.dto.js';
 import SpellTargetDto from './spell-target.dto.js';
 
+/**
+ * The modifiers of a spell. Every field is optional: rmu-mfe-spells creates spells with `modifiers: {}` and fills the
+ * fields the user picks. In a PATCH, a field that is sent replaces the stored one (null clears it) and the others stay.
+ */
 export class SpellModifiersDto {
-  @ApiProperty({ type: String, required: true, example: 'elemental' })
+  @ApiPropertyOptional({ type: String, enum: SPELL_TYPES, nullable: true, example: 'elemental' })
+  @IsOptional()
+  @IsIn(SPELL_TYPES)
   type: SpellType | null;
 
-  @ApiProperty({ type: String, required: false, example: 'ball' })
+  @ApiPropertyOptional({ type: String, enum: SPELL_SUBTYPES, nullable: true, example: 'ball' })
   @IsOptional()
+  @IsIn(SPELL_SUBTYPES)
   subtype: SpellSubtype | null;
 
-  @ApiProperty({ required: false, type: SpellRangeDto })
+  @ApiPropertyOptional({ type: SpellRangeDto, nullable: true })
   @IsOptional()
+  @ValidateNested()
+  @Type(() => SpellRangeDto)
   range: SpellRangeDto | null;
 
-  @ApiProperty({ required: false, type: SpellDurationDto })
+  @ApiPropertyOptional({ type: SpellDurationDto, nullable: true })
   @IsOptional()
+  @ValidateNested()
+  @Type(() => SpellDurationDto)
   duration: SpellDurationDto | null;
 
-  @ApiProperty({ required: false, type: SpellTargetDto })
+  @ApiPropertyOptional({ type: SpellTargetDto, nullable: true })
   @IsOptional()
+  @ValidateNested()
+  @Type(() => SpellTargetDto)
   target: SpellTargetDto | null;
 
-  @ApiProperty({ type: Number, required: false })
+  @ApiPropertyOptional({ type: Number, nullable: true })
   @IsOptional()
   @IsNumber()
   rrModifier: number | null;
 
-  @ApiProperty({ type: Boolean, required: false })
+  @ApiPropertyOptional({ type: Boolean, nullable: true })
   @IsOptional()
   @IsBoolean()
   instant: boolean | null;
 
-  @ApiProperty({ type: Boolean, required: false })
+  @ApiPropertyOptional({ type: Boolean, nullable: true })
   @IsOptional()
   @IsBoolean()
   notRequiredPowerPoints: boolean | null;
 
-  @ApiProperty({ type: Boolean, required: false })
+  @ApiPropertyOptional({ type: Boolean, nullable: true })
   @IsOptional()
   @IsBoolean()
   partOfSetOfSpells: boolean | null;
@@ -61,18 +75,25 @@ export class SpellModifiersDto {
     return dto;
   }
 
+  /** The modifiers of a new spell: what is not sent is empty. */
   static toEntity(dto: SpellModifiersDto): SpellModifiers {
-    return new SpellModifiers(
-      dto.type,
-      dto.subtype,
-      dto.range ? SpellRangeDto.toEntity(dto.range) : null,
-      dto.duration ? SpellDurationDto.toEntity(dto.duration) : null,
-      dto.target ? SpellTargetDto.toEntity(dto.target) : null,
-      dto.rrModifier,
-      dto.instant,
-      dto.notRequiredPowerPoints,
-      dto.partOfSetOfSpells,
-    );
+    return SpellModifiers.empty().merge(SpellModifiersDto.toPatch(dto));
+  }
+
+  /** Only the fields that were sent: null clears a field, a missing one keeps it. */
+  static toPatch(dto: SpellModifiersDto): Partial<SpellModifiers> {
+    const patch: Partial<SpellModifiers> = {
+      type: dto.type,
+      subtype: dto.subtype,
+      range: dto.range ? SpellRangeDto.toEntity(dto.range) : dto.range,
+      duration: dto.duration ? SpellDurationDto.toEntity(dto.duration) : dto.duration,
+      target: dto.target ? SpellTargetDto.toEntity(dto.target) : dto.target,
+      rrModifier: dto.rrModifier,
+      instant: dto.instant,
+      notRequiredPowerPoints: dto.notRequiredPowerPoints,
+      partOfSetOfSpells: dto.partOfSetOfSpells,
+    };
+    return Object.fromEntries(Object.entries(patch).filter(([, value]) => value !== undefined));
   }
 }
 

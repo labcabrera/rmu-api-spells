@@ -9,10 +9,11 @@ export class UpdateSpellListCommand extends AuthenticatedCommand {
     public readonly name: string | undefined,
     public readonly realm: RealmType | undefined,
     public readonly type: ListType | undefined,
-    public readonly professionId: string | undefined,
+    /** '' or null clears it, as the description and the image. */
+    public readonly professionId: string | null | undefined,
     public readonly accessType: AccessType | undefined,
-    public readonly description: string | undefined,
-    public readonly imageUrl: string | undefined,
+    public readonly description: string | null | undefined,
+    public readonly imageUrl: string | null | undefined,
     userId: string,
     roles: string[],
     /** The version the client read; undefined applies the change to the current one. */

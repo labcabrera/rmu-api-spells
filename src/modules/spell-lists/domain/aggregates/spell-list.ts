@@ -75,14 +75,15 @@ export class SpellList extends BaseAggregateRoot<SpellListProps> {
     };
   }
 
+  /** Applies a patch: undefined keeps a field, and '' or null clears the optional ones (F-spells-18). */
   update(props: Partial<Omit<SpellListProps, 'id' | 'owner' | 'createdAt' | 'updatedAt'>>): void {
-    if (props.name) this.name = props.name;
-    if (props.realm) this.realm = props.realm;
-    if (props.type) this.type = props.type;
-    if (props.professionId !== undefined) this.professionId = props.professionId ?? null;
-    if (props.accessType) this.accessType = props.accessType;
-    if (props.description) this.description = props.description;
-    if (props.imageUrl !== undefined) this.imageUrl = props.imageUrl;
+    if (props.name !== undefined) this.name = props.name;
+    if (props.realm !== undefined) this.realm = props.realm;
+    if (props.type !== undefined) this.type = props.type;
+    if (props.professionId !== undefined) this.professionId = props.professionId || null;
+    if (props.accessType !== undefined) this.accessType = props.accessType;
+    if (props.description !== undefined) this.description = props.description || null;
+    if (props.imageUrl !== undefined) this.imageUrl = props.imageUrl || null;
     this.validate();
     // A patch that changes nothing is not an update: no new updatedAt, no write and no event (hasChanges()).
     if (!this.hasChanges()) return;

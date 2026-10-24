@@ -7,10 +7,12 @@ export class UpdateSpellCommand extends AuthenticatedCommand {
     public readonly id: string,
     public readonly name: string | undefined,
     public readonly level: number | undefined,
-    public readonly modifiers: SpellModifiers | undefined,
+    /** Only the modifiers that change. */
+    public readonly modifiers: Partial<SpellModifiers> | undefined,
     public readonly accessType: AccessType | undefined,
-    public readonly description: string | undefined,
-    public readonly imageUrl: string | undefined,
+    /** '' or null clears it. */
+    public readonly description: string | null | undefined,
+    public readonly imageUrl: string | null | undefined,
     userId: string,
     roles: string[],
     /** The version the client read; undefined applies the change to the current one. */

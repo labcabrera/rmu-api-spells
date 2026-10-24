@@ -184,24 +184,22 @@ describe('Spell lists (e2e)', () => {
         .expect(400);
     });
 
-    // F-spells-12: realm and type only need to be strings.
-    it('accepts an unknown realm and type', async () => {
-      const list = await create('owner', { realm: 'arcane', type: 'secret' });
-      expect(list).toMatchObject({ realm: 'arcane', type: 'secret' });
-      const updated = await request(e2e.server)
-        .patch(`/v1/spell-lists/${list.id}`)
-        .set('Authorization', e2e.auth('owner'))
-        .send({ realm: 'void' })
-        .expect(200);
-      expect(updated.body).toMatchObject({ realm: 'void' });
-    });
-
-    it.skip('rejects an unknown realm or type [F-spells-12]', async () => {
+    it('rejects an unknown realm or type [F-spells-12]', async () => {
+      const auth = e2e.auth('owner');
       await request(e2e.server)
         .post('/v1/spell-lists')
-        .set('Authorization', e2e.auth('owner'))
+        .set('Authorization', auth)
         .send(spellListBody({ realm: 'arcane' }))
         .expect(400);
+      await request(e2e.server)
+        .post('/v1/spell-lists')
+        .set('Authorization', auth)
+        .send(spellListBody({ type: 'secret' }))
+        .expect(400);
+      const list = await create('owner');
+      await request(e2e.server).patch(`/v1/spell-lists/${list.id}`).set('Authorization', auth).send({ realm: 'void' }).expect(400);
+      await request(e2e.server).patch(`/v1/spell-lists/${list.id}`).set('Authorization', auth).send({ type: 'secret' }).expect(400);
+      await request(e2e.server).patch(`/v1/spell-lists/${list.id}`).set('Authorization', auth).send({ name: '' }).expect(400);
     });
 
     it('drops unknown fields of the body', async () => {
@@ -214,51 +212,46 @@ describe('Spell lists (e2e)', () => {
   });
 
   describe('names', () => {
-    // F-spells-16: the name check is global and goes through an RSQL expression built from the name.
-    it('rejects a name already used by another user, even in a private list', async () => {
+    it('rejects a name the user already has, but not one of another user [F-spells-16]', async () => {
       await create('owner', { name: 'Unique name', accessType: 'private' });
       const res = await request(e2e.server)
         .post('/v1/spell-lists')
-        .set('Authorization', e2e.auth('other'))
+        .set('Authorization', e2e.auth('owner'))
         .send(spellListBody({ name: 'Unique name' }))
         .expect(409);
-      expect(res.body).toMatchObject({ error: 'ConflictError', message: 'Name already in use' });
+      expect(res.body).toMatchObject({ error: 'ConflictError', code: 'name-in-use', message: 'Name already in use' });
+      await create('other', { name: 'Unique name' });
     });
 
-    it('rejects a name with a double quote as an invalid search', async () => {
-      const res = await request(e2e.server)
-        .post('/v1/spell-lists')
-        .set('Authorization', e2e.auth('owner'))
-        .send(spellListBody({ name: 'The "true" fire' }))
-        .expect(400);
-      expect(res.body).toMatchObject({ error: 'InvalidSearchExpression' });
+    it('accepts a name with a double quote [F-spells-16]', async () => {
+      const list = await create('owner', { name: 'The "true" fire' });
+      expect(list.name).toBe('The "true" fire');
     });
 
-    it.skip('accepts a name with a double quote [F-spells-16]', async () => {
-      await create('owner', { name: 'The "true" fire' });
-    });
-
-    it('lets a list be renamed to a name already in use', async () => {
+    it('rejects renaming a list to a name the owner already has [F-spells-16]', async () => {
       await create('owner', { name: 'Taken name' });
       const list = await create('owner', { name: 'Free name' });
+      const path = `/v1/spell-lists/${list.id}`;
+      const res = await request(e2e.server).patch(path).set('Authorization', e2e.auth('owner')).send({ name: 'Taken name' }).expect(409);
+      expect(res.body).toMatchObject({ code: 'name-in-use' });
+      // Its own name, as the MFE sends it back with the other fields.
       await request(e2e.server)
-        .patch(`/v1/spell-lists/${list.id}`)
+        .patch(path)
         .set('Authorization', e2e.auth('owner'))
-        .send({ name: 'Taken name' })
+        .send({ name: 'Free name', description: 'New' })
         .expect(200);
     });
   });
 
   describe('updates', () => {
-    // F-spells-18: an empty string does not clear the description.
-    it('keeps the description when it is patched with an empty string', async () => {
-      const list = await create('owner', { description: 'Long text' });
+    it('clears the description and the image with an empty string or null [F-spells-18]', async () => {
+      const list = await create('owner', { description: 'Long text', imageUrl: 'https://example.com/a.png' });
       const res = await request(e2e.server)
         .patch(`/v1/spell-lists/${list.id}`)
         .set('Authorization', e2e.auth('owner'))
-        .send({ description: '' })
+        .send({ description: '', imageUrl: null })
         .expect(200);
-      expect(res.body).toMatchObject({ description: 'Long text' });
+      expect(res.body).toMatchObject({ description: null, imageUrl: null });
     });
 
     it('answers a patch without changes with the list, without writing it or publishing an event', async () => {

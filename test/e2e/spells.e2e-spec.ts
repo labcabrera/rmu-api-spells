@@ -134,52 +134,79 @@ describe('Spells (e2e)', () => {
         .expect(400);
     });
 
-    // F-spells-22: the level is any number.
-    it('accepts a negative or fractional level', async () => {
-      const spell = await create('owner', { level: -1.5 });
-      expect(spell.level).toBe(-1.5);
+    it('rejects a level that is not a positive integer [F-spells-22]', async () => {
+      const auth = e2e.auth('owner');
+      for (const level of [-1.5, 0, 2.5]) {
+        await request(e2e.server).post('/v1/spells').set('Authorization', auth).send(spellBody(listId, { level })).expect(400);
+      }
+      const spell = await create('owner', { level: 1 });
+      await request(e2e.server).patch(`/v1/spells/${spell.id}`).set('Authorization', auth).send({ level: 0 }).expect(400);
+      await request(e2e.server).patch(`/v1/spells/${spell.id}`).set('Authorization', auth).send({ level: 1.5 }).expect(400);
     });
 
-    // F-spells-10: modifiers are optional in the DTO, but the controller reads them.
-    it('fails with 500 when the modifiers are missing', async () => {
-      const res = await request(e2e.server)
-        .post('/v1/spells')
-        .set('Authorization', e2e.auth('owner'))
-        .send(spellBody(listId, { modifiers: undefined }))
-        .expect(500);
-      // The body never shows the internal error.
-      expect(res.body).toMatchObject({
-        statusCode: 500,
-        error: 'InternalServerError',
-        code: 'internal-error',
-        message: 'Internal server error',
-      });
-    });
-
-    it.skip('rejects a spell without modifiers [F-spells-10]', async () => {
+    it('rejects a spell without modifiers [F-spells-10]', async () => {
+      const auth = e2e.auth('owner');
       await request(e2e.server)
         .post('/v1/spells')
-        .set('Authorization', e2e.auth('owner'))
+        .set('Authorization', auth)
         .send(spellBody(listId, { modifiers: undefined }))
+        .expect(400);
+      await request(e2e.server)
+        .post('/v1/spells')
+        .set('Authorization', auth)
+        .send(spellBody(listId, { modifiers: 'fire' }))
         .expect(400);
     });
 
-    // F-spells-11: the nested modifiers are not validated.
-    it('accepts unknown modifier values and fails with 500 on a value Mongo cannot cast', async () => {
-      const spell = await create('owner', { modifiers: spellModifiers({ type: 'chaotic', subtype: 'cloud' }) });
-      expect(spell.modifiers).toMatchObject({ type: 'chaotic', subtype: 'cloud' });
+    it('rejects unknown modifier values [F-spells-11]', async () => {
+      const auth = e2e.auth('owner');
+      const invalid = [
+        { type: 'chaotic' },
+        { subtype: 'cloud' },
+        { range: { type: 'distance', value: 'far' } },
+        { range: { type: 'far' } },
+        { range: { value: 10 } },
+        { duration: { type: 'forever' } },
+        { duration: { type: 'lvl', durationScale: 'century' } },
+        { target: { mode: 'cone' } },
+        { target: { mode: 'target', types: ['dragon'] } },
+        { target: { modifier: '10 ft' } },
+        { instant: 'yes' },
+      ];
+      for (const modifiers of invalid) {
+        const res = await request(e2e.server)
+          .post('/v1/spells')
+          .set('Authorization', auth)
+          .send(spellBody(listId, { modifiers: spellModifiers(modifiers) }));
+        expect({ modifiers, status: res.status }).toEqual({ modifiers, status: 400 });
+      }
+      const spell = await create('owner');
       await request(e2e.server)
-        .post('/v1/spells')
-        .set('Authorization', e2e.auth('owner'))
-        .send(spellBody(listId, { modifiers: spellModifiers({ range: { type: 'distance', value: 'far' } }) }))
-        .expect(500);
+        .patch(`/v1/spells/${spell.id}`)
+        .set('Authorization', auth)
+        .send({ modifiers: { type: 'chaotic' } })
+        .expect(400);
     });
 
-    it.skip('rejects unknown modifier values [F-spells-11]', async () => {
+    it('accepts the modifiers the MFE sends while the form is incomplete', async () => {
+      // rmu-mfe-spells starts a new spell with `modifiers: {}` and may set a duration without type.
+      const empty = await create('owner', { modifiers: {} });
+      expect(empty.modifiers).toMatchObject({ type: null, range: null, duration: null, target: null });
+      const partial = await create('owner', {
+        modifiers: { instant: false, duration: { requiredConcentration: true }, range: { type: 'self', value: null } },
+      });
+      expect(partial.modifiers).toMatchObject({
+        instant: false,
+        range: { type: 'self', value: null },
+        duration: { type: null, requiredConcentration: true },
+      });
+    });
+
+    it('requires the list of the spell [F-spells-13]', async () => {
       await request(e2e.server)
         .post('/v1/spells')
         .set('Authorization', e2e.auth('owner'))
-        .send(spellBody(listId, { modifiers: spellModifiers({ type: 'chaotic' }) }))
+        .send(spellBody(listId, { spellListId: undefined }))
         .expect(400);
     });
 
@@ -228,26 +255,62 @@ describe('Spells (e2e)', () => {
   });
 
   describe('updates', () => {
-    // F-spells-18: falsy values do not change the spell.
-    it('ignores a level of 0 and an empty description', async () => {
-      const spell = await create('owner', { level: 4, description: 'Text' });
-      const res = await request(e2e.server)
-        .patch(`/v1/spells/${spell.id}`)
-        .set('Authorization', e2e.auth('owner'))
-        .send({ level: 0, description: '' })
+    it('clears the description and the image with an empty string or null [F-spells-18]', async () => {
+      const auth = e2e.auth('owner');
+      const spell = await create('owner', { description: 'Text', imageUrl: 'https://example.com/a.png' });
+      const path = `/v1/spells/${spell.id}`;
+      const cleared = await request(e2e.server)
+        .patch(path)
+        .set('Authorization', auth)
+        .send({ description: '', imageUrl: null })
         .expect(200);
-      expect(res.body).toMatchObject({ level: 4, description: 'Text' });
+      expect(cleared.body).not.toHaveProperty('description');
+      expect(cleared.body).not.toHaveProperty('imageUrl');
+      const again = await request(e2e.server)
+        .patch(path)
+        .set('Authorization', auth)
+        .send({ description: 'New', imageUrl: 'https://example.com/b.png' });
+      expect(again.body).toMatchObject({ description: 'New', imageUrl: 'https://example.com/b.png' });
+      await request(e2e.server).patch(path).set('Authorization', auth).send({ description: null }).expect(200);
+      const found = await request(e2e.server).get(path).set('Authorization', auth).expect(200);
+      expect(found.body).not.toHaveProperty('description');
+      await request(e2e.server).patch(path).set('Authorization', auth).send({ name: '' }).expect(400);
     });
 
-    // F-spells-19: the modifiers are replaced as a whole.
-    it('replaces all the modifiers with the patched ones', async () => {
+    it('merges the patched modifiers with the stored ones [F-spells-19]', async () => {
+      const auth = e2e.auth('owner');
       const spell = await create('owner');
+      const path = `/v1/spells/${spell.id}`;
       const res = await request(e2e.server)
-        .patch(`/v1/spells/${spell.id}`)
-        .set('Authorization', e2e.auth('owner'))
+        .patch(path)
+        .set('Authorization', auth)
         .send({ modifiers: { rrModifier: 5 } })
         .expect(200);
-      expect((res.body as SpellBody).modifiers).toMatchObject({ type: null, range: null, duration: null, target: null, rrModifier: 5 });
+      expect((res.body as SpellBody).modifiers).toEqual({ ...spellModifiers(), rrModifier: 5 });
+
+      // A nested object that is sent replaces the stored one, and null clears a field.
+      const replaced = await request(e2e.server)
+        .patch(path)
+        .set('Authorization', auth)
+        .send({ modifiers: { range: { type: 'touch' }, target: null, subtype: null } })
+        .expect(200);
+      expect((replaced.body as SpellBody).modifiers).toEqual({
+        ...spellModifiers(),
+        rrModifier: 5,
+        range: { type: 'touch', value: null },
+        target: null,
+        subtype: null,
+      });
+
+      // The MFE sends the modifiers it read: nothing changes.
+      takeTopics(e2e.events);
+      const same = await request(e2e.server)
+        .patch(path)
+        .set('Authorization', auth)
+        .send({ modifiers: (replaced.body as SpellBody).modifiers, spellListId: listId })
+        .expect(200);
+      expect(same.body).toMatchObject({ version: (replaced.body as { version: number }).version });
+      expect(takeTopics(e2e.events)).toEqual([]);
     });
 
     it('answers a patch without changes with the spell, without publishing an event', async () => {

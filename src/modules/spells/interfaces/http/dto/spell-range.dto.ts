@@ -1,14 +1,15 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsString } from 'class-validator';
-import type { SpellRangeType } from '../../../domain/value-objects/spell-range-type.vo.js';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsIn, IsNumber, IsOptional } from 'class-validator';
+import { SPELL_RANGE_TYPES, type SpellRangeType } from '../../../domain/value-objects/spell-range-type.vo.js';
 import { SpellRange } from '../../../domain/value-objects/spell-range.vo.js';
 
 export class SpellRangeDto {
-  @ApiProperty({ type: String, required: true, example: 'distance' })
-  @IsString()
+  @ApiProperty({ type: String, enum: SPELL_RANGE_TYPES, example: 'distance' })
+  @IsIn(SPELL_RANGE_TYPES)
   type: SpellRangeType;
 
-  @ApiProperty({ type: Number, required: false, example: 10 })
+  @ApiPropertyOptional({ type: Number, nullable: true, example: 10 })
+  @IsOptional()
   @IsNumber()
   value: number | null;
 
@@ -20,6 +21,6 @@ export class SpellRangeDto {
   }
 
   static toEntity(dto: SpellRangeDto): SpellRange {
-    return new SpellRange(dto.type, dto.value);
+    return new SpellRange(dto.type, dto.value ?? null);
   }
 }
