@@ -1,17 +1,16 @@
-import { AggregateRoot } from '@nestjs/cqrs';
+import { BaseAggregateRoot } from '../../../shared/domain/aggregates/base-aggregate.js';
 import { SpellListCreatedEvent } from '../events/spell-list-created.event.js';
 import { SpellListUpdatedEvent } from '../events/spell-list-updated.event.js';
 import { randomUUID } from 'crypto';
-import { DomainEvent } from '../../../shared/domain/events/domain-event.js';
 import { SpellListProps } from './spell-list.props.js';
 import type { RealmType } from '../value-objects/realm-type.vo.js';
 import type { ListType } from '../value-objects/list-type.vo.js';
 import { ValidationError } from '../../../shared/domain/errors/errors.js';
 import type { AccessType } from '../../../shared/domain/entities/access-type.js';
 
-export class SpellList extends AggregateRoot<DomainEvent<SpellListProps>> {
+export class SpellList extends BaseAggregateRoot<SpellListProps> {
   private constructor(
-    public id: string,
+    id: string,
     public realm: RealmType,
     public type: ListType,
     public professionId: string | null,
@@ -23,7 +22,7 @@ export class SpellList extends AggregateRoot<DomainEvent<SpellListProps>> {
     public createdAt: Date,
     public updatedAt: Date | null,
   ) {
-    super();
+    super(id);
   }
   static create(props: Omit<SpellListProps, 'id' | 'createdAt' | 'updatedAt'>) {
     const spellList = new SpellList(
@@ -76,7 +75,9 @@ export class SpellList extends AggregateRoot<DomainEvent<SpellListProps>> {
     };
   }
 
-  update(props: Partial<Omit<SpellListProps, 'id' | 'owner' | 'createdAt' | 'updatedAt'>>) {
+  update(props: Partial<Omit<SpellListProps, 'id' | 'owner' | 'createdAt' | 'updatedAt'>>): boolean {
+    // A patch that changes nothing is not an update: no new updatedAt, no write and no event.
+    const before = JSON.stringify(this.getProps());
     if (props.name) this.name = props.name;
     if (props.realm) this.realm = props.realm;
     if (props.type) this.type = props.type;
@@ -85,8 +86,10 @@ export class SpellList extends AggregateRoot<DomainEvent<SpellListProps>> {
     if (props.description) this.description = props.description;
     if (props.imageUrl !== undefined) this.imageUrl = props.imageUrl;
     this.validate();
+    if (JSON.stringify(this.getProps()) === before) return false;
     this.updatedAt = new Date();
     this.apply(new SpellListUpdatedEvent(this.getProps()));
+    return true;
   }
 
   validate() {

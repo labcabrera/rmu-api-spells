@@ -9,9 +9,9 @@ import { Spell } from '../../domain/aggregates/spell.js';
 import { MongoBaseRepository } from '../../../shared/infrastructure/db/mongo.base.repository.js';
 
 @Injectable()
-export class MongoSpellRepository extends MongoBaseRepository<Spell, SpellDocument> implements SpellRepository {
-  constructor(@InjectModel(SpellModel.name) realmModel: Model<SpellDocument>, rsqlParser: RsqlParser) {
-    super(realmModel, rsqlParser);
+export class MongoSpellRepository extends MongoBaseRepository<Spell, SpellModel> implements SpellRepository {
+  constructor(@InjectModel(SpellModel.name) model: Model<SpellModel>, rsqlParser: RsqlParser) {
+    super(model, rsqlParser);
   }
 
   protected mapToEntity(doc: SpellDocument): Spell {

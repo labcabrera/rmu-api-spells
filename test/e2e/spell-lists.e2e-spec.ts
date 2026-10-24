@@ -87,32 +87,42 @@ describe('Spell lists (e2e)', () => {
       });
     });
 
-    it('searches with RSQL, sorts by name and pages the results', async () => {
+    it('searches with RSQL (=re= matches text, not a pattern), sorts by name and pages the results', async () => {
       const auth = e2e.auth('owner');
       for (const name of ['Search C', 'Search A', 'Search B']) await create('owner', { name });
 
-      const all = await request(e2e.server).get('/v1/spell-lists?q=name=re=^search').set('Authorization', auth).expect(200);
+      const all = await request(e2e.server).get('/v1/spell-lists?q=name=re=search').set('Authorization', auth).expect(200);
       expect((all.body as { content: SpellListBody[] }).content.map(list => list.name)).toEqual(['Search A', 'Search B', 'Search C']);
 
-      const page = await request(e2e.server).get('/v1/spell-lists?q=name=re=^search&size=2&page=1').set('Authorization', auth).expect(200);
+      const page = await request(e2e.server).get('/v1/spell-lists?q=name=re=search&size=2&page=1').set('Authorization', auth).expect(200);
       expect(page.body).toMatchObject({ pagination: { page: 1, size: 2, totalElements: 3, totalPages: 2 } });
       expect(ids(page.body)).toHaveLength(1);
 
       const none = await request(e2e.server).get('/v1/spell-lists?q=name==Missing').set('Authorization', auth).expect(200);
       expect(ids(none.body)).toEqual([]);
+      const pattern = await request(e2e.server).get('/v1/spell-lists?q=name=re=^search').set('Authorization', auth).expect(200);
+      expect(ids(pattern.body)).toEqual([]);
     });
 
     it('rejects an invalid RSQL expression and an invalid page size', async () => {
       const auth = e2e.auth('owner');
       const res = await request(e2e.server).get('/v1/spell-lists?q=name==').set('Authorization', auth).expect(400);
-      expect(res.body).toMatchObject({ error: 'InvalidSearchExpression' });
+      expect(res.body).toMatchObject({
+        statusCode: 400,
+        error: 'InvalidSearchExpression',
+        code: 'invalid-search',
+        path: '/v1/spell-lists?q=name==',
+      });
+      await request(e2e.server).get('/v1/spell-lists?q=$where==1').set('Authorization', auth).expect(400);
       await request(e2e.server).get('/v1/spell-lists?size=0').set('Authorization', auth).expect(400);
       await request(e2e.server).get('/v1/spell-lists?page=-1').set('Authorization', auth).expect(400);
     });
 
-    // F-spells-23: the page size has no maximum.
-    it('accepts any page size', async () => {
-      await request(e2e.server).get('/v1/spell-lists?size=100000').set('Authorization', e2e.auth('owner')).expect(200);
+    it('pages up to 100 lists', async () => {
+      const auth = e2e.auth('owner');
+      await request(e2e.server).get('/v1/spell-lists?size=100').set('Authorization', auth).expect(200);
+      const res = await request(e2e.server).get('/v1/spell-lists?size=101').set('Authorization', auth).expect(400);
+      expect(res.body).toMatchObject({ statusCode: 400, error: 'BadRequestException', code: 'bad-request' });
     });
 
     it('creates a base list of a profession and a public list by default', async () => {
@@ -247,11 +257,51 @@ describe('Spell lists (e2e)', () => {
       expect(res.body).toMatchObject({ description: 'Long text' });
     });
 
-    it('publishes an updated event for a patch without changes', async () => {
-      const list = await create('owner');
+    it('answers a patch without changes with the list, without writing it or publishing an event', async () => {
+      const list = await create('owner', { name: 'Unchanged list' });
       takeTopics(e2e.events);
-      await request(e2e.server).patch(`/v1/spell-lists/${list.id}`).set('Authorization', e2e.auth('owner')).send({}).expect(200);
-      expect(takeTopics(e2e.events)).toEqual(['internal.rmu-spells.spell-list.updated.v1']);
+      const res = await request(e2e.server)
+        .patch(`/v1/spell-lists/${list.id}`)
+        .set('Authorization', e2e.auth('owner'))
+        .send({ name: 'Unchanged list' })
+        .expect(200);
+      expect(res.body).toMatchObject({ id: list.id, name: 'Unchanged list', version: 0 });
+      expect(takeTopics(e2e.events)).toEqual([]);
+    });
+
+    it('moves the version on each change and rejects a patch of a stale version', async () => {
+      const auth = e2e.auth('owner');
+      const list = await create('owner');
+      expect(list).toMatchObject({ version: 0 });
+      const first = await request(e2e.server)
+        .patch(`/v1/spell-lists/${list.id}`)
+        .set('Authorization', auth)
+        .send({ description: 'First', version: 0 })
+        .expect(200);
+      expect(first.body).toMatchObject({ description: 'First', version: 1 });
+      const stale = await request(e2e.server)
+        .patch(`/v1/spell-lists/${list.id}`)
+        .set('Authorization', auth)
+        .send({ description: 'Second', version: 0 })
+        .expect(409);
+      expect(stale.body).toMatchObject({ statusCode: 409, error: 'ConflictError', code: 'version-conflict' });
+      const found = await request(e2e.server).get(`/v1/spell-lists/${list.id}`).set('Authorization', auth).expect(200);
+      expect(found.body).toMatchObject({ description: 'First', version: 1 });
+      await request(e2e.server).patch(`/v1/spell-lists/${list.id}`).set('Authorization', auth).send({ version: -1 }).expect(400);
+    });
+
+    it('reads a list stored before versions existed as version 0', async () => {
+      const auth = e2e.auth('owner');
+      const list = await create('owner');
+      await e2e.connection.collection('spell-lists').updateOne({ _id: list.id as never }, { $unset: { version: 1 } });
+      const found = await request(e2e.server).get(`/v1/spell-lists/${list.id}`).set('Authorization', auth).expect(200);
+      expect(found.body).toMatchObject({ version: 0 });
+      const updated = await request(e2e.server)
+        .patch(`/v1/spell-lists/${list.id}`)
+        .set('Authorization', auth)
+        .send({ description: 'Migrated', version: 0 })
+        .expect(200);
+      expect(updated.body).toMatchObject({ version: 1 });
     });
 
     it('turns a list into a base list only with a profession', async () => {

@@ -1,15 +1,14 @@
-import { AggregateRoot } from '@nestjs/cqrs';
+import { BaseAggregateRoot } from '../../../shared/domain/aggregates/base-aggregate.js';
 import { SpellCreatedEvent } from '../events/spell-created.event.js';
 import { SpellUpdatedEvent } from '../events/spell-updated.event.js';
 import { randomUUID } from 'crypto';
-import { DomainEvent } from '../../../shared/domain/events/domain-event.js';
 import { SpellProps } from './spell.props.js';
 import { SpellModifiers } from '../value-objects/spell-modifiers.vo.js';
 import type { AccessType } from '../../../shared/domain/entities/access-type.js';
 
-export class Spell extends AggregateRoot<DomainEvent<SpellProps>> {
+export class Spell extends BaseAggregateRoot<SpellProps> {
   private constructor(
-    public id: string,
+    id: string,
     public spellListId: string,
     public name: string,
     public level: number,
@@ -21,7 +20,7 @@ export class Spell extends AggregateRoot<DomainEvent<SpellProps>> {
     public createdAt: Date,
     public updatedAt: Date | undefined,
   ) {
-    super();
+    super(id);
   }
   static create(props: Omit<SpellProps, 'id' | 'createdAt' | 'updatedAt'>) {
     const spell = new Spell(
@@ -73,14 +72,18 @@ export class Spell extends AggregateRoot<DomainEvent<SpellProps>> {
     };
   }
 
-  update(props: Partial<Omit<SpellProps, 'id' | 'spellListId' | 'owner' | 'createdAt' | 'updatedAt'>>) {
+  update(props: Partial<Omit<SpellProps, 'id' | 'spellListId' | 'owner' | 'createdAt' | 'updatedAt'>>): boolean {
+    // A patch that changes nothing is not an update: no new updatedAt, no write and no event.
+    const before = JSON.stringify(this.getProps());
     if (props.name) this.name = props.name;
     if (props.level) this.level = props.level;
     if (props.modifiers) this.modifiers = props.modifiers;
     if (props.accessType) this.accessType = props.accessType;
     if (props.description) this.description = props.description;
     if (props.imageUrl !== undefined) this.imageUrl = props.imageUrl;
+    if (JSON.stringify(this.getProps()) === before) return false;
     this.updatedAt = new Date();
     this.apply(new SpellUpdatedEvent(this.getProps()));
+    return true;
   }
 }

@@ -19,7 +19,8 @@ export class UpdateSpellListHandler implements ICommandHandler<UpdateSpellListCo
     const spellList = await this.spellListRepository.findById(command.id);
     if (!spellList) throw new NotFoundError('SpellList', command.id);
     this.spellListGuard.checkUpdate(spellList, command.userId, command.roles);
-    spellList.update({
+    spellList.checkVersion(command.expectedVersion);
+    const changed = spellList.update({
       name: command.name,
       realm: command.realm,
       type: command.type,
@@ -28,7 +29,8 @@ export class UpdateSpellListHandler implements ICommandHandler<UpdateSpellListCo
       description: command.description,
       imageUrl: command.imageUrl,
     });
-    const updated = await this.spellListRepository.update(spellList.id, spellList);
+    if (!changed) return spellList;
+    const updated = await this.spellListRepository.update(spellList);
     await this.events.publishChanges('spell-list', spellList);
     return updated;
   }
