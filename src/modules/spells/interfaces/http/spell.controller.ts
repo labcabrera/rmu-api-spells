@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Headers, HttpCode, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { JwtAuthGuard } from '../../../shared/infrastructure/security/jwt-auth.guard.js';
@@ -56,8 +56,8 @@ export class SpellController {
   @ApiOperation({ operationId: 'createSpell', summary: 'Create a new spell' })
   @ApiCreatedResponse({ type: SpellDto, description: 'Created' })
   @ApiErrors({ 400: 'Bad request, invalid data', 403: 'The list is not one of the user', 404: 'Spell list not found' })
-  async create(@Body() dto: CreateSpellDto, @CurrentUser() user: AuthenticatedUser) {
-    const command = CreateSpellDto.toCommand(dto, user.id, user.roles);
+  async create(@Body() dto: CreateSpellDto, @CurrentUser() user: AuthenticatedUser, @Headers('authorization') authorization?: string) {
+    const command = CreateSpellDto.toCommand(dto, user.id, user.roles, authorization);
     const entity = await this.commandBus.execute<CreateSpellCommand, Spell>(command);
     return SpellDto.fromEntity(entity);
   }
@@ -71,8 +71,13 @@ export class SpellController {
     404: 'Spell not found',
     409: 'Stale version (version-conflict)',
   })
-  async updateSettings(@Param('id') id: string, @Body() dto: UpdateSpellDto, @CurrentUser() user: AuthenticatedUser) {
-    const command = UpdateSpellDto.toCommand(id, dto, user.id, user.roles);
+  async updateSettings(
+    @Param('id') id: string,
+    @Body() dto: UpdateSpellDto,
+    @CurrentUser() user: AuthenticatedUser,
+    @Headers('authorization') authorization?: string,
+  ) {
+    const command = UpdateSpellDto.toCommand(id, dto, user.id, user.roles, authorization);
     const entity = await this.commandBus.execute<UpdateSpellCommand, Spell>(command);
     return SpellDto.fromEntity(entity);
   }

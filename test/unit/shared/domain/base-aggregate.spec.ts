@@ -4,7 +4,9 @@ import { DomainEvent } from '../../../../src/modules/shared/domain/events/domain
 const newList = () =>
   SpellList.create({
     name: 'Fire Law',
-    realm: 'essence',
+    realms: ['essence'],
+    code: null,
+    bookSection: null,
     type: 'open',
     professionId: null,
     accessType: 'public',

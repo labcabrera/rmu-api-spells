@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { PaginationDto } from '../../../../shared/interfaces/http/dto/page.dto.js';
 import { Spell } from '../../../domain/aggregates/spell.js';
 import SpellModifiersDto from './spell-modifiers.dto.js';
+import type { SpellEffect } from '../../../domain/value-objects/spell-effect.vo.js';
 
 export class SpellDto {
   @ApiProperty({ description: 'Unique identifier for the spell', example: 'fireball' })
@@ -18,6 +19,12 @@ export class SpellDto {
 
   @ApiProperty({ description: 'Modifiers for the spell', required: true, type: () => SpellModifiersDto })
   modifiers: SpellModifiersDto;
+
+  @ApiProperty({ type: String, nullable: true, description: 'Id of the spell it is a variant of ("as X, but…")' })
+  basedOn: string | null;
+
+  @ApiProperty({ type: 'array', items: { type: 'object' }, description: 'What the spell does to its targets (spec 028)' })
+  effects: SpellEffect[];
 
   @ApiProperty({
     description: 'Access type of the spell. Who reads the spell depends on its list; this one only counts if the list no longer exists',
@@ -70,6 +77,8 @@ export class SpellDto {
     dto.createdAt = entity.createdAt;
     dto.updatedAt = entity.updatedAt;
     dto.modifiers = SpellModifiersDto.fromEntity(entity.modifiers);
+    dto.basedOn = entity.basedOn;
+    dto.effects = entity.effects;
     return dto;
   }
 }

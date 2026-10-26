@@ -28,8 +28,10 @@ export class MongoSpellListRepository extends MongoBaseRepository<SpellList, Spe
   protected mapToEntity(doc: SpellListDocument): SpellList {
     return SpellList.fromProps({
       id: doc._id.toString(),
-      realm: doc.realm,
+      realms: doc.realms?.length ? doc.realms : doc.realm ? [doc.realm] : [],
       type: doc.type,
+      code: doc.code ?? null,
+      bookSection: doc.bookSection ?? null,
       professionId: doc.professionId,
       accessType: doc.accessType,
       name: doc.name,

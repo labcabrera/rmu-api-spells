@@ -8,11 +8,24 @@ export class SpellListDto {
   @ApiProperty({ description: 'Unique identifier for the spell list', example: 'fireball' })
   id: string;
 
-  @ApiProperty({ type: String, description: 'Realm of the spell list', example: 'channeling' })
+  @ApiProperty({
+    type: [String],
+    description: 'Realms of the list: one, or two for a hybrid profession (spec 028)',
+    example: ['channeling'],
+  })
+  realms: RealmType[];
+
+  @ApiProperty({ type: String, description: 'Deprecated (spec 028): the first of `realms`', example: 'channeling', deprecated: true })
   realm: RealmType;
 
-  @ApiProperty({ type: String, description: 'Type of the spell list', example: 'channeling' })
+  @ApiProperty({ type: String, description: 'Type of the spell list: open, closed, base or evil', example: 'open' })
   type: ListType;
+
+  @ApiProperty({ type: String, nullable: true, description: 'Stable code of a book list (slug of its name)', example: 'fire-law' })
+  code: string | null;
+
+  @ApiProperty({ type: String, nullable: true, description: 'Spell Law section of a book list', example: '7.2' })
+  bookSection: string | null;
 
   @ApiProperty({ type: String, description: 'Profession id associated with the list', required: false, example: 'prof-123' })
   professionId?: string | null;
@@ -55,8 +68,11 @@ export class SpellListDto {
     const dto = new SpellListDto();
     dto.id = entity.id;
     dto.version = entity.version;
-    dto.realm = entity.realm;
+    dto.realms = entity.realms;
+    dto.realm = entity.realms[0];
     dto.type = entity.type;
+    dto.code = entity.code;
+    dto.bookSection = entity.bookSection;
     dto.professionId = entity.professionId ?? null;
     dto.accessType = entity.accessType;
     dto.owner = entity.owner;

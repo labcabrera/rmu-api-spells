@@ -7,6 +7,7 @@ import request from 'supertest';
 import { configureHttp } from '../../../src/bootstrap/http.js';
 import { KafkaProducerService } from '../../../src/modules/shared/infrastructure/messaging/kafka-producer.service.js';
 import { AUDIENCE, ISSUER, LocalJwks } from './jwks.js';
+import { FakeCore } from './core.js';
 
 export type Server = Parameters<typeof request>[0];
 
@@ -24,6 +25,8 @@ export type E2eApp = {
   app: NestExpressApplication;
   server: Server;
   jwks: LocalJwks;
+  /** rmu-api-core, with the effect-types catalog. */
+  core: FakeCore;
   /** The events the API published, as the Kafka producer received them. */
   events: { topic: string; message: unknown }[];
   /** `Bearer <token>` of one of the USERS. */
@@ -34,8 +37,8 @@ export type E2eApp = {
 };
 
 /**
- * Boots the whole AppModule as main.ts does (configureHttp) against an in-memory Mongo and a local JWKS. Only the
- * Kafka producer is replaced, so the events go through the real DomainEventPublisher. AppModule is imported after
+ * Boots the whole AppModule as main.ts does (configureHttp) against an in-memory Mongo and a local JWKS. Core is a local
+ * fake (support/core.ts) and only the Kafka producer is replaced, so the events go through the real DomainEventPublisher. AppModule is imported after
  * setting the environment, because ConfigModule.forRoot() reads it when the module is evaluated. Each spec file runs
  * in its own process, so `env` overrides do not leak into other files.
  */
@@ -47,8 +50,11 @@ export async function startApp(
   const mongo = await MongoMemoryServer.create();
   const jwks = new LocalJwks();
   await jwks.start();
+  const core = new FakeCore();
+  await core.start();
   Object.assign(process.env, {
     RMU_MONGO_SPELLS_URI: mongo.getUri('rmu-spells-e2e'),
+    RMU_API_CORE_URI: core.uri,
     RMU_IAM_JWK_URI: jwks.uri,
     RMU_IAM_ISSUER_URI: ISSUER,
     RMU_IAM_AUDIENCE: AUDIENCE,
@@ -75,12 +81,14 @@ export async function startApp(
     app,
     server: app.getHttpServer() as Server,
     jwks,
+    core,
     events,
     auth: user => `Bearer ${jwks.token(USERS[user])}`,
     connection: app.get<Connection>(getConnectionToken()),
     stop: async () => {
       await app.close();
       await jwks.stop();
+      await core.stop();
       await mongo.stop();
     },
   };

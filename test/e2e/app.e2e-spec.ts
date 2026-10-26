@@ -14,6 +14,7 @@ describe('rmu-api-spells (e2e)', () => {
     mongo = await MongoMemoryServer.create();
     Object.assign(process.env, {
       RMU_MONGO_SPELLS_URI: mongo.getUri('rmu-spells-e2e'),
+      RMU_API_CORE_URI: 'http://localhost:1/v1',
       RMU_IAM_JWK_URI: 'http://localhost:1/certs',
       RMU_IAM_ISSUER_URI: 'http://localhost/sso/realms/rmu',
       RMU_IAM_AUDIENCE: 'rmu-api',

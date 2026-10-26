@@ -11,8 +11,10 @@ import type { AccessType } from '../../../shared/domain/entities/access-type.js'
 export class SpellList extends BaseAggregateRoot<SpellListProps> {
   private constructor(
     id: string,
-    public realm: RealmType,
+    public realms: RealmType[],
     public type: ListType,
+    public code: string | null,
+    public bookSection: string | null,
     public professionId: string | null,
     public accessType: AccessType,
     public name: string,
@@ -27,8 +29,10 @@ export class SpellList extends BaseAggregateRoot<SpellListProps> {
   static create(props: Omit<SpellListProps, 'id' | 'createdAt' | 'updatedAt'>) {
     const spellList = new SpellList(
       randomUUID(),
-      props.realm,
+      props.realms,
       props.type,
+      props.code ?? null,
+      props.bookSection ?? null,
       props.professionId ?? null,
       props.accessType,
       props.name,
@@ -46,8 +50,10 @@ export class SpellList extends BaseAggregateRoot<SpellListProps> {
   static fromProps(props: SpellListProps) {
     return new SpellList(
       props.id,
-      props.realm,
+      props.realms,
       props.type,
+      props.code ?? null,
+      props.bookSection ?? null,
       props.professionId ?? null,
       props.accessType,
       props.name,
@@ -62,8 +68,10 @@ export class SpellList extends BaseAggregateRoot<SpellListProps> {
   getProps(): SpellListProps {
     return {
       id: this.id,
-      realm: this.realm,
+      realms: this.realms,
       type: this.type,
+      code: this.code,
+      bookSection: this.bookSection,
       professionId: this.professionId,
       accessType: this.accessType,
       name: this.name,
@@ -78,8 +86,10 @@ export class SpellList extends BaseAggregateRoot<SpellListProps> {
   /** Applies a patch: undefined keeps a field, and '' or null clears the optional ones (F-spells-18). */
   update(props: Partial<Omit<SpellListProps, 'id' | 'owner' | 'createdAt' | 'updatedAt'>>): void {
     if (props.name !== undefined) this.name = props.name;
-    if (props.realm !== undefined) this.realm = props.realm;
+    if (props.realms !== undefined) this.realms = props.realms;
     if (props.type !== undefined) this.type = props.type;
+    if (props.code !== undefined) this.code = props.code || null;
+    if (props.bookSection !== undefined) this.bookSection = props.bookSection || null;
     if (props.professionId !== undefined) this.professionId = props.professionId || null;
     if (props.accessType !== undefined) this.accessType = props.accessType;
     if (props.description !== undefined) this.description = props.description || null;
@@ -92,6 +102,13 @@ export class SpellList extends BaseAggregateRoot<SpellListProps> {
   }
 
   validate() {
+    // One realm, or the two of a hybrid profession (spec 028).
+    if (!Array.isArray(this.realms) || this.realms.length < 1 || this.realms.length > 2) {
+      throw new ValidationError('A spell list has one or two realms', 'invalid-realms');
+    }
+    if (new Set(this.realms).size !== this.realms.length) {
+      throw new ValidationError('The realms of a spell list must be different', 'invalid-realms');
+    }
     if (this.type === 'base' && !this.professionId) {
       throw new ValidationError('Required professionId creating base spell type');
     } else if (this.type !== 'base' && this.professionId) {

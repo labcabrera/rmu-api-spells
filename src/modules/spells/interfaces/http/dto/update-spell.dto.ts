@@ -1,8 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsIn, IsInt, IsNotEmpty, IsObject, IsOptional, IsString, Min, ValidateNested } from 'class-validator';
+import { IsArray, IsIn, IsInt, IsNotEmpty, IsObject, IsOptional, IsString, Min, ValidateNested } from 'class-validator';
 import { SpellModifiersDto } from './spell-modifiers.dto.js';
 import { UpdateSpellCommand } from '../../../application/cqrs/commands/update-spell.command.js';
+import type { SpellEffect } from '../../../domain/value-objects/spell-effect.vo.js';
 import type { AccessType } from '../../../../shared/domain/entities/access-type.js';
 
 export class UpdateSpellDto {
@@ -33,6 +34,22 @@ export class UpdateSpellDto {
   @ValidateNested()
   @Type(() => SpellModifiersDto)
   modifiers: SpellModifiersDto | undefined;
+
+  @ApiPropertyOptional({ type: String, nullable: true, description: 'Id of the spell it is a variant of ("as X, but…"): null clears it' })
+  @IsOptional()
+  @IsString()
+  basedOn: string | null | undefined;
+
+  @ApiPropertyOptional({
+    type: 'array',
+    items: { type: 'object' },
+    description:
+      'What the spell does to its targets (spec 028): attack, critical, damage, heal, condition, modifier, afflict, cure…: the list sent replaces every effect',
+  })
+  @IsOptional()
+  @IsArray()
+  @IsObject({ each: true })
+  effects: SpellEffect[] | undefined;
 
   @ApiProperty({ type: String, description: 'Access type of the spell', required: false, example: 'public', enum: ['public', 'private'] })
   @IsString()
@@ -67,7 +84,7 @@ export class UpdateSpellDto {
   @IsOptional()
   version?: number;
 
-  static toCommand(id: string, dto: UpdateSpellDto, user: string, roles: string[]) {
+  static toCommand(id: string, dto: UpdateSpellDto, user: string, roles: string[], authorization?: string) {
     return new UpdateSpellCommand(
       id,
       dto.name,
@@ -80,6 +97,9 @@ export class UpdateSpellDto {
       roles,
       dto.version,
       dto.spellListId,
+      dto.basedOn,
+      dto.effects,
+      authorization,
     );
   }
 }

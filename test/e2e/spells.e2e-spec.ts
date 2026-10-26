@@ -1,6 +1,7 @@
 import request from 'supertest';
 import { type E2eApp, ids, startApp, takeTopics, type UserName } from './support/app.js';
-import { spellBody, spellListBody, spellModifiers } from './support/fixtures.js';
+import { spellBody, spellListBody, spellModifiers, stunEffect } from './support/fixtures.js';
+import { SPELL_TARGET_TYPES } from '../../src/modules/spells/domain/value-objects/spell-area.vo.js';
 
 type SpellBody = {
   id: string;
@@ -11,6 +12,8 @@ type SpellBody = {
   accessType: string;
   description?: string;
   modifiers: Record<string, unknown>;
+  basedOn: string | null;
+  effects: Record<string, unknown>[];
 };
 
 describe('Spells (e2e)', () => {
@@ -60,6 +63,8 @@ describe('Spells (e2e)', () => {
         accessType: 'private',
         description: 'A spell of the suite',
         modifiers: spellModifiers(),
+        basedOn: null,
+        effects: [],
       });
 
       const found = await request(e2e.server).get(`/v1/spells/${created.id}`).set('Authorization', auth).expect(200);
@@ -168,14 +173,18 @@ describe('Spells (e2e)', () => {
       const invalid = [
         { type: 'chaotic' },
         { subtype: 'cloud' },
+        { typeCode: 'Zz' },
+        { powerPoints: -1 },
         { range: { type: 'distance', value: 'far' } },
         { range: { type: 'far' } },
         { range: { value: 10 } },
         { duration: { type: 'forever' } },
-        { duration: { type: 'lvl', durationScale: 'century' } },
-        { target: { mode: 'cone' } },
-        { target: { mode: 'target', types: ['dragon'] } },
-        { target: { modifier: '10 ft' } },
+        { duration: { type: 'per-level', scale: 'century' } },
+        { area: { kind: 'cone' } },
+        { area: { kind: 'targets', targetTypes: ['dragon'] } },
+        { area: { radius: 10 } },
+        { resistance: { kind: 'magic' } },
+        { resistance: { kind: 'realm', scaling: 'partial' } },
         { instant: 'yes' },
       ];
       for (const modifiers of invalid) {
@@ -194,16 +203,13 @@ describe('Spells (e2e)', () => {
     });
 
     it('accepts the modifiers the MFE sends while the form is incomplete', async () => {
-      // rmu-mfe-spells starts a new spell with `modifiers: {}` and may set a duration without type.
+      // rmu-mfe-spells starts a new spell with `modifiers: {}` and fills only some fields.
       const empty = await create('owner', { modifiers: {} });
-      expect(empty.modifiers).toMatchObject({ type: null, range: null, duration: null, target: null });
-      const partial = await create('owner', {
-        modifiers: { instant: false, duration: { requiredConcentration: true }, range: { type: 'self', value: null } },
-      });
+      expect(empty.modifiers).toMatchObject({ type: null, range: null, area: null, duration: null, resistance: null });
+      const partial = await create('owner', { modifiers: { instant: false, range: { type: 'self' } } });
       expect(partial.modifiers).toMatchObject({
         instant: false,
-        range: { type: 'self', value: null },
-        duration: { type: null, requiredConcentration: true },
+        range: { type: 'self', value: null, perLevel: false, increment: null, raw: null },
       });
     });
 
@@ -231,31 +237,151 @@ describe('Spells (e2e)', () => {
         createdAt: new Date(),
       });
       const empty = {
+        typeCode: null,
         type: null,
         subtype: null,
+        instant: false,
+        powerPoints: null,
+        setGroup: null,
         range: null,
+        area: null,
         duration: null,
-        target: null,
-        rrModifier: null,
-        instant: null,
-        notRequiredPowerPoints: null,
-        partOfSetOfSpells: null,
+        resistance: null,
       };
       const found = await request(e2e.server).get('/v1/spells/e2e-raw-spell').set('Authorization', auth).expect(200);
-      expect(found.body).toMatchObject({ id: 'e2e-raw-spell', modifiers: empty });
+      expect(found.body).toMatchObject({ id: 'e2e-raw-spell', modifiers: empty, basedOn: null, effects: [] });
       const listed = await request(e2e.server).get('/v1/spells?q=spellListId==raw-list').set('Authorization', auth).expect(200);
       expect(ids(listed.body)).toEqual(['e2e-raw-spell']);
 
-      // A spell whose modifiers miss some fields, with a null type.
-      await e2e.connection
-        .collection('spells')
-        .updateOne({ _id: 'e2e-raw-spell' as never }, { $set: { modifiers: { type: null, rrModifier: 5 } } });
-      const partial = await request(e2e.server).get('/v1/spells/e2e-raw-spell').set('Authorization', auth).expect(200);
-      expect(partial.body).toMatchObject({ modifiers: { ...empty, rrModifier: 5 } });
+      // A spell stored before spec 028, whose modifiers miss some fields.
+      await e2e.connection.collection('spells').updateOne(
+        { _id: 'e2e-raw-spell' as never },
+        {
+          $set: {
+            modifiers: {
+              type: null,
+              rrModifier: 5,
+              range: { type: 'distance-level', value: 10 },
+              duration: { type: 'lvl', duration: 1, durationScale: 'minute' },
+              target: { mode: 'target', types: ['person'], count: 1 },
+              notRequiredPowerPoints: true,
+            },
+          },
+        },
+      );
+      const legacy = await request(e2e.server).get('/v1/spells/e2e-raw-spell').set('Authorization', auth).expect(200);
+      expect(legacy.body).toMatchObject({
+        modifiers: {
+          ...empty,
+          powerPoints: 0,
+          range: { type: 'distance', value: 10, perLevel: true },
+          duration: { type: 'per-level', value: 1, scale: 'minute', perLevel: 1 },
+          area: { kind: 'targets', count: 1, targetTypes: ['person'] },
+          resistance: { kind: 'realm', modifier: 5, scaling: 'all-or-nothing' },
+        },
+      });
 
       // A patch of another field keeps reading it.
       await request(e2e.server).patch('/v1/spells/e2e-raw-spell').set('Authorization', auth).send({ name: 'Raw renamed' }).expect(200);
       await e2e.connection.collection('spells').deleteOne({ _id: 'e2e-raw-spell' as never });
+    });
+  });
+
+  describe('effects (spec 028)', () => {
+    it('saves effects whose statuses are in the catalog of core, forwarding the token of the user', async () => {
+      const auth = e2e.auth('owner');
+      e2e.core.authorizations.length = 0;
+      const effects = [
+        stunEffect(),
+        { kind: 'critical', appliesTo: 'target', requiresFailedRr: false, criticalType: 'U', severity: null, severityOffset: -1 },
+        { kind: 'afflict', appliesTo: 'target', requiresFailedRr: true, afflictionType: 'disease', severity: 'light', effects: [] },
+        { kind: 'narrative', appliesTo: 'self', requiresFailedRr: false, note: 'Lights a candle' },
+      ];
+      const spell = await create('owner', { effects });
+      expect(spell.effects).toEqual(effects);
+      expect(e2e.core.authorizations).toEqual([auth]);
+
+      const found = await request(e2e.server).get(`/v1/spells/${spell.id}`).set('Authorization', auth).expect(200);
+      expect((found.body as SpellBody).effects).toEqual(effects);
+      const byKind = await request(e2e.server).get('/v1/spells?q=effects.kind==afflict').set('Authorization', auth).expect(200);
+      expect(ids(byKind.body)).toContain(spell.id);
+    });
+
+    it('rejects an effect whose status is not in the catalog of core', async () => {
+      const res = await request(e2e.server)
+        .post('/v1/spells')
+        .set('Authorization', e2e.auth('owner'))
+        .send(spellBody(listId, { effects: [stunEffect({ status: 'flying' })] }))
+        .expect(400);
+      expect(res.body).toMatchObject({ code: 'unknown-effect-status' });
+    });
+
+    it('rejects an effect with a wrong shape', async () => {
+      const auth = e2e.auth('owner');
+      const invalid = [
+        [{ kind: 'teleport', appliesTo: 'target', requiresFailedRr: false }],
+        [stunEffect({ appliesTo: 'everyone' })],
+        [stunEffect({ hits: 10 })],
+        ['stunned'],
+      ];
+      for (const effects of invalid) {
+        const res = await request(e2e.server).post('/v1/spells').set('Authorization', auth).send(spellBody(listId, { effects }));
+        expect({ effects, status: res.status }).toEqual({ effects, status: 400 });
+      }
+    });
+
+    it('answers 502 when core fails, without saving the spell', async () => {
+      // A status that is not cached makes the API read the catalog again.
+      e2e.core.fail = true;
+      try {
+        await request(e2e.server)
+          .post('/v1/spells')
+          .set('Authorization', e2e.auth('owner'))
+          .send(spellBody(listId, { name: 'Unchecked', effects: [stunEffect({ status: 'flying' })] }))
+          .expect(502);
+      } finally {
+        e2e.core.fail = false;
+      }
+      const listed = await request(e2e.server).get('/v1/spells?q=name==Unchecked').set('Authorization', e2e.auth('owner')).expect(200);
+      expect(ids(listed.body)).toEqual([]);
+    });
+
+    it('replaces the effects in a patch and keeps them when they are not sent', async () => {
+      const auth = e2e.auth('owner');
+      const spell = await create('owner', { effects: [stunEffect()] });
+      const path = `/v1/spells/${spell.id}`;
+      const renamed = await request(e2e.server).patch(path).set('Authorization', auth).send({ name: 'Renamed' }).expect(200);
+      expect((renamed.body as SpellBody).effects).toEqual([stunEffect()]);
+      const replaced = await request(e2e.server)
+        .patch(path)
+        .set('Authorization', auth)
+        .send({ effects: [stunEffect({ status: 'asleep', rounds: null })] })
+        .expect(200);
+      expect((replaced.body as SpellBody).effects).toEqual([stunEffect({ status: 'asleep', rounds: null })]);
+      await request(e2e.server)
+        .patch(path)
+        .set('Authorization', auth)
+        .send({ effects: [stunEffect({ status: 'flying' })] })
+        .expect(400);
+    });
+
+    it('links a spell to the one it is based on, which must exist', async () => {
+      const auth = e2e.auth('owner');
+      const original = await create('owner', { name: 'Sleep I' });
+      const variant = await create('owner', { name: 'Sleep III', basedOn: original.id });
+      expect(variant.basedOn).toBe(original.id);
+      await request(e2e.server)
+        .post('/v1/spells')
+        .set('Authorization', auth)
+        .send(spellBody(listId, { basedOn: 'missing-spell' }))
+        .expect(400);
+      const cleared = await request(e2e.server)
+        .patch(`/v1/spells/${variant.id}`)
+        .set('Authorization', auth)
+        .send({ basedOn: null })
+        .expect(200);
+      expect((cleared.body as SpellBody).basedOn).toBeNull();
+      await request(e2e.server).patch(`/v1/spells/${variant.id}`).set('Authorization', auth).send({ basedOn: variant.id }).expect(400);
     });
   });
 
@@ -289,21 +415,21 @@ describe('Spells (e2e)', () => {
       const res = await request(e2e.server)
         .patch(path)
         .set('Authorization', auth)
-        .send({ modifiers: { rrModifier: 5 } })
+        .send({ modifiers: { powerPoints: 5 } })
         .expect(200);
-      expect((res.body as SpellBody).modifiers).toEqual({ ...spellModifiers(), rrModifier: 5 });
+      expect((res.body as SpellBody).modifiers).toEqual({ ...spellModifiers(), powerPoints: 5 });
 
       // A nested object that is sent replaces the stored one, and null clears a field.
       const replaced = await request(e2e.server)
         .patch(path)
         .set('Authorization', auth)
-        .send({ modifiers: { range: { type: 'touch' }, target: null, subtype: null } })
+        .send({ modifiers: { range: { type: 'touch' }, area: null, subtype: null } })
         .expect(200);
       expect((replaced.body as SpellBody).modifiers).toEqual({
         ...spellModifiers(),
-        rrModifier: 5,
-        range: { type: 'touch', value: null },
-        target: null,
+        powerPoints: 5,
+        range: { type: 'touch', value: null, perLevel: false, increment: null, raw: null },
+        area: null,
         subtype: null,
       });
 
@@ -524,7 +650,8 @@ describe('Spells (e2e)', () => {
     it('lists the target types to any authenticated user', async () => {
       const res = await request(e2e.server).get('/v1/target-types').set('Authorization', e2e.auth('noRole')).expect(200);
       // F-spells-21: each type once.
-      expect(res.body).toEqual(['person', 'item', 'spell', 'gateway', 'lock', 'plant', 'animal', 'other']);
+      expect(res.body).toEqual(SPELL_TARGET_TYPES);
+      expect(new Set(res.body as string[]).size).toBe(SPELL_TARGET_TYPES.length);
       await request(e2e.server).get('/v1/target-types').expect(401);
     });
   });

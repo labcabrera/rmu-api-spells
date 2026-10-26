@@ -18,11 +18,22 @@ export class SpellListModel {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ type: String, required: true })
-  realm: RealmType;
+  /** Spec 028: one or two realms. Documents stored before it have `realm` (read as `[realm]`). */
+  @Prop({ type: [String], default: undefined })
+  realms: RealmType[] | undefined;
+
+  /** Before spec 028; kept to read old documents. */
+  @Prop({ type: String, required: false })
+  realm: RealmType | undefined;
 
   @Prop({ type: String, required: true })
   type: ListType;
+
+  @Prop({ type: String, required: false })
+  code: string | null;
+
+  @Prop({ type: String, required: false })
+  bookSection: string | null;
 
   @Prop({ type: String, required: false })
   professionId: string | null;
@@ -47,3 +58,5 @@ export class SpellListModel {
 }
 
 export const SpellListSchema = SchemaFactory.createForClass(SpellListModel);
+SpellListSchema.index({ name: 1 });
+SpellListSchema.index({ code: 1 });

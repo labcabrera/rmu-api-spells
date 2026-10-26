@@ -61,9 +61,18 @@ export class ForbiddenError extends DomainError {
 }
 
 export class BadGatewayError extends DomainError {
-  constructor(message: string) {
-    super(message, 502, 'bad-gateway');
+  constructor(message: string, code = 'bad-gateway') {
+    super(message, 502, code);
     this.name = 'BadGatewayError';
     Object.setPrototypeOf(this, BadGatewayError.prototype);
+  }
+}
+
+/** Another API did not answer in time (spec 021, decision 7): 504. */
+export class GatewayTimeoutError extends DomainError {
+  constructor(message: string, code = 'upstream-timeout') {
+    super(message, 504, code);
+    this.name = 'GatewayTimeoutError';
+    Object.setPrototypeOf(this, GatewayTimeoutError.prototype);
   }
 }

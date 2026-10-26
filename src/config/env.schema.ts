@@ -4,6 +4,9 @@ export const envSchema = Joi.object({
   PORT: Joi.number().positive().default(3009),
   LOG_LEVEL: Joi.string().default('info'),
   RMU_MONGO_SPELLS_URI: Joi.string().required(),
+  // The effect-types catalog of core, to check the statuses of the spell effects (spec 028).
+  RMU_API_CORE_URI: Joi.string().required(),
+  RMU_HTTP_TIMEOUT_MS: Joi.number().integer().min(1).default(10_000),
   RMU_IAM_URI: Joi.string().uri().default('http://localhost/sso'),
   RMU_IAM_REALM: Joi.string().default('rmu'),
   RMU_IAM_JWK_URI: Joi.string().uri().required(),

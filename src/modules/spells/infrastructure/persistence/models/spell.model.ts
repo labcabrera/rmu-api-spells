@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import type { HydratedDocument } from 'mongoose';
 import type { AccessType } from '../../../../shared/domain/entities/access-type.js';
-import { SpellModifiers } from './spell-modifiers.model.js';
 
 export type SpellDocument = HydratedDocument<SpellModel>;
 
@@ -29,8 +28,20 @@ export class SpellModel {
   @Prop({ required: false })
   description?: string;
 
-  @Prop({ type: SpellModifiers, required: false })
-  modifiers: SpellModifiers | undefined;
+  /**
+   * Casting parameters (spec 028). Stored as a plain object: SpellModifiers.fromPlain reads it, also in the shape
+   * stored before spec 028.
+   */
+  @Prop({ type: Object, required: false })
+  modifiers: Record<string, unknown> | undefined;
+
+  /** Id of the spell it is defined from (spec 028). */
+  @Prop({ type: String, required: false })
+  basedOn: string | null;
+
+  /** What it does to its targets (spec 028); validated by the domain (validateSpellEffects). */
+  @Prop({ type: [Object], default: undefined })
+  effects: Record<string, unknown>[] | undefined;
 
   @Prop({ type: String, required: false })
   imageUrl: string | undefined;
@@ -46,3 +57,4 @@ export class SpellModel {
 }
 
 export const SpellSchema = SchemaFactory.createForClass(SpellModel);
+SpellSchema.index({ spellListId: 1, level: 1 });
