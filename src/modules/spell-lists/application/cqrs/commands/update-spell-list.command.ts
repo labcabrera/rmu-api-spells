@@ -7,8 +7,10 @@ export class UpdateSpellListCommand extends AuthenticatedCommand {
   constructor(
     public readonly id: string,
     public readonly name: string | undefined,
-    public readonly realm: RealmType | undefined,
+    public readonly realms: RealmType[] | undefined,
     public readonly type: ListType | undefined,
+    public readonly code: string | null | undefined,
+    public readonly bookSection: string | null | undefined,
     /** '' or null clears it, as the description and the image. */
     public readonly professionId: string | null | undefined,
     public readonly accessType: AccessType | undefined,

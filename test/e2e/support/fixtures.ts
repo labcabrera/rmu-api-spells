@@ -3,7 +3,7 @@ type Body = Record<string, unknown>;
 
 export const spellListBody = (overrides: Body = {}): Body => ({
   name: `E2E list ${Math.random().toString(36).slice(2, 10)}`,
-  realm: 'essence',
+  realms: ['essence'],
   type: 'open',
   accessType: 'private',
   description: 'A list of the suite',
@@ -11,15 +11,26 @@ export const spellListBody = (overrides: Body = {}): Body => ({
 });
 
 export const spellModifiers = (overrides: Body = {}): Body => ({
+  typeCode: 'Eb',
   type: 'elemental',
   subtype: 'ball',
-  range: { type: 'distance', value: 30 },
-  duration: { type: 'concentration', duration: 1, durationScale: 'round', requiredConcentration: true, failureScale: null },
-  target: { mode: 'area', types: ['person'], count: null, modifier: '10 ft radius' },
-  rrModifier: -10,
   instant: false,
-  notRequiredPowerPoints: false,
-  partOfSetOfSpells: false,
+  powerPoints: null,
+  setGroup: null,
+  range: { type: 'distance', value: 30, perLevel: false, increment: null, raw: "30'" },
+  area: { kind: 'radius', count: null, perLevel: false, radius: 10, dimensions: null, targetTypes: ['person'], raw: "10' R" },
+  duration: { type: 'concentration', value: null, scale: null, perLevel: null, perFailure: null, concentration: true, raw: 'C' },
+  resistance: { kind: 'realm', modifier: -10, scaling: 'all-or-nothing' },
+  ...overrides,
+});
+
+export const stunEffect = (overrides: Body = {}): Body => ({
+  kind: 'condition',
+  appliesTo: 'target',
+  requiresFailedRr: true,
+  status: 'stunned',
+  rounds: 2,
+  value: null,
   ...overrides,
 });
 

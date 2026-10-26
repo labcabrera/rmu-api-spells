@@ -6,8 +6,10 @@ import { AuthenticatedCommand } from '../../../../shared/application/cqrs/authen
 export class CreateSpellListCommand extends AuthenticatedCommand {
   constructor(
     public readonly name: string,
-    public readonly realm: RealmType,
+    public readonly realms: RealmType[],
     public readonly type: ListType,
+    public readonly code: string | null,
+    public readonly bookSection: string | null,
     public readonly professionId: string | null,
     public readonly accessType: AccessType,
     public readonly description: string | null,

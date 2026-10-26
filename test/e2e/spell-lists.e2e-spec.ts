@@ -2,7 +2,15 @@ import request from 'supertest';
 import { type E2eApp, ids, startApp, takeTopics, type UserName } from './support/app.js';
 import { spellBody, spellListBody } from './support/fixtures.js';
 
-type SpellListBody = { id: string; name: string; realm: string; type: string; professionId: string | null; description?: string };
+type SpellListBody = {
+  id: string;
+  name: string;
+  realms: string[];
+  realm: string;
+  type: string;
+  professionId: string | null;
+  description?: string;
+};
 
 describe('Spell lists (e2e)', () => {
   let e2e: E2eApp;
@@ -45,8 +53,9 @@ describe('Spell lists (e2e)', () => {
       const auth = e2e.auth('owner');
       takeTopics(e2e.events);
 
-      const created = await create('owner', { name: 'Fire Law', realm: 'essence', type: 'open' });
-      expect(created).toMatchObject({ name: 'Fire Law', realm: 'essence', type: 'open', professionId: null, accessType: 'private' });
+      const created = await create('owner', { name: 'Fire Law', realms: ['essence'], type: 'open' });
+      expect(created).toMatchObject({ name: 'Fire Law', realms: ['essence'], realm: 'essence', type: 'open', professionId: null });
+      expect(created).toMatchObject({ accessType: 'private', code: null, bookSection: null });
       // F-spells-26: the response says who owns the list and when it changed.
       expect(created).toMatchObject({ owner: 'e2e-owner', createdAt: expect.any(String) as unknown, updatedAt: null });
 
@@ -60,9 +69,9 @@ describe('Spell lists (e2e)', () => {
       const updated = await request(e2e.server)
         .patch(`/v1/spell-lists/${created.id}`)
         .set('Authorization', auth)
-        .send({ name: 'Fire Mastery', realm: 'channeling', description: 'Changed' })
+        .send({ name: 'Fire Mastery', realms: ['channeling'], description: 'Changed' })
         .expect(200);
-      expect(updated.body).toMatchObject({ name: 'Fire Mastery', realm: 'channeling', description: 'Changed' });
+      expect(updated.body).toMatchObject({ name: 'Fire Mastery', realms: ['channeling'], description: 'Changed' });
 
       await request(e2e.server).delete(`/v1/spell-lists/${created.id}`).set('Authorization', auth).expect(204);
       await request(e2e.server).get(`/v1/spell-lists/${created.id}`).set('Authorization', auth).expect(404);
@@ -192,17 +201,71 @@ describe('Spell lists (e2e)', () => {
       await request(e2e.server)
         .post('/v1/spell-lists')
         .set('Authorization', auth)
-        .send(spellListBody({ realm: 'arcane' }))
+        .send(spellListBody({ realms: ['arcane'] }))
         .expect(400);
+      for (const realms of [[], ['essence', 'essence'], ['essence', 'channeling', 'mentalism']]) {
+        const res = await request(e2e.server).post('/v1/spell-lists').set('Authorization', auth).send(spellListBody({ realms }));
+        expect({ realms, status: res.status }).toEqual({ realms, status: 400 });
+      }
       await request(e2e.server)
         .post('/v1/spell-lists')
         .set('Authorization', auth)
         .send(spellListBody({ type: 'secret' }))
         .expect(400);
       const list = await create('owner');
-      await request(e2e.server).patch(`/v1/spell-lists/${list.id}`).set('Authorization', auth).send({ realm: 'void' }).expect(400);
+      await request(e2e.server)
+        .patch(`/v1/spell-lists/${list.id}`)
+        .set('Authorization', auth)
+        .send({ realms: ['void'] })
+        .expect(400);
       await request(e2e.server).patch(`/v1/spell-lists/${list.id}`).set('Authorization', auth).send({ type: 'secret' }).expect(400);
       await request(e2e.server).patch(`/v1/spell-lists/${list.id}`).set('Authorization', auth).send({ name: '' }).expect(400);
+    });
+
+    it('keeps hybrid realms, evil lists and the book reference (spec 028)', async () => {
+      const auth = e2e.auth('owner');
+      const hybrid = await create('owner', {
+        realms: ['channeling', 'mentalism'],
+        type: 'base',
+        professionId: 'healer',
+        code: 'blood-ways',
+        bookSection: '9.1',
+      });
+      expect(hybrid).toMatchObject({ realms: ['channeling', 'mentalism'], realm: 'channeling', code: 'blood-ways', bookSection: '9.1' });
+      const evil = await create('owner', { realms: ['essence'], type: 'evil' });
+      expect(evil).toMatchObject({ type: 'evil' });
+
+      const byRealm = await request(e2e.server).get('/v1/spell-lists?q=realms==mentalism').set('Authorization', auth).expect(200);
+      expect(ids(byRealm.body)).toContain(hybrid.id);
+      expect(ids(byRealm.body)).not.toContain(evil.id);
+      const byCode = await request(e2e.server).get('/v1/spell-lists?q=code==blood-ways').set('Authorization', auth).expect(200);
+      expect(ids(byCode.body)).toEqual([hybrid.id]);
+    });
+
+    it('accepts and reads the deprecated realm', async () => {
+      const auth = e2e.auth('owner');
+      const legacy = await create('owner', { realms: undefined, realm: 'mentalism' });
+      expect(legacy).toMatchObject({ realms: ['mentalism'], realm: 'mentalism' });
+      const patched = await request(e2e.server)
+        .patch(`/v1/spell-lists/${legacy.id}`)
+        .set('Authorization', auth)
+        .send({ realm: 'essence' })
+        .expect(200);
+      expect(patched.body).toMatchObject({ realms: ['essence'] });
+
+      // A list stored before spec 028, with `realm` and no `realms`.
+      await e2e.connection.collection('spell-lists').insertOne({
+        _id: 'e2e-legacy-list' as never,
+        name: 'Legacy list',
+        realm: 'channeling',
+        type: 'open',
+        owner: 'e2e-owner',
+        accessType: 'private',
+        createdAt: new Date(),
+      });
+      const stored = await request(e2e.server).get('/v1/spell-lists/e2e-legacy-list').set('Authorization', auth).expect(200);
+      expect(stored.body).toMatchObject({ realms: ['channeling'], realm: 'channeling', code: null, bookSection: null });
+      await e2e.connection.collection('spell-lists').deleteOne({ _id: 'e2e-legacy-list' as never });
     });
 
     it('drops unknown fields of the body', async () => {

@@ -22,8 +22,10 @@ export class UpdateSpellListHandler implements ICommandHandler<UpdateSpellListCo
     spellList.checkVersion(command.expectedVersion);
     spellList.update({
       name: command.name,
-      realm: command.realm,
+      realms: command.realms,
       type: command.type,
+      code: command.code,
+      bookSection: command.bookSection,
       professionId: command.professionId,
       accessType: command.accessType,
       description: command.description,
