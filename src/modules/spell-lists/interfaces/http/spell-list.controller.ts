@@ -15,7 +15,7 @@ import { CreateSpellListCommand } from '../../application/cqrs/commands/create-s
 import { DeleteSpellListCommand } from '../../application/cqrs/commands/delete-spell-list.command.js';
 import { UpdateSpellListCommand } from '../../application/cqrs/commands/update-spell-list.command.js';
 import { Page } from '../../../shared/application/pagination/page.js';
-import { PagedQueryDto } from '../../../shared/interfaces/http/dto/paged-rsql-query.js';
+import { CatalogPagedQueryDto } from '../../../shared/interfaces/http/dto/paged-rsql-query.js';
 
 @UseGuards(JwtAuthGuard)
 @Controller('v1/spell-lists')
@@ -39,10 +39,11 @@ export class SpellListController {
   }
 
   @Get('')
+  // The lists are a catalog loaded whole (171 in the books), so the page goes up to 1000 (spec 056).
   @ApiOperation({ operationId: 'findSpellLists', summary: 'Find spell lists by RSQL' })
   @ApiOkResponse({ type: SpellListPageDto, description: 'Success' })
   @ApiErrors({ 400: 'Invalid RSQL query' })
-  async find(@Query() dto: PagedQueryDto, @CurrentUser() user: AuthenticatedUser) {
+  async find(@Query() dto: CatalogPagedQueryDto, @CurrentUser() user: AuthenticatedUser) {
     const userId: string = user.id;
     const roles: string[] = user.roles;
     const query = new GetSpellListsQuery(dto.q, dto.page, dto.size, userId, roles);
