@@ -130,10 +130,10 @@ describe('Spell lists (e2e)', () => {
       await request(e2e.server).get('/v1/spell-lists?page=-1').set('Authorization', auth).expect(400);
     });
 
-    it('pages up to 100 lists', async () => {
+    it('pages up to 1000 lists, as a catalog loaded whole (spec 056)', async () => {
       const auth = e2e.auth('owner');
-      await request(e2e.server).get('/v1/spell-lists?size=100').set('Authorization', auth).expect(200);
-      const res = await request(e2e.server).get('/v1/spell-lists?size=101').set('Authorization', auth).expect(400);
+      await request(e2e.server).get('/v1/spell-lists?size=1000').set('Authorization', auth).expect(200);
+      const res = await request(e2e.server).get('/v1/spell-lists?size=1001').set('Authorization', auth).expect(400);
       expect(res.body).toMatchObject({ statusCode: 400, error: 'BadRequestException', code: 'bad-request' });
     });
 
