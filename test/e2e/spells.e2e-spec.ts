@@ -14,6 +14,7 @@ type SpellBody = {
   modifiers: Record<string, unknown>;
   basedOn: string | null;
   effects: Record<string, unknown>[];
+  alchemy?: Record<string, unknown> | null;
 };
 
 describe('Spells (e2e)', () => {
@@ -657,6 +658,95 @@ describe('Spells (e2e)', () => {
   });
 
   // Spec 063: a spell of a list takes the source of the list; a spell without a list has its own.
+  describe('alchemy (spec 064)', () => {
+    const alchemy = { failureTable: 'bonus', perItem: false, alters: true, effect: { kind: 'attack', value: 10 } };
+
+    it('creates, reads, patches and clears the alchemy metadata', async () => {
+      const auth = e2e.auth('owner');
+      const plain = await create('owner', { name: 'Not alchemical' });
+      expect(plain.alchemy).toBeNull();
+
+      const created = await create('owner', { name: 'Synthetic enchantment', alchemy });
+      expect(created.alchemy).toEqual(alchemy);
+      const found = await request(e2e.server).get(`/v1/spells/${created.id}`).set('Authorization', auth).expect(200);
+      expect((found.body as SpellBody).alchemy).toEqual(alchemy);
+      const listed = await request(e2e.server)
+        .get('/v1/spells?q=alchemy.failureTable==bonus;name=="Synthetic enchantment"')
+        .set('Authorization', auth)
+        .expect(200);
+      expect(ids(listed.body)).toEqual([created.id]);
+
+      const multiplier = { failureTable: 'power-enhancer', perItem: true, alters: false, effect: { kind: 'pp-multiplier', value: 1.25 } };
+      const patched = await request(e2e.server)
+        .patch(`/v1/spells/${created.id}`)
+        .set('Authorization', auth)
+        .send({ alchemy: multiplier })
+        .expect(200);
+      expect((patched.body as SpellBody).alchemy).toEqual(multiplier);
+
+      // Another field keeps it; null clears it.
+      const renamed = await request(e2e.server)
+        .patch(`/v1/spells/${created.id}`)
+        .set('Authorization', auth)
+        .send({ name: 'Renamed' })
+        .expect(200);
+      expect((renamed.body as SpellBody).alchemy).toEqual(multiplier);
+      const cleared = await request(e2e.server)
+        .patch(`/v1/spells/${created.id}`)
+        .set('Authorization', auth)
+        .send({ alchemy: null })
+        .expect(200);
+      expect((cleared.body as SpellBody).alchemy).toBeNull();
+      const reread = await request(e2e.server).get(`/v1/spells/${created.id}`).set('Authorization', auth).expect(200);
+      expect((reread.body as SpellBody).alchemy).toBeNull();
+
+      const withoutEffect = await request(e2e.server)
+        .patch(`/v1/spells/${created.id}`)
+        .set('Authorization', auth)
+        .send({ alchemy: { failureTable: 'general', perItem: false, alters: false, effect: null } })
+        .expect(200);
+      expect((withoutEffect.body as SpellBody).alchemy).toEqual({ failureTable: 'general', perItem: false, alters: false, effect: null });
+    });
+
+    it('rejects invalid alchemy metadata', async () => {
+      const auth = e2e.auth('owner');
+      const invalid = [
+        'bonus',
+        { ...alchemy, failureTable: 'unknown' },
+        { ...alchemy, perItem: 'yes' },
+        { failureTable: 'bonus', alters: false },
+        { ...alchemy, effect: { kind: 'speed', value: 1 } },
+        { ...alchemy, effect: { kind: 'attack', value: 'ten' } },
+        { ...alchemy, effect: { kind: 'attack' } },
+      ];
+      const spell = await create('owner', { alchemy });
+      for (const value of invalid) {
+        await request(e2e.server)
+          .post('/v1/spells')
+          .set('Authorization', auth)
+          .send(spellBody(listId, { alchemy: value }))
+          .expect(400);
+        await request(e2e.server).patch(`/v1/spells/${spell.id}`).set('Authorization', auth).send({ alchemy: value }).expect(400);
+      }
+    });
+
+    it('reads a stored spell without alchemy as null', async () => {
+      const auth = e2e.auth('owner');
+      await e2e.connection.collection('spells').insertOne({
+        _id: 'e2e-raw-alchemy' as never,
+        spellListId: listId,
+        name: 'Raw spell without alchemy',
+        level: 1,
+        owner: 'e2e-owner',
+        accessType: 'public',
+        createdAt: new Date(),
+      });
+      const found = await request(e2e.server).get('/v1/spells/e2e-raw-alchemy').set('Authorization', auth).expect(200);
+      expect((found.body as SpellBody).alchemy).toBeNull();
+      await e2e.connection.collection('spells').deleteOne({ _id: 'e2e-raw-alchemy' as never });
+    });
+  });
+
   describe('entity source', () => {
     const patch = (user: UserName, id: string, body: Record<string, unknown>) =>
       request(e2e.server).patch(`/v1/spells/${id}`).set('Authorization', e2e.auth(user)).send(body);
