@@ -441,4 +441,101 @@ describe('Spell lists (e2e)', () => {
       await request(e2e.server).delete(path).set('Authorization', e2e.auth('owner')).expect(204);
     });
   });
+
+  // Spec 063: rulebook (system) lists are changed only by an admin; user lists by their owner or an admin.
+  describe('entity source', () => {
+    const patch = (user: UserName, id: string, body: Record<string, unknown>) =>
+      request(e2e.server).patch(`/v1/spell-lists/${id}`).set('Authorization', e2e.auth(user)).send(body);
+    const del = (user: UserName, id: string) => request(e2e.server).delete(`/v1/spell-lists/${id}`).set('Authorization', e2e.auth(user));
+
+    /** A list of the owner that an admin moved to the rulebook: its owner does not change. */
+    const systemListOfOwner = async () => {
+      const list = await create('owner');
+      const res = await patch('admin', list.id, { entitySource: 'system' }).expect(200);
+      expect(res.body).toMatchObject({ entitySource: 'system', owner: 'e2e-owner' });
+      return list;
+    };
+
+    it('stores user when the field is omitted, and system only for an admin', async () => {
+      expect(await create('owner')).toMatchObject({ entitySource: 'user' });
+      expect(await create('owner', { entitySource: 'user' })).toMatchObject({ entitySource: 'user' });
+      const denied = await request(e2e.server)
+        .post('/v1/spell-lists')
+        .set('Authorization', e2e.auth('owner'))
+        .send(spellListBody({ entitySource: 'system' }))
+        .expect(403);
+      expect(denied.body).toMatchObject({ statusCode: 403, code: 'system-entity-admin-only' });
+      expect(await create('admin', { entitySource: 'system' })).toMatchObject({ entitySource: 'system', owner: 'e2e-admin' });
+      await request(e2e.server)
+        .post('/v1/spell-lists')
+        .set('Authorization', e2e.auth('owner'))
+        .send(spellListBody({ entitySource: 'book' }))
+        .expect(400);
+    });
+
+    it('rejects a change or a delete of a system list by its owner, and lets an admin', async () => {
+      const list = await systemListOfOwner();
+      const patched = await patch('owner', list.id, { description: 'Mine' }).expect(403);
+      expect(patched.body).toMatchObject({ statusCode: 403, code: 'system-entity-admin-only' });
+      const back = await patch('owner', list.id, { entitySource: 'user' }).expect(403);
+      expect(back.body).toMatchObject({ code: 'system-entity-admin-only' });
+      const deleted = await del('owner', list.id).expect(403);
+      expect(deleted.body).toMatchObject({ code: 'system-entity-admin-only' });
+
+      await patch('admin', list.id, { description: 'By admin' }).expect(200);
+      await del('admin', list.id).expect(204);
+    });
+
+    it('lets the owner and an admin change a user list, but only an admin moves it to the rulebook', async () => {
+      const list = await create('owner');
+      await patch('owner', list.id, { description: 'By owner' }).expect(200);
+      await patch('admin', list.id, { description: 'By admin' }).expect(200);
+      await patch('owner', list.id, { entitySource: 'user' }).expect(200);
+      const denied = await patch('owner', list.id, { entitySource: 'system' }).expect(403);
+      expect(denied.body).toMatchObject({ code: 'system-entity-admin-only' });
+      const other = await patch('other', list.id, { description: 'Taken' }).expect(403);
+      expect(other.body).toMatchObject({ code: 'forbidden' });
+      await del('owner', list.id).expect(204);
+    });
+
+    it('gives the spells of a list its new source', async () => {
+      const list = await create('owner', { accessType: 'public' });
+      const spell = async () =>
+        (await request(e2e.server).post('/v1/spells').set('Authorization', e2e.auth('owner')).send(spellBody(list.id)).expect(201))
+          .body as { id: string; entitySource: string; version: number };
+      const [first, second] = [await spell(), await spell()];
+      expect([first.entitySource, second.entitySource]).toEqual(['user', 'user']);
+      const sourceOf = async (id: string) =>
+        (await request(e2e.server).get(`/v1/spells/${id}`).set('Authorization', e2e.auth('owner')).expect(200)).body as {
+          entitySource: string;
+          version: number;
+        };
+
+      await patch('admin', list.id, { entitySource: 'system' }).expect(200);
+      expect(await sourceOf(first.id)).toMatchObject({ entitySource: 'system', version: first.version + 1 });
+      expect(await sourceOf(second.id)).toMatchObject({ entitySource: 'system' });
+
+      await patch('admin', list.id, { entitySource: 'user' }).expect(200);
+      expect(await sourceOf(first.id)).toMatchObject({ entitySource: 'user' });
+    });
+
+    it('reads a stored list without the field as user', async () => {
+      await e2e.connection.collection('spell-lists').insertOne({
+        _id: 'e2e-list-without-source' as never,
+        name: 'Stored before spec 063',
+        realms: ['mentalism'],
+        type: 'open',
+        accessType: 'public',
+        owner: 'e2e-owner',
+        createdAt: new Date(),
+      });
+      const res = await request(e2e.server)
+        .get('/v1/spell-lists/e2e-list-without-source')
+        .set('Authorization', e2e.auth('other'))
+        .expect(200);
+      expect(res.body).toMatchObject({ entitySource: 'user' });
+      await patch('owner', 'e2e-list-without-source', { description: 'Still mine' }).expect(200);
+      await del('owner', 'e2e-list-without-source').expect(204);
+    });
+  });
 });
