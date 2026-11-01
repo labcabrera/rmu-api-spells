@@ -1,4 +1,5 @@
 import { SpellModifiers } from '../../../domain/value-objects/spell-modifiers.vo.js';
+import type { SpellAlchemy } from '../../../domain/value-objects/spell-alchemy.vo.js';
 import type { SpellEffect } from '../../../domain/value-objects/spell-effect.vo.js';
 import type { AccessType } from '../../../../shared/domain/entities/access-type.js';
 import type { EntitySource } from '../../../../shared/domain/entities/entity-source.js';
@@ -22,6 +23,8 @@ export class CreateSpellCommand extends AuthenticatedCommand {
     public readonly authorization?: string,
     /** Spec 063: ignored, the spell takes the source of its list. */
     public readonly entitySource?: EntitySource,
+    /** Spec 064: alchemy metadata; null if it is not alchemical. */
+    public readonly alchemy: SpellAlchemy | null = null,
   ) {
     super(userId, roles);
   }

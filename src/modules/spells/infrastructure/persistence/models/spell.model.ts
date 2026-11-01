@@ -48,6 +48,10 @@ export class SpellModel {
   @Prop({ type: [Object], default: undefined })
   effects: Record<string, unknown>[] | undefined;
 
+  /** Alchemy metadata (spec 064); read with SpellAlchemy.fromPlain. Documents stored before it have none. */
+  @Prop({ type: Object, required: false, default: undefined })
+  alchemy: Record<string, unknown> | null | undefined;
+
   @Prop({ type: String, required: false })
   imageUrl: string | undefined;
 

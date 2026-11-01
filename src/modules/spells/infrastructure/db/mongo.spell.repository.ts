@@ -1,4 +1,5 @@
 import { SpellModifiers } from '../../domain/value-objects/spell-modifiers.vo.js';
+import { SpellAlchemy } from '../../domain/value-objects/spell-alchemy.vo.js';
 import type { SpellEffect } from '../../domain/value-objects/spell-effect.vo.js';
 import { Injectable } from '@nestjs/common';
 import { type SpellDocument, SpellModel } from '../persistence/models/spell.model.js';
@@ -24,6 +25,7 @@ export class MongoSpellRepository extends MongoBaseRepository<Spell, SpellModel>
       modifiers: SpellModifiers.fromPlain(doc.modifiers),
       basedOn: doc.basedOn ?? null,
       effects: (doc.effects ?? []) as SpellEffect[],
+      alchemy: SpellAlchemy.fromPlain(doc.alchemy ?? null),
       accessType: doc.accessType,
       // Spec 063: a missing field is never `system`.
       entitySource: doc.entitySource ?? 'user',
