@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import type { HydratedDocument } from 'mongoose';
 import type { AccessType } from '../../../../shared/domain/entities/access-type.js';
+import { ENTITY_SOURCES, type EntitySource } from '../../../../shared/domain/entities/entity-source.js';
 import type { ListType } from '../../../domain/value-objects/list-type.vo.js';
 import type { RealmType } from '../../../domain/value-objects/realm-type.vo.js';
 
@@ -40,6 +41,10 @@ export class SpellListModel {
 
   @Prop({ type: String, required: false, default: 'public' })
   accessType: AccessType;
+
+  /** Spec 063. Documents stored before it have none: they are read as `user`. */
+  @Prop({ type: String, enum: ENTITY_SOURCES, required: true, default: 'user' })
+  entitySource: EntitySource;
 
   @Prop({ type: String, required: false })
   description: string | null;

@@ -1,6 +1,7 @@
 import type { ListType } from '../../../domain/value-objects/list-type.vo.js';
 import type { RealmType } from '../../../domain/value-objects/realm-type.vo.js';
 import type { AccessType } from '../../../../shared/domain/entities/access-type.js';
+import type { EntitySource } from '../../../../shared/domain/entities/entity-source.js';
 import { AuthenticatedCommand } from '../../../../shared/application/cqrs/authenticated-command.js';
 
 export class CreateSpellListCommand extends AuthenticatedCommand {
@@ -16,6 +17,8 @@ export class CreateSpellListCommand extends AuthenticatedCommand {
     public readonly imageUrl: string | null,
     userId: string,
     roles: string[],
+    /** Spec 063: undefined stores `user`; only an admin asks for `system`. */
+    public readonly entitySource?: EntitySource,
   ) {
     super(userId, roles);
   }

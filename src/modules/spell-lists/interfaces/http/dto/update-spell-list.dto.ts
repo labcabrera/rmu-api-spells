@@ -5,6 +5,7 @@ import { UpdateSpellListCommand } from '../../../application/cqrs/commands/updat
 import { LIST_TYPES, type ListType } from '../../../domain/value-objects/list-type.vo.js';
 import { REALM_TYPES, type RealmType } from '../../../domain/value-objects/realm-type.vo.js';
 import type { AccessType } from '../../../../shared/domain/entities/access-type.js';
+import { ENTITY_SOURCES, type EntitySource } from '../../../../shared/domain/entities/entity-source.js';
 
 export class UpdateSpellListDto {
   @ApiPropertyOptional({ type: String, description: 'Name of the spell list', example: 'Fireball' })
@@ -89,6 +90,16 @@ export class UpdateSpellListDto {
   @IsOptional()
   imageUrl: string | null | undefined;
 
+  @ApiPropertyOptional({
+    type: String,
+    enum: ENTITY_SOURCES,
+    description: 'Origin of the list (spec 063): only an admin changes it, and its spells follow; the owner does not change',
+    example: 'user',
+  })
+  @IsIn(ENTITY_SOURCES)
+  @IsOptional()
+  entitySource?: EntitySource;
+
   @ApiPropertyOptional({ description: 'Version the client read (from the GET); a different stored version is a 409', example: 3 })
   @Type(() => Number)
   @IsInt()
@@ -111,6 +122,7 @@ export class UpdateSpellListDto {
       userId,
       userRoles,
       dto.version,
+      dto.entitySource,
     );
   }
 }

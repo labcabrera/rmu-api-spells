@@ -7,6 +7,7 @@ import type { RealmType } from '../value-objects/realm-type.vo.js';
 import type { ListType } from '../value-objects/list-type.vo.js';
 import { ValidationError } from '../../../shared/domain/errors/errors.js';
 import type { AccessType } from '../../../shared/domain/entities/access-type.js';
+import type { EntitySource } from '../../../shared/domain/entities/entity-source.js';
 
 export class SpellList extends BaseAggregateRoot<SpellListProps> {
   private constructor(
@@ -17,6 +18,7 @@ export class SpellList extends BaseAggregateRoot<SpellListProps> {
     public bookSection: string | null,
     public professionId: string | null,
     public accessType: AccessType,
+    public entitySource: EntitySource,
     public name: string,
     public description: string | null,
     public imageUrl: string | null,
@@ -35,6 +37,7 @@ export class SpellList extends BaseAggregateRoot<SpellListProps> {
       props.bookSection ?? null,
       props.professionId ?? null,
       props.accessType,
+      props.entitySource ?? 'user',
       props.name,
       props.description,
       props.imageUrl,
@@ -56,6 +59,7 @@ export class SpellList extends BaseAggregateRoot<SpellListProps> {
       props.bookSection ?? null,
       props.professionId ?? null,
       props.accessType,
+      props.entitySource ?? 'user',
       props.name,
       props.description,
       props.imageUrl,
@@ -74,6 +78,7 @@ export class SpellList extends BaseAggregateRoot<SpellListProps> {
       bookSection: this.bookSection,
       professionId: this.professionId,
       accessType: this.accessType,
+      entitySource: this.entitySource,
       name: this.name,
       description: this.description,
       imageUrl: this.imageUrl,
@@ -92,6 +97,7 @@ export class SpellList extends BaseAggregateRoot<SpellListProps> {
     if (props.bookSection !== undefined) this.bookSection = props.bookSection || null;
     if (props.professionId !== undefined) this.professionId = props.professionId || null;
     if (props.accessType !== undefined) this.accessType = props.accessType;
+    if (props.entitySource !== undefined) this.entitySource = props.entitySource;
     if (props.description !== undefined) this.description = props.description || null;
     if (props.imageUrl !== undefined) this.imageUrl = props.imageUrl || null;
     this.validate();

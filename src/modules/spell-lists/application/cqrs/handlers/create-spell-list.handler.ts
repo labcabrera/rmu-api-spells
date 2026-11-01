@@ -20,6 +20,7 @@ export class CreateSpellListHandler implements ICommandHandler<CreateSpellListCo
   async execute(command: CreateSpellListCommand): Promise<SpellList> {
     this.logger.log(`Creating spell list ${command.name} for user ${command.userId}`);
     this.spellListGuard.checkCreate(command.roles);
+    this.spellListGuard.checkEntitySource(command.roles, command.entitySource);
 
     // Unique per user (F-spells-16): a global check would reveal the names of the private lists of others.
     if (await this.spellListRepository.existsByOwnerAndName(command.userId, command.name)) {
@@ -34,6 +35,7 @@ export class CreateSpellListHandler implements ICommandHandler<CreateSpellListCo
       bookSection: command.bookSection,
       professionId: command.professionId,
       accessType: command.accessType,
+      entitySource: command.entitySource ?? 'user',
       description: command.description,
       imageUrl: command.imageUrl,
       owner: command.userId,
