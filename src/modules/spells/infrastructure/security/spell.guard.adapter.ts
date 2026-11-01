@@ -6,15 +6,18 @@ import { SPELL_LIST_GUARD_PORT, type SpellListGuardPort } from '../../../spell-l
 import { QueryCriteria } from '../../../shared/application/criteria/query-criteria.js';
 import { ForbiddenError } from '../../../shared/domain/errors/errors.js';
 import { RMU_ADMIN } from '../../../shared/domain/entities/user-roles.js';
+import type { EntitySource } from '../../../shared/domain/entities/entity-source.js';
+import { canChangeEntity, checkEntitySource, SYSTEM_ENTITY_ADMIN_ONLY } from '../../../shared/domain/services/entity-permissions.js';
 
 @Injectable()
 export class SpellGuardAdapter implements SpellGuardPort {
   constructor(@Inject(SPELL_LIST_GUARD_PORT) private readonly listGuard: SpellListGuardPort) {}
 
+  /** Spec 063: as changing the list, so only an admin adds spells to a system list. */
   checkCreate(list: SpellList, userId: string, roles: string[]): void {
     this.listGuard.checkCreate(roles);
-    if (roles.includes(RMU_ADMIN) || list.owner === userId) return;
-    throw new ForbiddenError('You do not have permission to add spells to this spell list');
+    if (canChangeEntity(list, userId, roles)) return;
+    throw this.forbidden(list, 'You do not have permission to add spells to this spell list');
   }
 
   checkRead(spell: Spell, list: SpellList | null, userId: string, roles: string[]): void {
@@ -28,12 +31,16 @@ export class SpellGuardAdapter implements SpellGuardPort {
 
   checkUpdate(spell: Spell, list: SpellList | null, userId: string, roles: string[]): void {
     if (this.canChange(spell, list, userId, roles)) return;
-    throw new ForbiddenError('You do not have permission to update this entity');
+    throw this.forbidden(list ?? spell, 'You do not have permission to update this entity');
   }
 
   checkDelete(spell: Spell, list: SpellList | null, userId: string, roles: string[]): void {
     if (this.canChange(spell, list, userId, roles)) return;
-    throw new ForbiddenError('You do not have permission to delete this entity');
+    throw this.forbidden(list ?? spell, 'You do not have permission to delete this entity');
+  }
+
+  checkEntitySource(roles: string[], value: EntitySource | undefined): void {
+    checkEntitySource(value, roles);
   }
 
   buildQueryPredicate(userId: string, roles: string[], lists: { readable: string[]; all: string[] }): QueryCriteria {
@@ -45,8 +52,13 @@ export class SpellGuardAdapter implements SpellGuardPort {
     ]);
   }
 
+  /** A spell of a list follows the list (its owner and source); a spell without a list, its own. */
   private canChange(spell: Spell, list: SpellList | null, userId: string, roles: string[]): boolean {
-    if (roles.includes(RMU_ADMIN)) return true;
-    return (list ? list.owner : spell.owner) === userId;
+    return list ? canChangeEntity(list, userId, roles) : canChangeEntity(spell, userId, roles);
+  }
+
+  private forbidden(entity: { entitySource: EntitySource }, message: string): ForbiddenError {
+    if (entity.entitySource === 'system') return new ForbiddenError('Only an admin can change a system entity', SYSTEM_ENTITY_ADMIN_ONLY);
+    return new ForbiddenError(message);
   }
 }

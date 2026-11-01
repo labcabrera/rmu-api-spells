@@ -10,6 +10,7 @@ const newList = () =>
     type: 'open',
     professionId: null,
     accessType: 'public',
+    entitySource: 'user',
     description: 'Text',
     imageUrl: null,
     owner: 'user-1',

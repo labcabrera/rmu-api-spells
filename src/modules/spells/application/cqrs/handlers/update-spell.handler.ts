@@ -25,13 +25,20 @@ export class UpdateSpellHandler implements ICommandHandler<UpdateSpellCommand, S
 
     const list = await this.spellListRepository.findById(spell.spellListId);
     this.spellGuard.checkUpdate(spell, list, command.userId, command.roles);
+    // Spec 063: a spell of a list takes its source; a spell without a list has its own, admin only for `system`.
+    if (command.entitySource !== undefined) {
+      if (list) throw new ValidationError('A spell of a list takes the source of the list', 'spell-source-follows-list');
+      this.spellGuard.checkEntitySource(command.roles, command.entitySource);
+    }
     spell.checkVersion(command.expectedVersion);
+    let entitySource = command.entitySource;
 
     // Moving the spell (F-spells-20): the user adds it to the other list, which must exist and be theirs.
     if (command.spellListId !== undefined && command.spellListId !== spell.spellListId) {
       const target = await this.spellListRepository.findById(command.spellListId);
       if (!target) throw new NotFoundError('SpellList', command.spellListId);
       this.spellGuard.checkCreate(target, command.userId, command.roles);
+      entitySource = target.entitySource;
     }
 
     spell.update({
@@ -44,6 +51,7 @@ export class UpdateSpellHandler implements ICommandHandler<UpdateSpellCommand, S
       imageUrl: command.imageUrl,
       basedOn: command.basedOn,
       effects: command.effects,
+      entitySource,
     });
     if (!spell.hasChanges()) return spell;
     if (command.basedOn) await this.checkBasedOn(command.basedOn);

@@ -5,6 +5,7 @@ import type { SpellEffect } from '../../../domain/value-objects/spell-effect.vo.
 import { CreateSpellCommand } from '../../../application/cqrs/commands/create-spell.command.js';
 import SpellModifiersDto from './spell-modifiers.dto.js';
 import type { AccessType } from '../../../../shared/domain/entities/access-type.js';
+import { ENTITY_SOURCES, type EntitySource } from '../../../../shared/domain/entities/entity-source.js';
 
 export class CreateSpellDto {
   @ApiProperty({ description: 'Id of the spell list: one of the lists of the user (or any list for an admin)' })
@@ -70,6 +71,16 @@ export class CreateSpellDto {
   @IsOptional()
   imageUrl: string | undefined;
 
+  @ApiPropertyOptional({
+    type: String,
+    enum: ENTITY_SOURCES,
+    description: 'Ignored (spec 063): a spell takes the origin of its list',
+    example: 'user',
+  })
+  @IsIn(ENTITY_SOURCES)
+  @IsOptional()
+  entitySource?: EntitySource;
+
   static toCommand(dto: CreateSpellDto, user: string, roles: string[], authorization?: string) {
     return new CreateSpellCommand(
       dto.spellListId,
@@ -84,6 +95,7 @@ export class CreateSpellDto {
       dto.basedOn ?? null,
       dto.effects ?? [],
       authorization,
+      dto.entitySource,
     );
   }
 }

@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import type { HydratedDocument } from 'mongoose';
 import type { AccessType } from '../../../../shared/domain/entities/access-type.js';
+import { ENTITY_SOURCES, type EntitySource } from '../../../../shared/domain/entities/entity-source.js';
 
 export type SpellDocument = HydratedDocument<SpellModel>;
 
@@ -24,6 +25,10 @@ export class SpellModel {
 
   @Prop({ type: String, required: false })
   accessType: AccessType;
+
+  /** Spec 063: the source of its list. Documents stored before it have none: they are read as `user`. */
+  @Prop({ type: String, enum: ENTITY_SOURCES, required: true, default: 'user' })
+  entitySource: EntitySource;
 
   @Prop({ required: false })
   description?: string;

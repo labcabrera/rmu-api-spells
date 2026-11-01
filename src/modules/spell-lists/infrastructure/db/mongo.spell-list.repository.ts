@@ -34,6 +34,8 @@ export class MongoSpellListRepository extends MongoBaseRepository<SpellList, Spe
       bookSection: doc.bookSection ?? null,
       professionId: doc.professionId,
       accessType: doc.accessType,
+      // Spec 063: a missing field is never `system`.
+      entitySource: doc.entitySource ?? 'user',
       name: doc.name,
       description: doc.description,
       imageUrl: doc.imageUrl,

@@ -3,6 +3,7 @@ import { PaginationDto } from '../../../../shared/interfaces/http/dto/page.dto.j
 import { SpellList } from '../../../domain/aggregates/spell-list.js';
 import type { ListType } from '../../../domain/value-objects/list-type.vo.js';
 import type { RealmType } from '../../../domain/value-objects/realm-type.vo.js';
+import { ENTITY_SOURCES, type EntitySource } from '../../../../shared/domain/entities/entity-source.js';
 
 export class SpellListDto {
   @ApiProperty({ description: 'Unique identifier for the spell list', example: 'fireball' })
@@ -32,6 +33,14 @@ export class SpellListDto {
 
   @ApiProperty({ description: 'Access type of the spell list, which its spells take', example: 'public', enum: ['public', 'private'] })
   accessType: string;
+
+  @ApiProperty({
+    type: String,
+    enum: ENTITY_SOURCES,
+    description: 'Origin of the list (spec 063): `system` (rulebook) lists and their spells are changed only by an admin',
+    example: 'user',
+  })
+  entitySource: EntitySource;
 
   @ApiProperty({ description: 'Id of the user that created the list: only this user (or an admin) changes it and its spells' })
   owner: string;
@@ -75,6 +84,7 @@ export class SpellListDto {
     dto.bookSection = entity.bookSection;
     dto.professionId = entity.professionId ?? null;
     dto.accessType = entity.accessType;
+    dto.entitySource = entity.entitySource;
     dto.owner = entity.owner;
     dto.createdAt = entity.createdAt;
     dto.updatedAt = entity.updatedAt ?? null;

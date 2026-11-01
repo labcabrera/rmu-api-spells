@@ -1,9 +1,10 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ArrayMaxSize, ArrayMinSize, ArrayUnique, IsArray, IsIn, IsNotEmpty, IsOptional, IsString, ValidateIf } from 'class-validator';
 import { CreateSpellListCommand } from '../../../application/cqrs/commands/create-spell-list.command.js';
 import { LIST_TYPES, type ListType } from '../../../domain/value-objects/list-type.vo.js';
 import { REALM_TYPES, type RealmType } from '../../../domain/value-objects/realm-type.vo.js';
 import type { AccessType } from '../../../../shared/domain/entities/access-type.js';
+import { ENTITY_SOURCES, type EntitySource } from '../../../../shared/domain/entities/entity-source.js';
 
 export class CreateSpellListDto {
   @ApiProperty({ description: 'Name of the spell list', example: 'Some name' })
@@ -82,6 +83,16 @@ export class CreateSpellListDto {
   @IsOptional()
   imageUrl: string | null;
 
+  @ApiPropertyOptional({
+    type: String,
+    enum: ENTITY_SOURCES,
+    description: 'Origin of the list (spec 063): `system` (rulebook) is for admins only; `user` when omitted',
+    example: 'user',
+  })
+  @IsIn(ENTITY_SOURCES)
+  @IsOptional()
+  entitySource?: EntitySource;
+
   static toCommand(dto: CreateSpellListDto, userId: string, userRoles: string[]) {
     return new CreateSpellListCommand(
       dto.name,
@@ -95,6 +106,7 @@ export class CreateSpellListDto {
       dto.imageUrl,
       userId,
       userRoles,
+      dto.entitySource,
     );
   }
 }

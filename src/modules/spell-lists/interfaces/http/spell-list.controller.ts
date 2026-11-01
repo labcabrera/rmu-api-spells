@@ -58,7 +58,7 @@ export class SpellListController {
   @ApiCreatedResponse({ type: SpellListDto, description: 'Created' })
   @ApiErrors({
     400: 'Bad request, invalid data',
-    403: 'The user cannot create lists',
+    403: 'The user cannot create lists, or asks for `system` without being an admin (system-entity-admin-only)',
     409: 'The user already has a list with that name (name-in-use)',
   })
   async create(@Body() dto: CreateSpellListDto, @CurrentUser() user: AuthenticatedUser) {
@@ -74,7 +74,7 @@ export class SpellListController {
   @ApiOkResponse({ type: SpellListDto, description: 'Success' })
   @ApiErrors({
     400: 'Bad request, invalid data',
-    403: 'Not changeable by the user',
+    403: 'Not the owner or an admin (system entities: admin only)',
     404: 'Spell list not found',
     409: 'Stale version (version-conflict) or name in use',
   })
@@ -88,7 +88,11 @@ export class SpellListController {
   @HttpCode(204)
   @ApiNoContentResponse({ description: 'Deleted' })
   @ApiOperation({ operationId: 'deleteSpellList', summary: 'Delete spell list by id' })
-  @ApiErrors({ 403: 'Not deletable by the user', 404: 'Spell list not found', 409: 'The spell list still has spells (has-spells)' })
+  @ApiErrors({
+    403: 'Not the owner or an admin (system entities: admin only)',
+    404: 'Spell list not found',
+    409: 'The spell list still has spells (has-spells)',
+  })
   async delete(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     const userId: string = user.id;
     const roles: string[] = user.roles;

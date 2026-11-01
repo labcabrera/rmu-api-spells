@@ -3,6 +3,7 @@ import { PaginationDto } from '../../../../shared/interfaces/http/dto/page.dto.j
 import { Spell } from '../../../domain/aggregates/spell.js';
 import SpellModifiersDto from './spell-modifiers.dto.js';
 import type { SpellEffect } from '../../../domain/value-objects/spell-effect.vo.js';
+import { ENTITY_SOURCES, type EntitySource } from '../../../../shared/domain/entities/entity-source.js';
 
 export class SpellDto {
   @ApiProperty({ description: 'Unique identifier for the spell', example: 'fireball' })
@@ -32,6 +33,14 @@ export class SpellDto {
     enum: ['public', 'private'],
   })
   accessType: string;
+
+  @ApiProperty({
+    type: String,
+    enum: ENTITY_SOURCES,
+    description: 'Origin of the spell (spec 063): that of its list. `system` (rulebook) spells are changed only by an admin',
+    example: 'user',
+  })
+  entitySource: EntitySource;
 
   @ApiProperty({ description: 'Id of the user that created the spell', example: 'b3a1c2d4-0000-4000-8000-000000000000' })
   owner: string;
@@ -73,6 +82,7 @@ export class SpellDto {
     dto.description = entity.description;
     dto.imageUrl = entity.imageUrl;
     dto.accessType = entity.accessType;
+    dto.entitySource = entity.entitySource;
     dto.owner = entity.owner;
     dto.createdAt = entity.createdAt;
     dto.updatedAt = entity.updatedAt;
