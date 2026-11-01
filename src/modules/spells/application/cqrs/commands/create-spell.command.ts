@@ -1,6 +1,7 @@
 import { SpellModifiers } from '../../../domain/value-objects/spell-modifiers.vo.js';
 import type { SpellEffect } from '../../../domain/value-objects/spell-effect.vo.js';
 import type { AccessType } from '../../../../shared/domain/entities/access-type.js';
+import type { EntitySource } from '../../../../shared/domain/entities/entity-source.js';
 import { AuthenticatedCommand } from '../../../../shared/application/cqrs/authenticated-command.js';
 
 export class CreateSpellCommand extends AuthenticatedCommand {
@@ -19,6 +20,8 @@ export class CreateSpellCommand extends AuthenticatedCommand {
     public readonly effects: SpellEffect[] = [],
     /** Authorization header of the request, to read the effect-types catalog of core. */
     public readonly authorization?: string,
+    /** Spec 063: ignored, the spell takes the source of its list. */
+    public readonly entitySource?: EntitySource,
   ) {
     super(userId, roles);
   }

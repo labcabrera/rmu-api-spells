@@ -1,6 +1,7 @@
 import { SpellModifiers } from '../../../domain/value-objects/spell-modifiers.vo.js';
 import type { SpellEffect } from '../../../domain/value-objects/spell-effect.vo.js';
 import type { AccessType } from '../../../../shared/domain/entities/access-type.js';
+import type { EntitySource } from '../../../../shared/domain/entities/entity-source.js';
 import { AuthenticatedCommand } from '../../../../shared/application/cqrs/authenticated-command.js';
 
 export class UpdateSpellCommand extends AuthenticatedCommand {
@@ -25,6 +26,8 @@ export class UpdateSpellCommand extends AuthenticatedCommand {
     /** Replaces every effect. */
     public readonly effects?: SpellEffect[],
     public readonly authorization?: string,
+    /** Spec 063: only for a spell without a list (a spell of a list follows it), and only an admin asks for `system`. */
+    public readonly entitySource?: EntitySource,
   ) {
     super(userId, roles);
   }

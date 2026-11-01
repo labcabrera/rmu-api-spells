@@ -25,6 +25,8 @@ export class MongoSpellRepository extends MongoBaseRepository<Spell, SpellModel>
       basedOn: doc.basedOn ?? null,
       effects: (doc.effects ?? []) as SpellEffect[],
       accessType: doc.accessType,
+      // Spec 063: a missing field is never `system`.
+      entitySource: doc.entitySource ?? 'user',
       description: doc.description,
       imageUrl: doc.imageUrl,
       owner: doc.owner,

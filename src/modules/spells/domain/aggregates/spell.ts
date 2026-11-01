@@ -7,6 +7,7 @@ import { SpellModifiers } from '../value-objects/spell-modifiers.vo.js';
 import { validateSpellEffects, type SpellEffect } from '../value-objects/spell-effect.vo.js';
 import { ValidationError } from '../../../shared/domain/errors/errors.js';
 import type { AccessType } from '../../../shared/domain/entities/access-type.js';
+import type { EntitySource } from '../../../shared/domain/entities/entity-source.js';
 
 export type SpellPatch = Partial<{
   spellListId: string;
@@ -16,6 +17,7 @@ export type SpellPatch = Partial<{
   basedOn: string | null;
   effects: SpellEffect[];
   accessType: AccessType;
+  entitySource: EntitySource;
   description: string | null;
   imageUrl: string | null;
 }>;
@@ -30,6 +32,7 @@ export class Spell extends BaseAggregateRoot<SpellProps> {
     public basedOn: string | null,
     public effects: SpellEffect[],
     public accessType: AccessType,
+    public entitySource: EntitySource,
     public description: string | undefined,
     public imageUrl: string | undefined,
     public owner: string,
@@ -48,6 +51,7 @@ export class Spell extends BaseAggregateRoot<SpellProps> {
       props.basedOn ?? null,
       props.effects ?? [],
       props.accessType,
+      props.entitySource ?? 'user',
       props.description,
       props.imageUrl,
       props.owner,
@@ -69,6 +73,7 @@ export class Spell extends BaseAggregateRoot<SpellProps> {
       props.basedOn ?? null,
       props.effects ?? [],
       props.accessType,
+      props.entitySource ?? 'user',
       props.description,
       props.imageUrl,
       props.owner,
@@ -87,6 +92,7 @@ export class Spell extends BaseAggregateRoot<SpellProps> {
       basedOn: this.basedOn,
       effects: this.effects,
       accessType: this.accessType,
+      entitySource: this.entitySource,
       description: this.description,
       imageUrl: this.imageUrl,
       owner: this.owner,
@@ -107,6 +113,7 @@ export class Spell extends BaseAggregateRoot<SpellProps> {
     if (props.basedOn !== undefined) this.basedOn = props.basedOn || null;
     if (props.effects !== undefined) this.effects = props.effects;
     if (props.accessType !== undefined) this.accessType = props.accessType;
+    if (props.entitySource !== undefined) this.entitySource = props.entitySource;
     if (props.description !== undefined) this.description = props.description || undefined;
     if (props.imageUrl !== undefined) this.imageUrl = props.imageUrl || undefined;
     this.validate();

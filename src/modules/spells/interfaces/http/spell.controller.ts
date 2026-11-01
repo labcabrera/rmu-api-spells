@@ -55,7 +55,11 @@ export class SpellController {
   @ApiBody({ type: CreateSpellDto })
   @ApiOperation({ operationId: 'createSpell', summary: 'Create a new spell' })
   @ApiCreatedResponse({ type: SpellDto, description: 'Created' })
-  @ApiErrors({ 400: 'Bad request, invalid data', 403: 'The list is not one of the user', 404: 'Spell list not found' })
+  @ApiErrors({
+    400: 'Bad request, invalid data',
+    403: 'Not the owner of the list or an admin (system lists: admin only)',
+    404: 'Spell list not found',
+  })
   async create(@Body() dto: CreateSpellDto, @CurrentUser() user: AuthenticatedUser, @Headers('authorization') authorization?: string) {
     const command = CreateSpellDto.toCommand(dto, user.id, user.roles, authorization);
     const entity = await this.commandBus.execute<CreateSpellCommand, Spell>(command);
@@ -66,8 +70,8 @@ export class SpellController {
   @ApiOperation({ operationId: 'updateSpell', summary: 'Update spell' })
   @ApiOkResponse({ type: SpellDto, description: 'Success' })
   @ApiErrors({
-    400: 'Bad request, invalid data',
-    403: 'Not changeable by the user',
+    400: 'Bad request, invalid data, or entitySource on a spell of a list (spell-source-follows-list)',
+    403: 'Not the owner or an admin (system entities: admin only)',
     404: 'Spell not found',
     409: 'Stale version (version-conflict)',
   })
@@ -86,7 +90,7 @@ export class SpellController {
   @HttpCode(204)
   @ApiNoContentResponse({ description: 'Deleted' })
   @ApiOperation({ operationId: 'deleteSpell', summary: 'Delete spell by id' })
-  @ApiErrors({ 403: 'Not deletable by the user', 404: 'Spell not found' })
+  @ApiErrors({ 403: 'Not the owner or an admin (system entities: admin only)', 404: 'Spell not found' })
   async delete(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     const userId: string = user.id;
     const roles: string[] = user.roles;
