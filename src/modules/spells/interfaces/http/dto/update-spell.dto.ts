@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsArray, IsIn, IsInt, IsNotEmpty, IsObject, IsOptional, IsString, Min, ValidateNested } from 'class-validator';
 import { SpellModifiersDto } from './spell-modifiers.dto.js';
+import { SpellAlchemyDto } from './spell-alchemy.dto.js';
 import { UpdateSpellCommand } from '../../../application/cqrs/commands/update-spell.command.js';
 import type { SpellEffect } from '../../../domain/value-objects/spell-effect.vo.js';
 import type { AccessType } from '../../../../shared/domain/entities/access-type.js';
@@ -51,6 +52,17 @@ export class UpdateSpellDto {
   @IsArray()
   @IsObject({ each: true })
   effects: SpellEffect[] | undefined;
+
+  @ApiPropertyOptional({
+    type: () => SpellAlchemyDto,
+    nullable: true,
+    description: 'Alchemy metadata (spec 064): the object sent replaces the stored one, null clears it',
+  })
+  @IsOptional()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => SpellAlchemyDto)
+  alchemy?: SpellAlchemyDto | null;
 
   @ApiProperty({ type: String, description: 'Access type of the spell', required: false, example: 'public', enum: ['public', 'private'] })
   @IsString()
@@ -113,6 +125,7 @@ export class UpdateSpellDto {
       dto.effects,
       authorization,
       dto.entitySource,
+      dto.alchemy === undefined ? undefined : SpellAlchemyDto.toEntity(dto.alchemy),
     );
   }
 }

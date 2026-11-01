@@ -51,6 +51,7 @@ export class UpdateSpellHandler implements ICommandHandler<UpdateSpellCommand, S
       imageUrl: command.imageUrl,
       basedOn: command.basedOn,
       effects: command.effects,
+      alchemy: command.alchemy,
       entitySource,
     });
     if (!spell.hasChanges()) return spell;

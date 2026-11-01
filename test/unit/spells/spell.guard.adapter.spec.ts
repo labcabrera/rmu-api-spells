@@ -30,6 +30,7 @@ const newSpell = (entitySource: EntitySource, owner = 'owner-1') =>
     modifiers: SpellModifiers.empty(),
     basedOn: null,
     effects: [],
+    alchemy: null,
     accessType: 'public',
     entitySource,
     description: undefined,

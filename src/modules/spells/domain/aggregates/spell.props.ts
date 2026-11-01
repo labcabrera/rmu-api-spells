@@ -1,5 +1,6 @@
 import type { SpellEffect } from '../value-objects/spell-effect.vo.js';
 import { SpellModifiers } from '../value-objects/spell-modifiers.vo.js';
+import type { SpellAlchemy } from '../value-objects/spell-alchemy.vo.js';
 import type { AccessType } from '../../../shared/domain/entities/access-type.js';
 import type { EntitySource } from '../../../shared/domain/entities/entity-source.js';
 
@@ -13,6 +14,8 @@ export class SpellProps {
   basedOn: string | null;
   /** What it does to its targets (spec 028). */
   effects: SpellEffect[];
+  /** How it is embedded in an item (spec 064); null if it is not alchemical. */
+  alchemy: SpellAlchemy | null;
   accessType: AccessType;
   /** Spec 063: the source of its list; a spell without a list has its own. */
   entitySource: EntitySource;

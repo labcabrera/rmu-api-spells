@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { PaginationDto } from '../../../../shared/interfaces/http/dto/page.dto.js';
 import { Spell } from '../../../domain/aggregates/spell.js';
 import SpellModifiersDto from './spell-modifiers.dto.js';
+import { SpellAlchemyDto } from './spell-alchemy.dto.js';
 import type { SpellEffect } from '../../../domain/value-objects/spell-effect.vo.js';
 import { ENTITY_SOURCES, type EntitySource } from '../../../../shared/domain/entities/entity-source.js';
 
@@ -26,6 +27,13 @@ export class SpellDto {
 
   @ApiProperty({ type: 'array', items: { type: 'object' }, description: 'What the spell does to its targets (spec 028)' })
   effects: SpellEffect[];
+
+  @ApiProperty({
+    type: () => SpellAlchemyDto,
+    nullable: true,
+    description: 'Alchemy metadata (spec 064): how the spell is embedded in an item; null if it is not alchemical',
+  })
+  alchemy: SpellAlchemyDto | null;
 
   @ApiProperty({
     description: 'Access type of the spell. Who reads the spell depends on its list; this one only counts if the list no longer exists',
@@ -89,6 +97,7 @@ export class SpellDto {
     dto.modifiers = SpellModifiersDto.fromEntity(entity.modifiers);
     dto.basedOn = entity.basedOn;
     dto.effects = entity.effects;
+    dto.alchemy = SpellAlchemyDto.fromEntity(entity.alchemy);
     return dto;
   }
 }

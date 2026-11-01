@@ -39,6 +39,7 @@ export class CreateSpellHandler implements ICommandHandler<CreateSpellCommand, S
       owner: command.userId,
       basedOn: command.basedOn,
       effects: command.effects,
+      alchemy: command.alchemy ?? null,
     });
     await this.checkBasedOn(command.basedOn);
     await this.checkStatuses(spell, command.authorization);
