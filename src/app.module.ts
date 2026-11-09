@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AlchemyTablesModule } from './modules/alchemy-tables/alchemy-tables.module.js';
 import { AuthModule } from './modules/shared/infrastructure/security/auth.module.js';
 import { SpellListsModule } from './modules/spell-lists/spell-lists.module.js';
 import { envSchema } from './config/env.schema.js';
@@ -23,6 +24,7 @@ import { SpellsModule } from './modules/spells/spells.module.js';
     }),
     AuthModule,
     SharedModule,
+    AlchemyTablesModule,
     SpellListsModule,
     SpellsModule,
   ],
