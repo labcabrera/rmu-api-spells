@@ -17,6 +17,7 @@ export const USERS = {
   owner: { sub: 'e2e-owner', groups: ['rmu-user'] },
   other: { sub: 'e2e-other', groups: ['rmu-user'] },
   noRole: { sub: 'e2e-guest', groups: [] as string[] },
+  treasureLaw: { sub: 'e2e-treasure-law', groups: ['rmu-user', 'rmu-treasure-law'] },
 } as const;
 
 export type UserName = keyof typeof USERS;
