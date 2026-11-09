@@ -13,7 +13,7 @@ export class CreateSpellCommand extends AuthenticatedCommand {
     public readonly modifiers: SpellModifiers,
     public readonly accessType: AccessType,
     public readonly description: string | undefined,
-    public readonly imageUrl: string | undefined,
+    public readonly imageUrl: string | null | undefined,
     userId: string,
     roles: string[],
     /** Id of the spell it is a variant of ("as X, but…"). */

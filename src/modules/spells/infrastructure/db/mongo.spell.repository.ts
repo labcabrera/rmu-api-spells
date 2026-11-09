@@ -30,7 +30,7 @@ export class MongoSpellRepository extends MongoBaseRepository<Spell, SpellModel>
       // Spec 063: a missing field is never `system`.
       entitySource: doc.entitySource ?? 'user',
       description: doc.description,
-      imageUrl: doc.imageUrl,
+      imageUrl: doc.imageUrl ?? null,
       owner: doc.owner,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
