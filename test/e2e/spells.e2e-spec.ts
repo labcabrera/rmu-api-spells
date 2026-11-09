@@ -387,6 +387,11 @@ describe('Spells (e2e)', () => {
   });
 
   describe('updates', () => {
+    it('leaves the image null when a spell is created without one, or with an empty one', async () => {
+      expect(await create('owner', { name: 'No image' })).toMatchObject({ imageUrl: null });
+      expect(await create('owner', { name: 'Empty image', imageUrl: '' })).toMatchObject({ imageUrl: null });
+    });
+
     it('clears the description and the image with an empty string or null [F-spells-18]', async () => {
       const auth = e2e.auth('owner');
       const spell = await create('owner', { description: 'Text', imageUrl: 'https://example.com/a.png' });
@@ -397,7 +402,7 @@ describe('Spells (e2e)', () => {
         .send({ description: '', imageUrl: null })
         .expect(200);
       expect(cleared.body).not.toHaveProperty('description');
-      expect(cleared.body).not.toHaveProperty('imageUrl');
+      expect(cleared.body).toMatchObject({ imageUrl: null });
       const again = await request(e2e.server)
         .patch(path)
         .set('Authorization', auth)

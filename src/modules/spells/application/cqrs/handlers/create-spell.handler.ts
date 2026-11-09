@@ -35,7 +35,7 @@ export class CreateSpellHandler implements ICommandHandler<CreateSpellCommand, S
       // Spec 063: the source of the list, whatever the request says.
       entitySource: list.entitySource,
       description: command.description,
-      imageUrl: command.imageUrl,
+      imageUrl: command.imageUrl || null,
       owner: command.userId,
       basedOn: command.basedOn,
       effects: command.effects,

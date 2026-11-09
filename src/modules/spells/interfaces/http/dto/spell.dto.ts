@@ -71,11 +71,12 @@ export class SpellDto {
   description?: string;
 
   @ApiProperty({
-    description: 'Image URL of the spell',
-    required: false,
+    type: String,
+    nullable: true,
+    description: 'Image URL of the spell; null when it shows the image of its list',
     example: 'https://example.com/images/spells/fireball.jpg',
   })
-  imageUrl?: string;
+  imageUrl: string | null;
 
   @ApiProperty({ description: 'Version of optimistic concurrency: send it back in the PATCH to detect a concurrent change', example: 0 })
   version: number;

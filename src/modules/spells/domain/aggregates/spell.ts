@@ -37,7 +37,7 @@ export class Spell extends BaseAggregateRoot<SpellProps> {
     public accessType: AccessType,
     public entitySource: EntitySource,
     public description: string | undefined,
-    public imageUrl: string | undefined,
+    public imageUrl: string | null,
     public owner: string,
     public createdAt: Date,
     public updatedAt: Date | undefined,
@@ -57,7 +57,7 @@ export class Spell extends BaseAggregateRoot<SpellProps> {
       props.accessType,
       props.entitySource ?? 'user',
       props.description,
-      props.imageUrl,
+      props.imageUrl ?? null,
       props.owner,
       new Date(),
       undefined,
@@ -80,7 +80,7 @@ export class Spell extends BaseAggregateRoot<SpellProps> {
       props.accessType,
       props.entitySource ?? 'user',
       props.description,
-      props.imageUrl,
+      props.imageUrl ?? null,
       props.owner,
       props.createdAt,
       props.updatedAt,
@@ -122,7 +122,7 @@ export class Spell extends BaseAggregateRoot<SpellProps> {
     if (props.accessType !== undefined) this.accessType = props.accessType;
     if (props.entitySource !== undefined) this.entitySource = props.entitySource;
     if (props.description !== undefined) this.description = props.description || undefined;
-    if (props.imageUrl !== undefined) this.imageUrl = props.imageUrl || undefined;
+    if (props.imageUrl !== undefined) this.imageUrl = props.imageUrl || null;
     this.validate();
     // A patch that changes nothing is not an update: no new updatedAt, no write and no event (hasChanges()).
     if (!this.hasChanges()) return;
