@@ -23,7 +23,7 @@ const newSpell = (alchemy: SpellAlchemy | null = null) =>
     accessType: 'public',
     entitySource: 'user',
     description: undefined,
-    imageUrl: undefined,
+    imageUrl: null,
     owner: 'owner',
   });
 

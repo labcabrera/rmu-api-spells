@@ -52,8 +52,8 @@ export class SpellModel {
   @Prop({ type: Object, required: false, default: undefined })
   alchemy: Record<string, unknown> | null | undefined;
 
-  @Prop({ type: String, required: false })
-  imageUrl: string | undefined;
+  @Prop({ type: String, required: false, default: null })
+  imageUrl: string | null;
 
   @Prop({ required: true })
   owner: string;

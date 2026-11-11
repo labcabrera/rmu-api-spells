@@ -75,13 +75,14 @@ export class CreateSpellDto {
 
   @ApiProperty({
     type: String,
-    description: 'Image URL of the spell',
+    description: 'Image URL of the spell; without one it shows the image of its list',
     required: false,
+    nullable: true,
     example: 'https://example.com/images/spells/some-spell.jpg',
   })
   @IsString()
   @IsOptional()
-  imageUrl: string | undefined;
+  imageUrl: string | null | undefined;
 
   @ApiPropertyOptional({
     type: String,

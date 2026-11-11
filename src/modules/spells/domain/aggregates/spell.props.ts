@@ -20,7 +20,8 @@ export class SpellProps {
   /** Spec 063: the source of its list; a spell without a list has its own. */
   entitySource: EntitySource;
   description: string | undefined;
-  imageUrl: string | undefined;
+  /** Null: the spell shows the image of its list. */
+  imageUrl: string | null;
   owner: string;
   createdAt: Date;
   updatedAt?: Date;

@@ -34,7 +34,7 @@ const newSpell = (entitySource: EntitySource, owner = 'owner-1') =>
     accessType: 'public',
     entitySource,
     description: undefined,
-    imageUrl: undefined,
+    imageUrl: null,
     owner,
   });
 
