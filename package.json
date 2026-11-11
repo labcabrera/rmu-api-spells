@@ -1,6 +1,6 @@
 {
   "name": "rmu-api-spells",
-  "version": "0.1.1-SNAPSHOT",
+  "version": "0.2.0",
   "description": "Spell API for RMU",
   "author": {
     "name": "Luis Cabrera",

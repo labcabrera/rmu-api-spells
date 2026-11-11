@@ -1,3 +1,11 @@
+# [0.2.0](https://github.com/labcabrera/rmu-api-spells/compare/0.1.0...0.2.0) (2026-11-11)
+
+
+### Features
+
+* serve the alchemy tables ([68fcea3](https://github.com/labcabrera/rmu-api-spells/commit/68fcea36b24eba4e092ddbcf52dbf8877a2842f0))
+* **spells:** make the spell image nullable ([8484b01](https://github.com/labcabrera/rmu-api-spells/commit/8484b012f93f96d338d3fa6afd2212df45f3658f))
+
 # [0.1.0](https://github.com/labcabrera/rmu-api-spells/compare/0.0.0...0.1.0) (2026-11-02)
 
 
